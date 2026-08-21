@@ -4,6 +4,7 @@
 #include "DetectorConstruction.hh"
 
 #include "PrimaryKiller.hh"
+#include "ScoreSpecies.hh"
 
 #include "G4Box.hh"
 #include "G4LogicalVolume.hh"
@@ -79,7 +80,7 @@ G4VPhysicalVolume *DetectorConstruction::ConstructDetector()
 
   // WORLD VOLUME
 
-  this->fWorldSizeX = 1. * mm;
+  this->fWorldSizeX = 50. * um;
   this->fWorldSizeY = fWorldSizeX;
   this->fWorldSizeZ = fWorldSizeX;
 
@@ -123,8 +124,11 @@ void DetectorConstruction::ConstructSDandField()
 
   PrimaryKiller *primaryKiller = new PrimaryKiller("PrimaryKiller");
   primaryKiller->SetMinLossEnergyLimit(500 * eV); // default value
-  primaryKiller->SetMaxLossEnergyLimit(1 * eV);   // default value
+  primaryKiller->SetMaxLossEnergyLimit(1. * eV);  // default value
   mfDetector->RegisterPrimitive(primaryKiller);
+
+  G4VPrimitiveScorer *primitivSpecies = new ScoreSpecies("Species");
+  mfDetector->RegisterPrimitive(primitivSpecies);
 
   G4SDManager::GetSDMpointer()->AddNewDetector(mfDetector);
   DetectorConstruction::SetSensitiveDetector("World", mfDetector);

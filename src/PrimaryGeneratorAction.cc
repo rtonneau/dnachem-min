@@ -6,13 +6,14 @@
 #include "G4ParticleGun.hh"
 #include "G4ParticleTable.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4Event.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
     : G4VUserPrimaryGeneratorAction(), fpParticleGun(new G4ParticleGun(1))
 {
-  G4ParticleDefinition *particle = G4ParticleTable::GetParticleTable()->FindParticle("proton");
+  G4ParticleDefinition *particle = G4ParticleTable::GetParticleTable()->FindParticle("e-");
 
   G4cout << "PrimaryGeneratorAction::PrimaryGeneratorAction: particle pointer: " << particle << G4endl;
   // default gun parameters
@@ -33,5 +34,8 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
 {
+  G4cout << "New primary created! Event ID: "
+         << anEvent->GetEventID() << G4endl;
+
   this->fpParticleGun->GeneratePrimaryVertex(anEvent);
 }

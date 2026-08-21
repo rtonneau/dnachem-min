@@ -26,8 +26,8 @@ int main(int argc, char **argv)
   G4Timer *theTimer = new G4Timer();
   theTimer->Start();
 
-  // G4RunManagerType runManagerType = G4RunManagerType::Serial;
-  G4RunManagerType runManagerType = G4RunManagerType::MT;
+  G4RunManagerType runManagerType = G4RunManagerType::Serial;
+  // G4RunManagerType runManagerType = G4RunManagerType::MT;
 
   G4RunManager *runManager = G4RunManagerFactory::CreateRunManager(runManagerType);
   G4UImanager *UIManager = G4UImanager::GetUIpointer();

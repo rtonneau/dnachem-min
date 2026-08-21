@@ -7,6 +7,7 @@
 #include "TimeStepAction.hh"
 #include "RunAction.hh"
 #include "EventAction.hh"
+#include "TrackingAction.hh"
 
 #include "ChemistryTrackingManager.hh"
 #include "ChemistrySteppingAction.hh"
@@ -41,6 +42,7 @@ void ActionInitialization::Build() const
   SetUserAction(new RunAction());
   SetUserAction(new StackingAction());
   SetUserAction(new EventAction());
+  SetUserAction(new TrackingAction());
   // Chemistry part
   if (G4DNAChemistryManager::IsActivated())
   {

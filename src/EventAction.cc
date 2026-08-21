@@ -14,13 +14,16 @@ EventAction::~EventAction() = default;
 
 void EventAction::BeginOfEventAction(const G4Event *event)
 {
-    // G4int eventID = event->GetEventID();
+    G4cout << ">>> Begin of Event " << event->GetEventID() << G4endl;
+    if (G4DNAChemistryManager::GetInstanceIfExists() != nullptr)
+        G4DNAChemistryManager::Instance()->BeginOfEventAction(event);
 }
 
 void EventAction::EndOfEventAction(const G4Event *event)
 {
-    // G4int eventID = event->GetEventID();
-    // this->WriteChemistryOutput(eventID); // Write output for this event
+    G4cout << ">>> End of Event " << event->GetEventID() << G4endl;
+    if (G4DNAChemistryManager::GetInstanceIfExists() != nullptr)
+        G4DNAChemistryManager::Instance()->EndOfEventAction(event);
 }
 
 void EventAction::WriteChemistryOutput(G4int eventID)

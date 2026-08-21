@@ -35,7 +35,7 @@ PhysicsList::PhysicsList()
 
   // this->SetDNAPhysics("G4EmDNAPhysics_option6");
   this->SetDNAPhysics("G4EmDNAPhysics");
-  // this->SetDNAChemistry("G4EmDNAChemistry_option3");
+  this->SetDNAChemistry("G4EmDNAChemistry_option3");
   // Suppress EM parameters verbose output
   G4EmParameters::Instance()->SetVerbose(0); // ← add this
 }

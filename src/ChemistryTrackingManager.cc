@@ -16,6 +16,7 @@ ChemistryTrackingManager::~ChemistryTrackingManager()
 
 void ChemistryTrackingManager::AppendStep(G4Track * /*track*/, G4Step *step)
 {
+  G4cout << "[ChemistryTrackingManager] AppendStep" << G4endl;
   if (step->GetPreStepPoint()->GetPhysicalVolume() != nullptr && step->GetControlFlag() != AvoidHitInvocation)
   {
     auto sensitiveDetector = step->GetPreStepPoint()->GetSensitiveDetector();
@@ -31,6 +32,7 @@ void ChemistryTrackingManager::AppendStep(G4Track * /*track*/, G4Step *step)
 
 void ChemistryTrackingManager::Finalize()
 {
+  G4cout << "[ChemistryTrackingManager] Finalize" << G4endl;
   if (G4MoleculeCounterManager::Instance()->GetIsActive())
     G4MoleculeCounterManager::Instance()->NotifyOfFinalize();
 }
