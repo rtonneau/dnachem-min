@@ -24,9 +24,14 @@ namespace ChemUtils
         return G4EmParameters::Instance()->GetTimeStepModel();
     }
 
+    G4String GetCurrentTimeStepModelName()
+    {
+        return ToString(GetCurrentTimeStepModel());
+    }
+
     void PrintCurrentTimeStepModel(const G4String &prefix)
     {
         G4cout << prefix << " Chemistry TimeStepModel = "
-               << ToString(GetCurrentTimeStepModel()) << G4endl;
+               << GetCurrentTimeStepModelName() << G4endl;
     }
 }

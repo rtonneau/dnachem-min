@@ -1,20 +1,20 @@
-/run/verbose 1
+/run/verbose 0
 /tracking/verbose 0
+/dnaLogger/verbose Error
 
 /process/dna/e-SolvationSubType Ritchie1994
 
 # use Step-by-Step (SBS), independent reaction time (IRT)
 # or synchronized IRT (IRT_syn),
 # SBS ( is only for TDC, set 0 )
-#/process/chem/TimeStepModel IRT
-/process/chem/TimeStepModel SBS
+/process/chem/TimeStepModel IRT
+#/process/chem/TimeStepModel SBS
 #/process/chem/TimeStepModel IRT_syn
 
 /run/initialize
 
 /gun/particle e-
 /gun/energy 100 keV
-
 
 /chem/species O2 [ O2 | 0 | 2.4e-9 | 0.17 ]
 /chem/species H3Op [ H3O | 1 | 9e-9 | 0.25 ] # H3Op is H3O plus
@@ -46,8 +46,11 @@
 
 /primaryKiller/eLossMin 1 keV # primary is killed if deposited E is greater than this value
 /primaryKiller/eLossMax 2 keV # event is aborted if deposited E is greated than this value
-
+/primaryKiller/minKineticE 0 keV # primary min energy below which primary is killed.
+/primaryKiller/verbose 0
 
 /run/beamOn 4
+
+/run/beamOn 2
 
 

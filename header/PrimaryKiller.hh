@@ -7,6 +7,7 @@
 
 class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWith3VectorAndUnit;
+class G4UIcmdWithAnInteger;
 
 /** \file PrimaryKiller.hh*/
 
@@ -24,11 +25,13 @@ private:
     double fELossRange_Max; // fELoss from which the event is aborted
     double fKineticE_Min;   // kinetic energy below which the primary is killed
     G4ThreeVector fPhantomSize;
+    G4int fVerbose; // verbosity level, G4cout messages are printed only if > 0
 
     G4UIcmdWithADoubleAndUnit *fpELossUI;
     G4UIcmdWithADoubleAndUnit *fpAbortEventIfELossUpperThan;
     G4UIcmdWithADoubleAndUnit *fpMinKineticE;
     G4UIcmdWith3VectorAndUnit *fpSizeUI;
+    G4UIcmdWithAnInteger *fpVerboseUI;
 
 public:
     PrimaryKiller(G4String name, G4int depth = 0);
@@ -46,6 +49,9 @@ public:
     /** Set the energy loss from which the event is
      aborted*/
     inline void SetMaxLossEnergyLimit(double energy) { fELossRange_Max = energy; }
+
+    /** Set the verbosity level*/
+    inline void SetVerboseLevel(G4int level) { fVerbose = level; }
 
     /** Method related to G4UImessenger
         used to control energy cuts through macro file

@@ -15,7 +15,6 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 {
   G4ParticleDefinition *particle = G4ParticleTable::GetParticleTable()->FindParticle("e-");
 
-  G4cout << "PrimaryGeneratorAction::PrimaryGeneratorAction: particle pointer: " << particle << G4endl;
   // default gun parameters
   this->fpParticleGun->SetParticleDefinition(particle);
   this->fpParticleGun->SetParticleEnergy(2. * MeV);
@@ -34,8 +33,5 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
 {
-  G4cout << "New primary created! Event ID: "
-         << anEvent->GetEventID() << G4endl;
-
   this->fpParticleGun->GeneratePrimaryVertex(anEvent);
 }

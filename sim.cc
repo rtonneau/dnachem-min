@@ -3,6 +3,8 @@
 
 #include "ActionInitialization.hh"
 #include "DetectorConstruction.hh"
+#include "DnaLogger.hh"
+#include "DnaLoggerMessenger.hh"
 #include "PhysicsList.hh"
 
 #include "G4ScoringManager.hh"
@@ -20,6 +22,7 @@ std::ofstream out;
 
 int main(int argc, char **argv)
 {
+  DnaLogger::SetLevel(DnaLogger::Level::Quiet);
 
   // Instantiate the G4Timer object, to monitor the CPU time spent for
   // the entire execution
@@ -31,6 +34,9 @@ int main(int argc, char **argv)
 
   G4RunManager *runManager = G4RunManagerFactory::CreateRunManager(runManagerType);
   G4UImanager *UIManager = G4UImanager::GetUIpointer();
+
+  // Exposes "/dnaLogger/verbose <level>" so the logging level can be set from a macro
+  DnaLoggerMessenger *dnaLoggerMessenger = new DnaLoggerMessenger();
 
   //////////
   // Set mandatory user initialization classes
@@ -46,6 +52,9 @@ int main(int argc, char **argv)
   // Start Simulations
   if (useGUI)
   {
+    // ----------------------
+    // - GUI mode execution
+    // ----------------------
     runManager->SetNumberOfThreads(1);
     runManager->Initialize();
     G4cout << "starting GUI" << G4endl;
@@ -65,7 +74,10 @@ int main(int argc, char **argv)
   }
   else
   {
-    G4String macroFile = "macro/beam.in";
+    // ------------------------
+    // - Batch mode execution
+    // ------------------------
+    G4String macroFile = "macro/" + ((argc > 1) ? G4String(argv[1]) : G4String("beam.in"));
     G4cout << "starting batch mode with macro file: " << macroFile << G4endl;
     // Batch mode execution
     // rem: Initialize is performed in beam.in macro!
@@ -81,6 +93,7 @@ int main(int argc, char **argv)
 
   // Clean up
   delete theTimer;
+  delete dnaLoggerMessenger;
   delete runManager;
 
   return 0;

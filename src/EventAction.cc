@@ -1,5 +1,6 @@
 // EventAction.cc
 #include "EventAction.hh"
+#include "DnaLogger.hh"
 
 #include "G4DNAChemistryManager.hh"
 #include "G4RunManager.hh"
@@ -14,14 +15,22 @@ EventAction::~EventAction() = default;
 
 void EventAction::BeginOfEventAction(const G4Event *event)
 {
-    G4cout << ">>> Begin of Event " << event->GetEventID() << G4endl;
+    const G4int eventId = event->GetEventID();
+    const G4String eventPrefix = G4String("[EventAction] Event ") + std::to_string(eventId);
+
+    DnaLogger::Print(DnaLogger::Level::Info,
+                     eventPrefix + ": Begin of Event");
     if (G4DNAChemistryManager::GetInstanceIfExists() != nullptr)
         G4DNAChemistryManager::Instance()->BeginOfEventAction(event);
 }
 
 void EventAction::EndOfEventAction(const G4Event *event)
 {
-    G4cout << ">>> End of Event " << event->GetEventID() << G4endl;
+    const G4int eventId = event->GetEventID();
+    const G4String eventPrefix = G4String("[EventAction] Event ") + std::to_string(eventId);
+    DnaLogger::Print(DnaLogger::Level::Info,
+                     eventPrefix + ": End of Event");
+
     if (G4DNAChemistryManager::GetInstanceIfExists() != nullptr)
         G4DNAChemistryManager::Instance()->EndOfEventAction(event);
 }

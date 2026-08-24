@@ -40,7 +40,8 @@ void RunAction::BeginOfRunAction(const G4Run *run)
     if (G4DNAChemistryManager::GetInstanceIfExists() != nullptr)
         G4DNAChemistryManager::GetInstanceIfExists()->BeginOfRunAction(run);
 
-    G4cout << "### Run " << run->GetRunID() << " starts." << G4endl;
+    if (IsMaster())
+        G4cout << "### Run " << run->GetRunID() << " starts." << G4endl;
 
     // informs the runManager to save random number seed
     G4RunManager::GetRunManager()->SetRandomNumberStore(false);

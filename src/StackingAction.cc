@@ -4,8 +4,10 @@
 #include "StackingAction.hh"
 #include "PhysicsList.hh"
 #include "ChemUtils.hh"
+#include "DnaLogger.hh"
 
 #include "G4RunManager.hh"
+#include "G4Event.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4ITTrackHolder.hh"
 #include "G4AnalysisManager.hh"
@@ -26,33 +28,38 @@ StackingAction::StackingAction() : G4UserStackingAction()
 
 void StackingAction::NewStage()
 {
+  const G4Event *currentEvent = G4RunManager::GetRunManager()->GetCurrentEvent();
+  const G4int eventId = currentEvent != nullptr ? currentEvent->GetEventID() : -1;
+  const G4String eventPrefix = G4String("[Stacking] Event ") + std::to_string(eventId);
+
   if (this->physList->IsChemistryEnabled() && this->stackManager->GetNTotalTrack() == 0)
   // if (this->stackManager->GetNTotalTrack() == 0)
   {
-    G4cout << "Physics stage ends" << G4endl;
-    // --- NEW CODE START ---
-
-    // 1. Get current Event ID
-    // const G4Event *currentEvent = G4RunManager::GetRunManager()->GetCurrentEvent();
-    // G4cout << "[Stacking] G4Event pointer: " << currentEvent << G4endl;
-    // --- NEW CODE END ---
+    DnaLogger::Print(DnaLogger::Level::Info,
+                     eventPrefix + ": Physics stage ends");
 
     // G4DNAChemistryManager::Instance()->SetVerbose(1); // BEFORE Run()
     // G4Scheduler::Instance()->SetVerbose(1);           // Scheduler internals
 
-    ChemUtils::PrintCurrentTimeStepModel("[Stacking]");
+    DnaLogger::Print(DnaLogger::Level::Debug,
+                     eventPrefix + " Chemistry TimeStepModel = " +
+                         ChemUtils::GetCurrentTimeStepModelName());
 
-    G4cout << "[Stacking] G4Scheduler End time: "
-           << G4Scheduler::Instance()->GetEndTime() << G4endl;
+    DnaLogger::Print(DnaLogger::Level::Debug,
+                     eventPrefix + ": G4Scheduler End time: " +
+                         std::to_string(G4Scheduler::Instance()->GetEndTime()));
 
-    G4cout << "[Stacking] G4Scheduler Nb of trackIDs: "
-           << G4Scheduler::Instance()->GetNTracks() << G4endl; // try this name first // check exact name
+    DnaLogger::Print(DnaLogger::Level::Debug,
+                     eventPrefix + ": G4Scheduler Nb of trackIDs: " +
+                         std::to_string(G4Scheduler::Instance()->GetNTracks()));
 
     G4DNAChemistryManager::Instance()->Run(); // starts chemistry
-    G4cout << "[Stacking] Chemistry started" << G4endl;
+    DnaLogger::Print(DnaLogger::Level::Info,
+                     eventPrefix + ": Chemistry started");
   }
   else
   {
-    G4cout << "Physics stage ends, no chemistry involved" << G4endl;
+    DnaLogger::Print(DnaLogger::Level::Info,
+                     eventPrefix + ": Physics stage ends, no chemistry involved");
   }
 }

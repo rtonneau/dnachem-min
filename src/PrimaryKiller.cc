@@ -5,6 +5,8 @@
 #include <G4SystemOfUnits.hh>
 #include <G4UIcmdWith3VectorAndUnit.hh>
 #include <G4UIcmdWithADoubleAndUnit.hh>
+#include <G4UIcmdWithAnInteger.hh>
+
 #include <G4UnitsTable.hh>
 
 PrimaryKiller::PrimaryKiller(G4String name, G4int depth)
@@ -16,12 +18,14 @@ PrimaryKiller::PrimaryKiller(G4String name, G4int depth)
   fELossRange_Max = DBL_MAX; // fELoss from which the event is aborted
   fKineticE_Min = 0;         // kinetic energy below which the primary is killed
   fPhantomSize = G4ThreeVector(1 * km, 1 * km, 1 * km);
+  fVerbose = 0;
 
   fpELossUI = new G4UIcmdWithADoubleAndUnit("/primaryKiller/eLossMin", this);
   fpAbortEventIfELossUpperThan = new G4UIcmdWithADoubleAndUnit("/primaryKiller/eLossMax", this);
   fpMinKineticE = new G4UIcmdWithADoubleAndUnit("/primaryKiller/minKineticE", this);
   fpSizeUI = new G4UIcmdWith3VectorAndUnit("/primaryKiller/setSize", this);
   fpSizeUI->SetDefaultUnit("um");
+  fpVerboseUI = new G4UIcmdWithAnInteger("/primaryKiller/verbose", this);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
@@ -31,6 +35,7 @@ PrimaryKiller::~PrimaryKiller()
   delete fpELossUI;
   delete fpAbortEventIfELossUpperThan;
   delete fpSizeUI;
+  delete fpVerboseUI;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
@@ -49,6 +54,10 @@ void PrimaryKiller::SetNewValue(G4UIcommand *command, G4String newValue)
   {
     this->fPhantomSize = this->fpSizeUI->GetNew3VectorValue(newValue);
   }
+  else if (command == this->fpVerboseUI)
+  {
+    this->fVerbose = this->fpVerboseUI->GetNewIntValue(newValue);
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
@@ -64,6 +73,7 @@ G4bool PrimaryKiller::ProcessHits(G4Step *aStep, G4TouchableHistory *)
     return FALSE;
   }
 
+  // Next part will be focus on secondary electrons
   if (track->GetTrackID() != 1 || track->GetParticleDefinition()->GetPDGEncoding() != 11)
     return FALSE;
 
@@ -80,24 +90,23 @@ G4bool PrimaryKiller::ProcessHits(G4Step *aStep, G4TouchableHistory *)
 
   this->fELoss += eLoss;
 
-  // int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
-  // G4cout << "PrimaryKiller: energy loss by primary is: " << G4BestUnit(this->fELoss, "Energy")
-  //        << " at event " << eventID << G4endl;
-
   if (this->fELoss > this->fELossRange_Max)
   {
 
-    int eventID =
-        G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
+    if (this->fVerbose > 0)
+    {
+      int eventID =
+          G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
 
-    G4cout << " * PrimaryKiller: aborts event " << eventID << " energy loss "
-                                                              "is too large. \n"
-           << " * Energy loss by primary is: "
-           << G4BestUnit(this->fELoss, "Energy")
-           << ". Event is aborted if the Eloss is > "
-           << G4BestUnit(this->fELossRange_Max, "Energy")
-           << "Last energy loss is: " << G4BestUnit(eLoss, "Energy")
-           << G4endl;
+      G4cout << " * PrimaryKiller: aborts event " << eventID << " energy loss "
+                                                                "is too large. \n"
+             << " * Energy loss by primary is: "
+             << G4BestUnit(this->fELoss, "Energy")
+             << ". Event is aborted if the Eloss is > "
+             << G4BestUnit(this->fELossRange_Max, "Energy")
+             << "Last energy loss is: " << G4BestUnit(eLoss, "Energy")
+             << G4endl;
+    }
 
     G4RunManager::GetRunManager()->AbortEvent();
   }
@@ -105,15 +114,18 @@ G4bool PrimaryKiller::ProcessHits(G4Step *aStep, G4TouchableHistory *)
   if (this->fELoss >= this->fELossRange_Min || kineticE <= this->fKineticE_Min)
   {
     ((G4Track *)track)->SetTrackStatus(G4TrackStatus::fStopAndKill);
-    G4cout << "kill track at : " << '\n'
-           << G4BestUnit(kineticE, "Energy")
-           << ", E loss is: "
-           << G4BestUnit(this->fELoss, "Energy")
-           << " /fELossMax: "
-           << G4BestUnit(this->fELossRange_Max, "Energy")
-           << ", EThreshold is: "
-           << G4BestUnit(this->fKineticE_Min, "Energy")
-           << G4endl;
+    if (this->fVerbose > 0)
+    {
+      G4cout << "kill track at : " << '\n'
+             << G4BestUnit(kineticE, "Energy")
+             << ", E loss is: "
+             << G4BestUnit(this->fELoss, "Energy")
+             << " /fELossMax: "
+             << G4BestUnit(this->fELossRange_Max, "Energy")
+             << ", EThreshold is: "
+             << G4BestUnit(this->fKineticE_Min, "Energy")
+             << G4endl;
+    }
   }
 
   return TRUE;

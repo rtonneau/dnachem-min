@@ -13,6 +13,8 @@ namespace ChemUtils
     // Convenience: fetches current model directly from G4EmParameters
     G4ChemTimeStepModel GetCurrentTimeStepModel();
 
+    G4String GetCurrentTimeStepModelName();
+
     // Convenience: one-liner to print the model, ready to call from anywhere
     void PrintCurrentTimeStepModel(const G4String &prefix = "[ChemUtils]");
 }

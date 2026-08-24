@@ -50,7 +50,6 @@ void Run::RecordEvent(const G4Event *event)
     {
         G4double edep = *(itr->second);
         fSumEne += edep;
-        G4cout << "Energy for this event: " << edep / eV << " eV" << G4endl;
     }
 
     G4Run::RecordEvent(event);

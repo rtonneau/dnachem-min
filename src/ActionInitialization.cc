@@ -43,8 +43,8 @@ void ActionInitialization::Build() const
   // Chemistry part
   if (G4DNAChemistryManager::IsActivated())
   {
-    G4Scheduler::Instance()->SetVerbose(1);
-    // G4Scheduler::Instance()->SetUserAction(new TimeStepAction());
+    // G4Scheduler::Instance()->SetVerbose(1);
+    //  G4Scheduler::Instance()->SetUserAction(new TimeStepAction());
     G4Scheduler::Instance()->SetEndTime(1.3 * picosecond);
     //==========================================================================
     // G4Scheduler::Instance()->SetMaxNbSteps(10);
