@@ -27,9 +27,9 @@ PhysicsList::PhysicsList()
       fChemDNAName("")
 {
 
-  G4double currentDefaultCut = 1. * um;
+  G4double currentDefaultCut = 1. * nanometer; // default cut value for all particles
   // fixe lower limit for cut
-  G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(50 * eV, 1 * GeV);
+  G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(100 * eV, 1 * GeV);
   this->SetDefaultCutValue(currentDefaultCut);
   this->SetVerboseLevel(0);
 
@@ -45,7 +45,6 @@ PhysicsList::PhysicsList()
 PhysicsList::~PhysicsList() = default;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 /*
 void PhysicsList::ConstructParticle()
 {
@@ -75,7 +74,6 @@ void PhysicsList::ConstructProcess()
   }
 }
 */
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void PhysicsList::SetDNAChemistry(const G4String &name)
@@ -127,6 +125,10 @@ void PhysicsList::SetDNAChemistry(const G4String &name)
   }
   G4cout << "===== Enabled chemistry ==== " << name << G4endl;
   to_register->SetVerboseLevel(verboseLevel);
+
+  // this->fEmDNAChemistryList = std::unique_ptr<G4VPhysicsConstructor>(to_register);
+  // to_register = nullptr; // to_register can be "lost" safely now
+
   this->RegisterPhysics(to_register);
   this->fChemDNAName = name;
 }
@@ -204,6 +206,8 @@ void PhysicsList::SetDNAPhysics(const G4String &name)
   }
 
   to_register->SetVerboseLevel(verboseLevel);
+  // this->fEmDNAPhysicsList = std::unique_ptr<G4VPhysicsConstructor>(to_register);
+  // to_register = nullptr; // to_register can be "lost" safely now
   this->RegisterPhysics(to_register);
   this->fPhysDNAName = name;
 }

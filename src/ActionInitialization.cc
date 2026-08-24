@@ -9,9 +9,6 @@
 #include "EventAction.hh"
 #include "TrackingAction.hh"
 
-#include "ChemistryTrackingManager.hh"
-#include "ChemistrySteppingAction.hh"
-
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
 
@@ -40,22 +37,19 @@ void ActionInitialization::Build() const
   PrimaryGeneratorAction *primGenAction = new PrimaryGeneratorAction;
   SetUserAction(primGenAction);
   SetUserAction(new RunAction());
-  SetUserAction(new StackingAction());
   SetUserAction(new EventAction());
+  SetUserAction(new StackingAction());
   SetUserAction(new TrackingAction());
   // Chemistry part
   if (G4DNAChemistryManager::IsActivated())
   {
     G4Scheduler::Instance()->SetVerbose(1);
-    G4Scheduler::Instance()->SetUserAction(new TimeStepAction());
+    // G4Scheduler::Instance()->SetUserAction(new TimeStepAction());
     G4Scheduler::Instance()->SetEndTime(1.3 * picosecond);
     //==========================================================================
     // G4Scheduler::Instance()->SetMaxNbSteps(10);
     // You may decide to stop the simulation after N steps
     //==========================================================================
-    auto chemTrackingManager = new ChemistryTrackingManager();
-    chemTrackingManager->SetUserAction(new ChemistrySteppingAction);
-    G4Scheduler::Instance()->SetInteractivity(chemTrackingManager);
     this->BuildMoleculeCounters();
   }
 }

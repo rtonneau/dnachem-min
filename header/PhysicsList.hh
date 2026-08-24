@@ -15,8 +15,10 @@ public:
   explicit PhysicsList();
   ~PhysicsList() override;
 
-  // void ConstructParticle() override;
-  // void ConstructProcess() override;
+  /*
+  void ConstructParticle() override;
+  void ConstructProcess() override;
+*/
 
   void SetDNAPhysics(const G4String &name);
   void SetDNAChemistry(const G4String &name);

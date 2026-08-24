@@ -1,7 +1,9 @@
 /run/verbose 1
 /tracking/verbose 0
 
-/process/dna/e-SolvationSubType Ritchie1994
+/process/dna/e-SolvationSubType Meesungnoen2002
+#/process/dna/e-SolvationSubType Ritchie1994
+#/process/dna/e-SolvationSubType Terrisol1990
 
 # use Step-by-Step (SBS), independent reaction time (IRT)
 # or synchronized IRT (IRT_syn),
@@ -11,10 +13,10 @@
 #/process/chem/TimeStepModel IRT_syn
 
 /run/initialize
+#
 
 /gun/particle e-
 /gun/energy 100 keV
-
 
 /chem/species O2 [ O2 | 0 | 2.4e-9 | 0.17 ]
 /chem/species H3Op [ H3O | 1 | 9e-9 | 0.25 ] # H3Op is H3O plus
@@ -47,7 +49,10 @@
 /primaryKiller/eLossMin 1 keV # primary is killed if deposited E is greater than this value
 /primaryKiller/eLossMax 2 keV # event is aborted if deposited E is greated than this value
 
+#==============================================
+# NB: comment lines related to scheduler when the flag chemOFF is used
+/scheduler/verbose 2
+/scheduler/whyDoYouStop
+#==============================================
 
-/run/beamOn 4
-
-
+/run/beamOn 2

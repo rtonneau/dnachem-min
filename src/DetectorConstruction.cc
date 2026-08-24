@@ -80,7 +80,7 @@ G4VPhysicalVolume *DetectorConstruction::ConstructDetector()
 
   // WORLD VOLUME
 
-  this->fWorldSizeX = 50. * um;
+  this->fWorldSizeX = 1000. * um;
   this->fWorldSizeY = fWorldSizeX;
   this->fWorldSizeZ = fWorldSizeX;
 

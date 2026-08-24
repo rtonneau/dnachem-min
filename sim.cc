@@ -65,10 +65,12 @@ int main(int argc, char **argv)
   }
   else
   {
-    G4cout << "starting batch mode" << G4endl;
+    G4String macroFile = "macro/beam.in";
+    G4cout << "starting batch mode with macro file: " << macroFile << G4endl;
     // Batch mode execution
     // rem: Initialize is performed in beam.in macro!
-    UIManager->ApplyCommand("/control/execute macro/beam.in");
+
+    UIManager->ApplyCommand("/control/execute " + macroFile);
   }
 
   // Stop the benchmark here
