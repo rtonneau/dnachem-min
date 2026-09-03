@@ -6,6 +6,7 @@
 #include "DetectorConstruction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "Run.hh"
+#include "ScoreSpecies.hh"
 
 #include "G4DNAChemistryManager.hh"
 
@@ -61,6 +62,18 @@ void RunAction::EndOfRunAction(const G4Run *run)
 
     if (IsMaster())
     {
+        // Write the radiolytic-species yields (merged across worker threads by
+        // Run::Merge -> ScoreSpecies::AbsorbResultsFromWorkerScorer).
+        auto *scorer = dynamic_cast<ScoreSpecies *>(
+            static_cast<const Run *>(run)->GetPrimitiveScorer());
+        if (scorer != nullptr)
+        {
+            const G4int recorded = scorer->GetNumberOfRecordedEvents();
+            scorer->ASCII();          // Species.Txt (human-readable)
+            scorer->OutputAndClear(); // Species.root, then clears the scorer
+            G4cout << "[RunAction] species yields written (Species.Txt / Species.root) for "
+                   << recorded << " recorded event(s)" << G4endl;
+        }
     }
 }
 

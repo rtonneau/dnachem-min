@@ -44,12 +44,21 @@ void ActionInitialization::Build() const
   if (G4DNAChemistryManager::IsActivated())
   {
     // G4Scheduler::Instance()->SetVerbose(1);
-    //  G4Scheduler::Instance()->SetUserAction(new TimeStepAction());
-    G4Scheduler::Instance()->SetEndTime(1.3 * picosecond);
+
+    // Chemistry time stepping (granularity) and end time. 1 us is the usual
+    // cut-off for water-radiolysis G-value studies (chem1-chem6); the previous
+    // 1.3 ps only reached the pre-chemical stage.
+    G4Scheduler::Instance()->SetUserAction(new TimeStepAction());
+    G4Scheduler::Instance()->SetEndTime(1. * microsecond);
     //==========================================================================
     // G4Scheduler::Instance()->SetMaxNbSteps(10);
     // You may decide to stop the simulation after N steps
     //==========================================================================
+
+    // The bulk-scavenger material (only needed for the optional O2 scavenger) is
+    // installed by DnaChemistryList::ConstructProcess(), once the chemistry-world
+    // composition is known.
+
     this->BuildMoleculeCounters();
   }
 }

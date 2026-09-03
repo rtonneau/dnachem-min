@@ -1,0 +1,7 @@
+{
+  "geant4SourcePath": "C:\\DEV\\GEANT4\\geant4-v11.4.1-source\\geant4-v11.4.1",
+  "geant4InstallPath": "C:\\DEV\\GEANT4\\geant4-v11.4.1-install",
+  "geant4Version": "11.4.1",
+  "kbPath": "C:\\DEV\\GEANT4\\geant4-v11.4.1-kb",
+  "projectNotesPath": ".kb-notes"
+}

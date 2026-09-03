@@ -7,6 +7,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
 #include "G4RunManager.hh"
+#include "G4Threading.hh"
 
 // #include "G4ITScheduler.hh"
 // #include "G4Molecule.hh"
@@ -171,7 +172,13 @@ void TimeStepAction::EndProcessing()
 
 void TimeStepAction::DumpPreChemical(G4int eventID)
 {
+  // Thread-safe filename in MT mode (each worker writes its own file).
   G4String fileName = "output_event_" + std::to_string(eventID) + ".txt";
+  if (G4Threading::IsMultithreadedApplication())
+  {
+    fileName = "output_event_t" + std::to_string(G4Threading::G4GetThreadId()) +
+               "_e" + std::to_string(eventID) + ".txt";
+  }
   G4DNAChemistryManager::Instance()->WriteInto(fileName);
 
   G4ITTrackHolder *trackHolder = G4ITTrackHolder::Instance();

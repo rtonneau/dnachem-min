@@ -5,7 +5,10 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4LogicalVolume.hh"
 
+#include <memory>
+
 class G4Material;
+class G4VChemistryWorld;
 
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
@@ -15,6 +18,13 @@ public:
 
   virtual G4VPhysicalVolume *Construct() override;
   void ConstructSDandField() override;
+
+  /** @brief Chemical domain (diffusion boundary + bulk composition).
+   *
+   * Owned here; created in the constructor so its boundary is available
+   * before physics/chemistry initialization. Consumed by DnaChemistryList
+   * and (later) by the scavenger material / scorers. */
+  G4VChemistryWorld *GetChemistryWorld() const { return fpChemistryWorld.get(); }
 
   /** @brief Returns a pointer to the world material */
   G4Material *GetMaterial() { return fMaterial; }
@@ -36,6 +46,8 @@ private:
   G4Material *fMaterial = nullptr;
   G4Material *OtherMaterial(G4String materialName);
   G4VPhysicalVolume *ConstructDetector();
+
+  std::unique_ptr<G4VChemistryWorld> fpChemistryWorld;
 
   G4LogicalVolume *fLogicWorld = nullptr;
   G4VPhysicalVolume *fPhysWorld = nullptr;

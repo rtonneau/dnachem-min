@@ -3,9 +3,11 @@
 
 #include "DetectorConstruction.hh"
 
+#include "DnaChemistryWorld.hh"
 #include "PrimaryKiller.hh"
 #include "ScoreSpecies.hh"
 
+#include "G4DNABoundingBox.hh"
 #include "G4Box.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Material.hh"
@@ -36,7 +38,10 @@ DetectorConstruction::DetectorConstruction() : G4VUserDetectorConstruction()
   // Create the messenger
   // fDetectorMessenger = new DetectorMessenger(this);
 
-  // Voxelize the detecctor with default size
+  // Chemical domain: created here so its diffusion boundary is available
+  // before physics/chemistry initialization (DnaChemistryList reads it).
+  this->fpChemistryWorld = std::make_unique<DnaChemistryWorld>();
+  this->fpChemistryWorld->ConstructChemistryBoundary();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -79,10 +84,12 @@ G4VPhysicalVolume *DetectorConstruction::ConstructDetector()
   //  G4Material *water = OtherMaterial("G4_WATER");
 
   // WORLD VOLUME
-
-  this->fWorldSizeX = 1000. * um;
-  this->fWorldSizeY = fWorldSizeX;
-  this->fWorldSizeZ = fWorldSizeX;
+  // Geometry follows the chemistry domain so the tracking box and the
+  // diffusion boundary stay in sync (default: 1 mm cube).
+  const G4DNABoundingBox *boundary = this->fpChemistryWorld->GetChemistryBoundary();
+  this->fWorldSizeX = 2. * boundary->halfSideLengthInX();
+  this->fWorldSizeY = 2. * boundary->halfSideLengthInY();
+  this->fWorldSizeZ = 2. * boundary->halfSideLengthInZ();
 
   G4Box *solidWorld = new G4Box("World",               // its name
                                 this->fWorldSizeX / 2, // its size

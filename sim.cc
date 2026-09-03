@@ -29,10 +29,17 @@ int main(int argc, char **argv)
   G4Timer *theTimer = new G4Timer();
   theTimer->Start();
 
-  G4RunManagerType runManagerType = G4RunManagerType::Serial;
   // G4RunManagerType runManagerType = G4RunManagerType::MT;
+  //  Flip to G4RunManagerType::Serial for a single-threaded, reproducible run.
+  G4RunManagerType runManagerType = G4RunManagerType::Serial;
 
   G4RunManager *runManager = G4RunManagerFactory::CreateRunManager(runManagerType);
+
+  // Batch default thread count; a macro may override with
+  // "/run/numberOfThreads N" before "/run/initialize".
+  if (!useGUI && runManagerType != G4RunManagerType::Serial)
+    runManager->SetNumberOfThreads(4);
+
   G4UImanager *UIManager = G4UImanager::GetUIpointer();
 
   // Exposes "/dnaLogger/verbose <level>" so the logging level can be set from a macro
