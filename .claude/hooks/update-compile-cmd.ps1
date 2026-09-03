@@ -8,8 +8,9 @@ if (-not $filePath -or [IO.Path]::GetExtension($filePath) -notin ".cc", ".cpp", 
     exit 0
 }
 
-$BuildDir = Join-Path (Split-Path -Parent $PSScriptRoot) "build-ninja"
-$SourceDir = (Resolve-Path (Join-Path $BuildDir "..")).Path
+$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+$BuildDir = Join-Path $RepoRoot "build-ninja"
+$SourceDir = $RepoRoot
 
 if (-not (Get-Command cl -ErrorAction SilentlyContinue)) {
     $vsWhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
