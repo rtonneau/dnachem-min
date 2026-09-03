@@ -1,4 +1,17 @@
 {
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude\\hooks\\update-compile-commands.ps1"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "additionalDirectories": [
         "C:/DEV/GEANT4/geant4-v11.4.1-source",

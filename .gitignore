@@ -1,5 +1,8 @@
 
 **/build/
+/build-ninja/*
+!/build-ninja/update-compile-cmd.ps1
+compile_commands.json
 .vscode/
 # Prerequisites
 *.d

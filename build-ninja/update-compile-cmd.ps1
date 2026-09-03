@@ -1,40 +1,54 @@
 <#
 .SYNOPSIS
-    Regenerates compile_commands.json via a Ninja-only CMake configure pass,
-    then syncs it to the parent (repo root) folder for clangd to pick up.
+    Regenerates compile_commands.json with Ninja and copies it to the repository root.
 
 .DESCRIPTION
-    Meant to live in <repo>/build-ninja/ and be run FROM THAT FOLDER,
-    inside a "Developer PowerShell for VS" (needed so cl.exe is on PATH).
-
-    This does NOT build the project — it only configures CMake with the
-    Ninja generator (the only one that supports CMAKE_EXPORT_COMPILE_COMMANDS
-    on Windows) to produce a fresh compile_commands.json.
-
-.NOTES
-    Adjust the $CMakeArgs block below to match whatever -D flags your
-    normal build uses (Geant4_DIR, G4Vox_DIR, CMAKE_PREFIX_PATH, etc.).
-    Check your working build/CMakeCache.txt if you add new dependencies
-    and this script starts failing to find them.
+    This script can run from a normal PowerShell session. When cl.exe is not already
+    available, it imports the environment from the latest installed Visual Studio C++
+    developer command prompt.
 #>
 
-# ----------------------------------------------------------------------
-# 0. Sanity check: are we in a Developer shell with cl.exe available?
-# ----------------------------------------------------------------------
-$clPath = (Get-Command cl -ErrorAction SilentlyContinue)
-if (-not $clPath) {
-    Write-Host "ERROR: 'cl' not found on PATH." -ForegroundColor Red
-    Write-Host "Run this script from a 'Developer PowerShell for VS' window," -ForegroundColor Yellow
-    Write-Host "not a plain PowerShell / conda prompt." -ForegroundColor Yellow
-    exit 1
+$ErrorActionPreference = "Stop"
+
+$BuildDir = $PSScriptRoot
+$SourceDir = (Resolve-Path (Join-Path $BuildDir "..")).Path
+
+if (-not (Get-Command cl -ErrorAction SilentlyContinue)) {
+    $vsWhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
+    if (-not (Test-Path $vsWhere)) {
+        throw "cl.exe is not available and Visual Studio's vswhere.exe was not found. Run from a Developer PowerShell for Visual Studio."
+    }
+
+    $vsInstallPath = & $vsWhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    $vcVars = Join-Path $vsInstallPath "VC\Auxiliary\Build\vcvars64.bat"
+    if (-not $vsInstallPath -or -not (Test-Path $vcVars)) {
+        throw "A Visual Studio C++ developer environment could not be located. Install the Desktop development with C++ workload."
+    }
+
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    $devEnvironment = & cmd.exe /d /s /c "call `"$vcVars`" >nul && set" 2>&1
+    $devEnvironmentExitCode = $LASTEXITCODE
+    $ErrorActionPreference = $previousErrorActionPreference
+    if ($devEnvironmentExitCode -ne 0) {
+        throw "Visual Studio's C++ developer environment failed to initialize (exit code $devEnvironmentExitCode)."
+    }
+
+    $devEnvironment |
+    Where-Object { $_ -is [string] -and $_ -match "^[^=]+=.*$" } |
+    ForEach-Object {
+        $name, $value = $_ -split "=", 2
+        Set-Item -Path "Env:$name" -Value $value
+    }
+
+    if (-not (Get-Command cl -ErrorAction SilentlyContinue)) {
+        throw "Visual Studio's developer environment was initialized, but cl.exe is still unavailable."
+    }
 }
 
-# ----------------------------------------------------------------------
-# 1. Configuration — edit these paths to match your project
-# ----------------------------------------------------------------------
-$SourceDir = ".."   # repo root, relative to build-ninja/
-
 $CMakeArgs = @(
+    "-S", $SourceDir,
+    "-B", $BuildDir,
     "-G", "Ninja",
     "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
     "-DGeant4_DIR=C:/DEV/GEANT4/geant4-v11.4.1-install/lib/cmake/Geant4",
@@ -42,42 +56,17 @@ $CMakeArgs = @(
     "-DCMAKE_PREFIX_PATH=C:/DEV/GEANT4/geant4-v11.4.1-install;C:/DEV/GEANT4/LIB/G4Vox-install"
 )
 
-# ----------------------------------------------------------------------
-# 2. Run CMake configure
-# ----------------------------------------------------------------------
 Write-Host "Configuring with CMake (Ninja)..." -ForegroundColor Cyan
-& cmake @CMakeArgs $SourceDir
-
+& cmake @CMakeArgs
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "ERROR: CMake configure failed (exit code $LASTEXITCODE)." -ForegroundColor Red
-    exit $LASTEXITCODE
+    throw "CMake configure failed (exit code $LASTEXITCODE)."
 }
 
-# ----------------------------------------------------------------------
-# 3. Sync compile_commands.json to the repo root
-# ----------------------------------------------------------------------
-$SourceFile = Join-Path $PSScriptRoot "compile_commands.json"
-$DestFile = Join-Path $PSScriptRoot "..\compile_commands.json"
-
+$SourceFile = Join-Path $BuildDir "compile_commands.json"
+$DestFile = Join-Path $SourceDir "compile_commands.json"
 if (-not (Test-Path $SourceFile)) {
-    Write-Host "ERROR: compile_commands.json was not generated." -ForegroundColor Red
-    exit 1
+    throw "compile_commands.json was not generated."
 }
 
-# Remove any stale copy/link/shortcut first
-if (Test-Path $DestFile) {
-    Remove-Item $DestFile -Force
-}
-
-# Try a real symlink first (needs admin rights or Developer Mode enabled).
-# Falls back to a plain copy if that's not available.
-try {
-    New-Item -ItemType SymbolicLink -Path $DestFile -Target $SourceFile -ErrorAction Stop | Out-Null
-    Write-Host "Symlinked compile_commands.json -> repo root." -ForegroundColor Green
-}
-catch {
-    Copy-Item $SourceFile $DestFile -Force
-    Write-Host "Copied compile_commands.json -> repo root (symlink not permitted; enable Developer Mode to switch to a symlink)." -ForegroundColor Yellow
-}
-
-Write-Host "Done." -ForegroundColor Green
+Copy-Item $SourceFile $DestFile -Force
+Write-Host "Copied compile_commands.json to the repository root." -ForegroundColor Green
