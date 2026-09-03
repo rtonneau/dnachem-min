@@ -1,16 +1,14 @@
-<#
-.SYNOPSIS
-    Regenerates compile_commands.json with Ninja and copies it to the repository root.
-
-.DESCRIPTION
-    This script can run from a normal PowerShell session. When cl.exe is not already
-    available, it imports the environment from the latest installed Visual Studio C++
-    developer command prompt.
-#>
+param()
 
 $ErrorActionPreference = "Stop"
 
-$BuildDir = $PSScriptRoot
+$hookInput = [Console]::In.ReadToEnd() | ConvertFrom-Json
+$filePath = $hookInput.tool_input.file_path
+if (-not $filePath -or [IO.Path]::GetExtension($filePath) -notin ".cc", ".cpp", ".cxx") {
+    exit 0
+}
+
+$BuildDir = Join-Path (Split-Path -Parent $PSScriptRoot) "build-ninja"
 $SourceDir = (Resolve-Path (Join-Path $BuildDir "..")).Path
 
 if (-not (Get-Command cl -ErrorAction SilentlyContinue)) {
@@ -35,19 +33,11 @@ if (-not (Get-Command cl -ErrorAction SilentlyContinue)) {
     }
 
     $devEnvironment |
-<<<<<<< HEAD
-    Where-Object { $_ -is [string] -and $_ -match "^[^=]+=.*$" } |
-    ForEach-Object {
-        $name, $value = $_ -split "=", 2
-        Set-Item -Path "Env:$name" -Value $value
-    }
-=======
         Where-Object { $_ -is [string] -and $_ -match "^[^=]+=.*$" } |
         ForEach-Object {
             $name, $value = $_ -split "=", 2
             Set-Item -Path "Env:$name" -Value $value
         }
->>>>>>> agents/auto-update-compile-commands-json
 
     if (-not (Get-Command cl -ErrorAction SilentlyContinue)) {
         throw "Visual Studio's developer environment was initialized, but cl.exe is still unavailable."
