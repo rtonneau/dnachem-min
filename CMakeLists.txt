@@ -50,9 +50,3 @@ add_custom_command(
     "$<TARGET_FILE_DIR:sim>/macro"
     COMMENT "Copying macro files to output directory..."
 )
-
-# Clean up old build files
-if(EXISTS "${PROJECT_BINARY_DIR}/CMakeCache.txt")
-    message(STATUS "Cleaning old build files...")
-    file(REMOVE_RECURSE "${PROJECT_BINARY_DIR}")
-endif()
