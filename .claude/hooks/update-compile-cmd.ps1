@@ -2,11 +2,16 @@ param()
 
 $ErrorActionPreference = "Stop"
 
+$hookLogPath = Join-Path (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path "hook-posttooluse.log"
+
 $hookInput = [Console]::In.ReadToEnd() | ConvertFrom-Json
 $filePath = $hookInput.tool_input.file_path
 if (-not $filePath -or [IO.Path]::GetExtension($filePath) -notin ".cc", ".cpp", ".cxx") {
+    "Skipped at $(Get-Date -Format o): $filePath" | Out-File -FilePath $hookLogPath -Append -Encoding utf8
     exit 0
 }
+
+"Triggered at $(Get-Date -Format o): $filePath" | Out-File -FilePath $hookLogPath -Append -Encoding utf8
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $BuildDir = Join-Path $RepoRoot "build-ninja"
@@ -68,4 +73,5 @@ if (-not (Test-Path $SourceFile)) {
 }
 
 Copy-Item $SourceFile $DestFile -Force
+"Completed at $(Get-Date -Format o): copied compile_commands.json" | Out-File -FilePath $hookLogPath -Append -Encoding utf8
 Write-Host "Copied compile_commands.json to the repository root." -ForegroundColor Green
