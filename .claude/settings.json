@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude\\hooks\\update-compile-cmd.ps1"
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/update-compile-cmd.ps1"
           }
         ]
       }
@@ -19,8 +19,7 @@
         "C:/DEV/GEANT4/geant4-v11.4.1-kb"
     ],
     "deny": [
-        "Edit(C:/DEV/GEANT4/geant4-v11.4.1-source/**)",
-        "Write(C:/DEV/GEANT4/geant4-v11.4.1-source/**)"
+        "Edit(C:/DEV/GEANT4/geant4-v11.4.1-source/**)"
     ]
   }
 }

@@ -2,7 +2,7 @@ param()
 
 $ErrorActionPreference = "Stop"
 
-$hookLogPath = Join-Path (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path "hook-posttooluse.log"
+$hookLogPath = Join-Path $PSScriptRoot "hook-posttooluse.log"
 
 $hookInput = [Console]::In.ReadToEnd() | ConvertFrom-Json
 $filePath = $hookInput.tool_input.file_path
@@ -39,11 +39,11 @@ if (-not (Get-Command cl -ErrorAction SilentlyContinue)) {
     }
 
     $devEnvironment |
-        Where-Object { $_ -is [string] -and $_ -match "^[^=]+=.*$" } |
-        ForEach-Object {
-            $name, $value = $_ -split "=", 2
-            Set-Item -Path "Env:$name" -Value $value
-        }
+    Where-Object { $_ -is [string] -and $_ -match "^[^=]+=.*$" } |
+    ForEach-Object {
+        $name, $value = $_ -split "=", 2
+        Set-Item -Path "Env:$name" -Value $value
+    }
 
     if (-not (Get-Command cl -ErrorAction SilentlyContinue)) {
         throw "Visual Studio's developer environment was initialized, but cl.exe is still unavailable."
