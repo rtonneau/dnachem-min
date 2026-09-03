@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude\\hooks\\update-compile-commands.ps1"
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude\\hooks\\update-compile-cmd.ps1"
           }
         ]
       }
