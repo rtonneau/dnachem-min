@@ -1,5 +1,6 @@
 /// \file sim.cc
-/// \brief Geant example implementing Voxelized geometry
+/// \brief Basic common implementation of water radiolysis for CONV and UHDR
+// Created: 2026-08-19
 
 #include "ActionInitialization.hh"
 #include "DetectorConstruction.hh"
