@@ -6,16 +6,11 @@
         "hooks": [
           {
             "type": "command",
-<<<<<<< HEAD
             "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude\\hooks\\update-compile-commands.ps1"
-=======
-            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude\\hooks\\update-compile-cmd.ps1"
->>>>>>> agents/auto-update-compile-commands-json
           }
         ]
       }
     ]
-<<<<<<< HEAD
   },
   "permissions": {
     "additionalDirectories": [
@@ -29,7 +24,3 @@
     ]
   }
 }
-=======
-  }
-}
->>>>>>> agents/auto-update-compile-commands-json
