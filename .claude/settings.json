@@ -1,4 +1,15 @@
 {
+  "permissions": {
+    "additionalDirectories": [
+        "C:/DEV/GEANT4/geant4-v11.4.1-source",
+        "C:/DEV/GEANT4/geant4-v11.4.1-source/geant4-v11.4.1/examples",
+        "C:/DEV/GEANT4/geant4-v11.4.1-kb"
+    ],
+    "deny": [
+        "Edit(C:/DEV/GEANT4/geant4-v11.4.1-source/**)"
+    ]
+  },
+
   "hooks": {
     "PostToolUse": [
       {
@@ -10,16 +21,6 @@
           }
         ]
       }
-    ]
-  },
-  "permissions": {
-    "additionalDirectories": [
-        "C:/DEV/GEANT4/geant4-v11.4.1-source",
-        "C:/DEV/GEANT4/geant4-v11.4.1-source/geant4-v11.4.1/examples",
-        "C:/DEV/GEANT4/geant4-v11.4.1-kb"
-    ],
-    "deny": [
-        "Edit(C:/DEV/GEANT4/geant4-v11.4.1-source/**)"
     ]
   }
 }

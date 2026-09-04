@@ -17,6 +17,12 @@ $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $BuildDir = Join-Path $RepoRoot "build-ninja"
 $SourceDir = $RepoRoot
 
+if (-not (Test-Path -LiteralPath $BuildDir)) {
+    New-Item -ItemType Directory -Path $BuildDir -Force | Out-Null
+    "Created build directory at $(Get-Date -Format o): $BuildDir" | Out-File -FilePath $hookLogPath -Append -Encoding utf8
+    Write-Host "Created build directory: $BuildDir" -ForegroundColor Cyan
+}
+
 if (-not (Get-Command cl -ErrorAction SilentlyContinue)) {
     $vsWhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
     if (-not (Test-Path $vsWhere)) {

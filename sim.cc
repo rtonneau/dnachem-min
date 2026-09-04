@@ -1,7 +1,6 @@
 /// \file sim.cc
 /// \brief Basic common implementation of water radiolysis for CONV and UHDR
 // Created: 2026-08-19
-// Last modified: 2026-09-03 15:17
 
 #include "ActionInitialization.hh"
 #include "DetectorConstruction.hh"
