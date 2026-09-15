@@ -8,7 +8,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 # Look for geant4 paths (normaly sets by sourcing: ~/software/geant4/geant4-v*.*.*-install/share/Geant4/geant4make/geant4make.sh
 find_package(Geant4 REQUIRED ui_all vis_all)
-find_package(G4Vox REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS C CXX) # <-- must request CXX
 
 #Look for toml++ library (installed by vcpkg)
@@ -34,7 +33,7 @@ list(REMOVE_DUPLICATES project_include_dirs)
 add_executable(sim sim.cc ${sources} ${headers})
 
 # Still need to link all Geant4 lib
-target_link_libraries(sim ${Geant4_LIBRARIES} G4Vox::G4Vox hdf5::hdf5-shared
+target_link_libraries(sim ${Geant4_LIBRARIES} hdf5::hdf5-shared
     hdf5::hdf5_cpp-shared)
 target_include_directories(sim PRIVATE ${project_include_dirs})
 

@@ -1,5 +1,6 @@
 /// \file DetectorConstruction.cc
-/// \brief Implementation of the DetectorConstruction class for Voxel use
+/// \brief Implementation of the DetectorConstruction class for a homogeneous
+/// water-box geometry
 
 #include "DetectorConstruction.hh"
 
