@@ -6,7 +6,9 @@
 /process/chem/TimeStepModel SBS
 
 # Dissolved O2 as a bulk scavenger: 21 % of a pure-O2 atmosphere
-# (air-equilibrated water). Enables the UHDR O2 sub-system.
+# (air-equilibrated water). Currently inert -- the O2/acid-base chemistry is
+# always active regardless of this value; this command is reserved for a
+# future dissolved-O2 supply mechanism.
 /chem/env/O2 21
 /chem/env/pH 7
 

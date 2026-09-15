@@ -4,3 +4,42 @@ Triggered at 2026-09-03T15:36:41.7293505+02:00: c:\DEV\GEANT4\SIM\dnachem-min\si
 Completed at 2026-09-03T15:36:49.5092248+02:00: copied compile_commands.json
 Skipped at 2026-09-03T15:54:51.3086937+02:00: C:\Users\rtonneau\.claude\plans\quiet-wiggling-lantern.md
 Skipped at 2026-09-03T15:55:39.5808785+02:00: c:\DEV\GEANT4\SIM\dnachem-min\.claude\hooks\update-compile-cmd.ps1
+Skipped at 2026-09-14T15:20:38.6256573+02:00: C:\DEV\GEANT4\SIM\dnachem-min\docs\agents\issue-tracker.md
+Skipped at 2026-09-14T15:20:43.3922669+02:00: C:\DEV\GEANT4\SIM\dnachem-min\docs\agents\domain.md
+Skipped at 2026-09-14T15:20:49.0644332+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-09-14T16:32:18.3568213+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CONTEXT.md
+Skipped at 2026-09-14T16:32:27.9890144+02:00: C:\DEV\GEANT4\SIM\dnachem-min\docs\adr\0001-baseline-acid-base-buffer.md
+Skipped at 2026-09-14T16:52:20.5871678+02:00: C:\Users\rtonneau\.claude\plans\optimized-strolling-rossum.md
+Skipped at 2026-09-14T16:57:57.4626770+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\PureWaterReactions.hh
+Triggered at 2026-09-14T16:58:14.8657106+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\PureWaterReactions.cc
+Completed at 2026-09-14T16:58:19.4973695+02:00: copied compile_commands.json
+Triggered at 2026-09-14T16:58:24.2853357+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\PureWaterReactions.cc
+Completed at 2026-09-14T16:58:29.1118990+02:00: copied compile_commands.json
+Skipped at 2026-09-14T16:58:37.1329836+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\DnaChemistryList.hh
+Skipped at 2026-09-14T16:58:43.5511720+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\DnaChemistryList.hh
+Triggered at 2026-09-14T16:59:50.0560961+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\DnaChemistryList.cc
+Completed at 2026-09-14T16:59:56.0440613+02:00: copied compile_commands.json
+Skipped at 2026-09-15T11:24:28.2803480+02:00: C:\DEV\GEANT4\SIM\dnachem-min\docs\agents\triage-labels.md
+Skipped at 2026-09-15T11:29:06.2605201+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\geant4-testing\spec.md
+Triggered at 2026-09-15T11:32:59.7730324+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ScoreSpecies.cc
+Completed at 2026-09-15T11:33:10.0893570+02:00: copied compile_commands.json
+Triggered at 2026-09-15T11:33:51.5079622+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ScoreSpecies.cc
+Completed at 2026-09-15T11:33:56.8913693+02:00: copied compile_commands.json
+Triggered at 2026-09-15T11:34:40.6653788+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ScoreSpecies.cc
+Completed at 2026-09-15T11:34:46.1129580+02:00: copied compile_commands.json
+Triggered at 2026-09-15T11:34:49.1010334+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ScoreSpecies.cc
+Completed at 2026-09-15T11:34:54.9108494+02:00: copied compile_commands.json
+Skipped at 2026-09-15T11:36:27.8027145+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\geant4-testing\issues\01-remove-g4vox.md
+Skipped at 2026-09-15T11:36:41.9361380+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\geant4-testing\issues\02-explicit-seed-control.md
+Skipped at 2026-09-15T11:36:55.3888509+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\geant4-testing\issues\03-switch-output-to-csv.md
+Skipped at 2026-09-15T11:37:05.4976657+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\geant4-testing\issues\04-ctest-compile-and-smoke.md
+Skipped at 2026-09-15T11:44:40.2740802+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\geant4-testing\issues\05-regression-test-single-thread.md
+Skipped at 2026-09-15T11:44:52.7311813+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\geant4-testing\issues\06-cli-run-manager-selection.md
+Skipped at 2026-09-15T11:45:06.4746871+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\geant4-testing\issues\07-regression-test-multi-thread.md
+Skipped at 2026-09-15T11:45:11.4899738+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\geant4-testing\issues\07-regression-test-multi-thread.md
+Skipped at 2026-09-15T11:45:21.5972014+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\geant4-testing\spec.md
+Skipped at 2026-09-15T11:45:31.4124850+02:00: C:\Users\rtonneau\.claude\projects\C--DEV-GEANT4-SIM-dnachem-min\memory\chemistry-class-based-refactor.md
+Skipped at 2026-09-15T11:45:44.1873642+02:00: C:\Users\rtonneau\.claude\projects\C--DEV-GEANT4-SIM-dnachem-min\memory\geant4-testing-infrastructure.md
+Skipped at 2026-09-15T11:45:49.5801149+02:00: C:\Users\rtonneau\.claude\projects\C--DEV-GEANT4-SIM-dnachem-min\memory\MEMORY.md
+Skipped at 2026-09-15T11:50:44.3049901+02:00: C:\Users\rtonneau\AppData\Local\Temp\dnachem-min-handoff-2026-09-15.md
+Skipped at 2026-09-15T11:53:51.7437863+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\handoffs\dnachem-min-handoff-2026-09-15.md

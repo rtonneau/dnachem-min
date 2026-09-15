@@ -6,13 +6,15 @@
 /// (molecules / reactions / time-step model) and `G4VPhysicsConstructor`
 /// (driven directly by PhysicsList, UHDR-style).
 ///
-/// Base chemistry: pure-water radiolysis (7 tracked species, 9 reactions).
-/// Optional add-on: dissolved O2 as a bulk scavenger — enabled with
-/// `/chem/env/O2 <percent>`; when on, the O2 sub-system of the Geant4-DNA
-/// `UHDR` example is added (bulk-O2 scavenging + O2-/HO2/HO2- chemistry +
-/// per-molecule `G4DNAScavengerProcess`).
+/// Base chemistry (always on): the portable pure-water + O2-derived
+/// reaction network (PureWaterReactions.cc) plus the pH-driven acid-base
+/// buffer equilibria against the bulk H3Op(B)/OHm(B) pseudo-species (UHDR:
+/// ChemPureWaterBuilder), registered as per-molecule `G4DNAScavengerProcess`.
+/// An actual dissolved-O2 supply/population is deferred to future work;
+/// `/chem/env/O2` currently has no effect here.
 ///
-/// Time-step model: SBS default; IRT rejected (fatal); IRT_syn allowed.
+/// Time-step model: SBS only (hard-coded; IRT and IRT_syn are not
+/// supported).
 
 #ifndef DnaChemistryList_h
 #define DnaChemistryList_h 1
@@ -42,18 +44,14 @@ public:
   void ConstructTimeStepModel(G4DNAMolecularReactionTable* reactionTable) override;
 
 private:
-  void GuardTimeStepModel(const G4String& caller) const;
-
   /// The project chemistry world, via the run manager's detector.
   const DnaChemistryWorld* ChemistryWorld(const G4String& caller) const;
 
-  /// O2 / O2- / HO2 / HO2- / O- / O3- reactions between diffusing species
-  /// (UHDR: ChemOxygenWaterBuilder). Added only when O2 is enabled.
-  void ConstructOxygenReactionTable(G4DNAMolecularReactionTable* reactionTable) const;
-
-  /// Per-molecule G4DNAScavengerProcess for reactions with the bulk species
-  /// O2(B) / H3O+(B) / OH-(B) / H2O (UHDR: EmDNAChemistry::ConstructProcess).
-  void RegisterOxygenScavengerProcesses(const G4DNABoundingBox& boundary) const;
+  /// Per-molecule G4DNAScavengerProcess for the pH-driven acid-base buffer
+  /// equilibria against the bulk H3Op(B) / OHm(B) / H2O pseudo-species
+  /// (UHDR: ChemPureWaterBuilder::WaterScavengerReaction). Always active --
+  /// this network is baseline aqueous chemistry, not O2-specific.
+  void RegisterAcidBaseScavengerProcesses(const G4DNABoundingBox& boundary) const;
 };
 
 #endif // DnaChemistryList_h
