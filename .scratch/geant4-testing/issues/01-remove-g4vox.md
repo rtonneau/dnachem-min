@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: done
 
 # Remove the G4Vox dependency completely
 

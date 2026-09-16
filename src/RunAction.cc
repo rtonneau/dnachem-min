@@ -70,8 +70,8 @@ void RunAction::EndOfRunAction(const G4Run *run)
         {
             const G4int recorded = scorer->GetNumberOfRecordedEvents();
             scorer->ASCII();          // Species.Txt (human-readable)
-            scorer->OutputAndClear(); // Species.root, then clears the scorer
-            G4cout << "[RunAction] species yields written (Species.Txt / Species.root) for "
+            scorer->OutputAndClear(); // Species_nt_species(_all).csv, then clears the scorer
+            G4cout << "[RunAction] species yields written (Species.Txt / Species_nt_species*.csv) for "
                    << recorded << " recorded event(s)" << G4endl;
         }
     }

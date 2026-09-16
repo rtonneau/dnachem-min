@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: done
 
 # Switch ScoreSpecies analysis-manager output from ROOT to CSV
 
@@ -65,3 +65,29 @@ Expected first line: `#class tools::wcsv::ntuple`. Expected a
 `#column string speciesName` line among the header lines. Expected data rows
 starting after the header block, comma-separated, matching the 7-column
 order listed above.
+
+## Addendum — done; one acceptance-check line was wrong, unrelated to this ticket
+
+Implemented and verified against a real build+run (`beam_02.in`, 100 keV,
+2 events, ~687s real time — primaries now run to full energy deposition per
+the project's current `primaryKiller` defaults, unrelated to this ticket).
+
+- `fOutputType` default changed to `"csv"`, `OpenFile("Species.root")` changed
+  to `OpenFile("Species")` (`src/ScoreSpecies.cc`). Also updated the
+  `Species.root`-naming comments/log message in `src/RunAction.cc` and
+  `CLAUDE.md`'s Build and Run section.
+- Verified: `Species_nt_species.csv` produced with the exact documented
+  format (`#class tools::wcsv::ntuple` first line, `#column string
+  speciesName` header line present, 7 comma-separated columns in the
+  documented order). No `Species.root`. No `_bis`-suffixed file (confirmed
+  `beam_02.in` has exactly one `/run/beamOn`).
+- **Correction to this ticket's acceptance check**: `Species_nt_species_all.csv`
+  is **not** produced, and this is not a bug in this ticket's change.
+  `header/ScoreSpecies.hh:23` has `_ScoreSpecies_FOR_ALL_EVENTS` commented
+  out, which gates the entire `species_all` ntuple code block
+  (`src/ScoreSpecies.cc:362-406`, both creation and fill) off by default —
+  true regardless of ROOT vs CSV output format, and predates this ticket.
+  Enabling that macro is a separate, unrelated feature toggle (with its own
+  memory/perf cost for per-event tracking) that this ticket does not touch.
+  If the `species_all` per-event ntuple is wanted, that's a new, separate
+  ticket.

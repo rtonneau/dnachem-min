@@ -1,4 +1,14 @@
-Status: ready-for-agent
+Status: ready-for-human
+
+## Blocked — see ticket 02's addendum and spec.md's addendum
+
+This ticket's exact-match premise is invalidated: `beam.in`-style runs are
+not process-to-process reproducible even with an explicit fixed RNG seed —
+the chemistry (IT) stepping stage diverges run-to-run for reasons traced
+partway into Geant4's own kernel (not `dnachem-min` code) but not fully
+root-caused. Needs a maintainer decision on test design (tolerance-based
+comparison, a different seam, resuming kernel root-causing, etc.) before an
+agent can implement this ticket as originally scoped.
 
 # Python comparison script + golden file + single-thread regression test
 

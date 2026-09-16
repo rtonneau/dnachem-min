@@ -157,3 +157,29 @@ count against the same golden file.
   otherwise switch the run manager to MT at runtime, and fixes the stale
   `CLAUDE.md` claim. See `.scratch/geant4-testing/issues/` for the full,
   corrected 7-ticket breakdown and their exact acceptance checks.
+
+- **Addendum, found while implementing ticket 02**: the (1) premise above was
+  itself wrong, not just under-verified. Re-checked directly (not assumed):
+  two separate `beam.in` process launches produce **different** `Species.Txt`
+  (real species-count divergence, not reordering), with or without an
+  explicit fixed `G4Random::setTheSeed(...)` set as the first statement in
+  `main()`. Isolated with `superpowers:systematic-debugging` (see ticket 02's
+  own addendum for the full trace) to: the pre-chemistry physics/tracking
+  stage *is* reproducible under a fixed seed (identical track counts/content
+  across runs); the chemistry (IT) stepping stage downstream of that
+  identical input still diverges. Traced partway into Geant4's own installed
+  DNA-chemistry kernel source (not `dnachem-min` code) — ruled out one
+  specific container (`G4ITReactionPerTrackMap`, actually TrackID-ordered,
+  not pointer-ordered) but did not reach the exact divergence point before
+  stopping, per the maintainer's call to treat this as a known Geant4-DNA
+  kernel limitation rather than continue root-causing.
+  **This invalidates the exact-match regression-test premise behind tickets
+  05 and 07** (both `Implementation Decisions` above assume process-to-process
+  bit-exact reproducibility is achievable — it is not, at least not without
+  further kernel-level work or a different test design). Tickets 02, 05, and
+  07 are marked `ready-for-human` pending a maintainer decision on how to
+  redefine "reproducible" for this project's test suite (tolerance-based
+  comparison, restrict to a configuration where the divergence doesn't
+  manifest, resume kernel root-causing, or something else) — this is
+  explicitly the kind of judgment call the spec's own "Out of Scope" section
+  reserves for the maintainer, not an implementing agent.

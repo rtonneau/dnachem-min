@@ -37,7 +37,7 @@
 ScoreSpecies::ScoreSpecies(G4String name, G4int depth)
     : G4VPrimitiveScorer(name, depth),
       fEdep(0),
-      fOutputType("root"), // other options: "csv", "hdf5", "xml"
+      fOutputType("csv"), // other options: "root", "hdf5", "xml"
       fHCID(-1),
       fEvtMap(0)
 {
@@ -321,7 +321,7 @@ void ScoreSpecies::OutputAndClear()
 void ScoreSpecies::WriteWithAnalysisManager(G4VAnalysisManager *analysisManager)
 {
   //  G4cout << "ScoreSpecies::WriteWithAnalysisManager" << G4endl;
-  analysisManager->OpenFile("Species.root");
+  analysisManager->OpenFile("Species");
   int fNtupleID = analysisManager->CreateNtuple("species", "species");
   analysisManager->CreateNtupleIColumn(fNtupleID, "speciesID");
   analysisManager->CreateNtupleIColumn(fNtupleID, "number");

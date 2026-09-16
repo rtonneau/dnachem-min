@@ -1,4 +1,11 @@
-Status: ready-for-agent
+Status: ready-for-human
+
+## Blocked — see ticket 02's addendum and spec.md's addendum
+
+Same blocker as ticket 05, compounded: single-thread process-to-process
+reproducibility isn't achieved yet, so a second regression case guarding
+MT-vs-single-thread reproducibility against the same golden file isn't
+implementable until that's resolved. Needs a maintainer decision first.
 
 # Multi-thread regression case, guarding MT-reproducibility itself
 
