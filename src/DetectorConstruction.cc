@@ -131,8 +131,8 @@ void DetectorConstruction::ConstructSDandField()
   // kinetic energy
 
   PrimaryKiller *primaryKiller = new PrimaryKiller("PrimaryKiller");
-  primaryKiller->SetMinLossEnergyLimit(500 * eV); // default value
-  primaryKiller->SetMaxLossEnergyLimit(1. * eV);  // default value
+  primaryKiller->SetMinLossEnergyLimit(500 * keV); // default value
+  primaryKiller->SetMaxLossEnergyLimit(1. * MeV);  // default value
   mfDetector->RegisterPrimitive(primaryKiller);
 
   G4VPrimitiveScorer *primitivSpecies = new ScoreSpecies("Species");

@@ -23,10 +23,10 @@
 # "/chem/reaction/UI" resets the shared G4DNAMolecularReactionTable and would
 # wipe the class-built reaction set.
 
-/primaryKiller/eLossMin 1 keV # primary is killed if deposited E is greater than this value
-/primaryKiller/eLossMax 2 keV # event is aborted if deposited E is greated than this value
-/primaryKiller/minKineticE 0 keV # primary min energy below which primary is killed.
-/primaryKiller/verbose 0
+#/primaryKiller/eLossMin 1 keV # primary is killed if deposited E is greater than this value
+#/primaryKiller/eLossMax 2 keV # event is aborted if deposited E is greated than this value
+#/primaryKiller/minKineticE 0 keV # primary min energy below which primary is killed.
+#/primaryKiller/verbose 0
 
 /run/beamOn 4
 

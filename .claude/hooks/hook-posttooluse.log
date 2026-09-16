@@ -43,3 +43,32 @@ Skipped at 2026-09-15T11:45:44.1873642+02:00: C:\Users\rtonneau\.claude\projects
 Skipped at 2026-09-15T11:45:49.5801149+02:00: C:\Users\rtonneau\.claude\projects\C--DEV-GEANT4-SIM-dnachem-min\memory\MEMORY.md
 Skipped at 2026-09-15T11:50:44.3049901+02:00: C:\Users\rtonneau\AppData\Local\Temp\dnachem-min-handoff-2026-09-15.md
 Skipped at 2026-09-15T11:53:51.7437863+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\handoffs\dnachem-min-handoff-2026-09-15.md
+Skipped at 2026-09-15T12:10:26.6292671+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CMakeLists.txt
+Skipped at 2026-09-15T12:10:27.9815262+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CMakeLists.txt
+Triggered at 2026-09-15T12:10:29.3433634+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\DetectorConstruction.cc
+Completed at 2026-09-15T12:10:33.6757277+02:00: copied compile_commands.json
+Triggered at 2026-09-15T12:21:38.3729621+02:00: C:\DEV\GEANT4\SIM\dnachem-min\sim.cc
+Completed at 2026-09-15T12:21:41.6750667+02:00: copied compile_commands.json
+Triggered at 2026-09-15T12:21:45.4768132+02:00: C:\DEV\GEANT4\SIM\dnachem-min\sim.cc
+Completed at 2026-09-15T12:21:48.8632033+02:00: copied compile_commands.json
+Skipped at 2026-09-15T13:53:40.0765897+02:00: C:\Users\rtonneau\AppData\Local\Temp\dnachem-min-handoff-2026-09-15-regression-redesign.md
+Skipped at 2026-09-15T13:56:26.1435959+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\handoffs\dnachem-min-handoff-2026-09-15-regression-redesign.md
+Skipped at 2026-09-15T14:26:25.8791669+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\variability\macro\regression_test.in
+Skipped at 2026-09-15T14:26:51.3289894+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\variability\build_sim.bat
+Skipped at 2026-09-15T14:28:05.2730368+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\variability\run_trials.py
+Skipped at 2026-09-15T14:56:54.6419652+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\variability\macro\regression_test.in
+Skipped at 2026-09-15T14:56:58.1761013+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\variability\macro\regression_test.in
+Skipped at 2026-09-15T16:49:50.0488541+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\variability\run_trials.py
+Skipped at 2026-09-15T16:49:55.3332509+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\variability\run_trials.py
+Triggered at 2026-09-15T17:14:15.0493030+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ScoreSpecies.cc
+Completed at 2026-09-15T17:14:24.0193783+02:00: copied compile_commands.json
+Triggered at 2026-09-15T17:14:26.7617167+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ScoreSpecies.cc
+Completed at 2026-09-15T17:14:31.5339073+02:00: copied compile_commands.json
+Triggered at 2026-09-15T17:14:35.0550329+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\RunAction.cc
+Completed at 2026-09-15T17:14:39.8045451+02:00: copied compile_commands.json
+Skipped at 2026-09-15T17:14:44.9017625+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-09-15T17:27:35.9821870+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\geant4-testing\issues\03-switch-output-to-csv.md
+Skipped at 2026-09-15T17:27:45.6487528+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\geant4-testing\issues\03-switch-output-to-csv.md
+Skipped at 2026-09-15T17:33:52.2240331+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\variability\analyze.py
+Skipped at 2026-09-15T17:33:59.9268662+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\variability\analyze.py
+Skipped at 2026-09-16T09:44:25.6294079+02:00: C:\Users\rtonneau\.claude\settings.json

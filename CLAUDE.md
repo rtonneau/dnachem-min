@@ -12,12 +12,12 @@ The geometry is one homogeneous water box. Do not introduce voxelization or G4Vo
 
 Requirements: Geant4 11.0+ with DNA models, CMake 3.16+, a C++20 compiler, and HDF5 with C++ support.
 
-Build outside the source tree using `RelwithDebInfo`:
+Build outside the source tree using `RelWithDebInfo`:
 
 ```bash
 cd build
-cmake -DCMAKE_BUILD_TYPE=RelwithDebInfo ..
-cmake --build . --config RelwithDebInfo
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+cmake --build . --config RelWithDebInfo
 ```
 
 Run from `build/`; the build copies `macro/` there:
@@ -27,8 +27,10 @@ Run from `build/`; the build copies `macro/` there:
 ./sim macro/beam_o2.in   # with dissolved-O2 scavenger
 ```
 
-Each run writes `Species.Txt` (human-readable species yields vs. time) and `Species.root`;
-in MT mode the per-event pre-chemical dumps are `output_event_t<thread>_e<event>.txt`.
+Each run writes `Species.Txt` (human-readable species yields vs. time) and two CSV
+ntuples, `Species_nt_species.csv` (aggregate sumG/sumG2 per species/time) and
+`Species_nt_species_all.csv` (same, per event); in MT mode the per-event
+pre-chemical dumps are `output_event_t<thread>_e<event>.txt`.
 
 ## Key Files
 

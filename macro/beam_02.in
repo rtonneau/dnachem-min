@@ -18,8 +18,8 @@
 
 # Species and reactions are defined in code (src/DnaChemistryList.cc).
 
-/primaryKiller/eLossMin 1 keV # primary is killed if deposited E is greater than this value
-/primaryKiller/eLossMax 2 keV # event is aborted if deposited E is greated than this value
+#/primaryKiller/eLossMin 1 keV # primary is killed if deposited E is greater than this value
+#/primaryKiller/eLossMax 2 keV # event is aborted if deposited E is greated than this value
 
 #==============================================
 # NB: comment lines related to scheduler when the flag chemOFF is used

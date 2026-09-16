@@ -19,9 +19,9 @@
 
 # Species and reactions are defined in code (src/DnaChemistryList.cc).
 
-/primaryKiller/eLossMin 1 keV
-/primaryKiller/eLossMax 2 keV
-/primaryKiller/minKineticE 0 keV
-/primaryKiller/verbose 0
+#/primaryKiller/eLossMin 1 keV
+#/primaryKiller/eLossMax 2 keV
+#/primaryKiller/minKineticE 0 keV
+#/primaryKiller/verbose 0
 
 /run/beamOn 2

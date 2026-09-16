@@ -51,3 +51,5 @@ compile_commands.json
 
 # But keep this one file tracked
 !/build-ninja/update-compile-cmd.ps1
+
+/.scratch/**
