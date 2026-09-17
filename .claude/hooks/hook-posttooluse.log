@@ -72,3 +72,20 @@ Skipped at 2026-09-15T17:27:45.6487528+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scr
 Skipped at 2026-09-15T17:33:52.2240331+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\variability\analyze.py
 Skipped at 2026-09-15T17:33:59.9268662+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\variability\analyze.py
 Skipped at 2026-09-16T09:44:25.6294079+02:00: C:\Users\rtonneau\.claude\settings.json
+Skipped at 2026-09-16T16:59:35.2446502+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-16__mt-mode\.session-config.json
+Skipped at 2026-09-16T16:59:39.8812628+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-16__mt-mode\01-grill\resume.md
+Skipped at 2026-09-16T16:59:42.4209073+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-16__mt-mode\01-grill\notes.md
+Skipped at 2026-09-16T16:59:44.7531566+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\.current-session
+Skipped at 2026-09-16T17:09:23.2369041+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-16__mt-mode\01-grill\resume.md
+Skipped at 2026-09-16T17:09:34.8413510+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-16__mt-mode\02-plan\plan.md
+Skipped at 2026-09-16T17:09:38.4029668+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-16__mt-mode\02-plan\tickets\01-ticket.md
+Skipped at 2026-09-16T17:09:41.4740946+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-16__mt-mode\02-plan\tickets\02-ticket.md
+Skipped at 2026-09-16T17:09:44.4542115+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-16__mt-mode\02-plan\tickets\03-ticket.md
+Skipped at 2026-09-16T17:09:48.1079175+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-16__mt-mode\02-plan\tickets\04-ticket.md
+Triggered at 2026-09-17T11:42:52.3916587+02:00: C:\DEV\GEANT4\SIM\dnachem-min\sim.cc
+Completed at 2026-09-17T11:43:01.3424035+02:00: copied compile_commands.json
+Triggered at 2026-09-17T11:43:07.6266816+02:00: C:\DEV\GEANT4\SIM\dnachem-min\sim.cc
+Completed at 2026-09-17T11:43:12.6623574+02:00: copied compile_commands.json
+Skipped at 2026-09-17T14:08:56.3195191+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-09-17T14:10:13.9804966+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-09-17T14:12:28.5179250+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-17__multithreading-cli-option\01-grill\resume.md

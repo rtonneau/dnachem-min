@@ -12,6 +12,13 @@ The geometry is one homogeneous water box. Do not introduce voxelization or G4Vo
 
 Requirements: Geant4 11.0+ with DNA models, CMake 3.16+, a C++20 compiler, and HDF5 with C++ support.
 
+Building always requires the MSVC x64 dev environment loaded in the shell first — a plain shell fails on the compile step with missing STL headers (e.g. `cstddef`, `complex`) even though `cmake` configures without error. Load it before the build commands below, e.g. from PowerShell:
+
+```powershell
+$vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+cmd /c "`"$vsPath\VC\Auxiliary\Build\vcvars64.bat`" && <build commands>"
+```
+
 Build outside the source tree using `RelWithDebInfo`:
 
 ```bash
@@ -20,11 +27,11 @@ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
 cmake --build . --config RelWithDebInfo
 ```
 
-Run from `build/`; the build copies `macro/` there:
+Run from `build/`; the build copies `macro/` there. `sim.cc` prepends `macro/` to the argument itself, so pass the filename only:
 
 ```bash
-./sim macro/beam.in      # pure-water radiolysis
-./sim macro/beam_o2.in   # with dissolved-O2 scavenger
+./sim beam.in      # pure-water radiolysis
+./sim beam_o2.in   # with dissolved-O2 scavenger
 ```
 
 Each run writes `Species.Txt` (human-readable species yields vs. time) and two CSV
