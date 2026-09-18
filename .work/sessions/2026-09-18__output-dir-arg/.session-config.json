@@ -2,9 +2,11 @@
   "session_id": "2026-09-18__output-dir-arg",
   "feature_name": "output-dir-arg",
   "created_at": "2026-09-18T12:44:37.543Z",
-  "phases_completed": [],
+  "phases_completed": [
+    "implement"
+  ],
   "tickets": [],
-  "status": "grill-in-progress",
+  "status": "completed",
   "usage": {
     "grill": {
       "startedAt": "2026-09-18T12:44:37.543Z",
