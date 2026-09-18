@@ -142,3 +142,16 @@ Triggered at 2026-09-18T14:03:58.6234937+02:00: C:\DEV\GEANT4\SIM\dnachem-min\sr
 Completed at 2026-09-18T14:04:03.7351300+02:00: copied compile_commands.json
 Triggered at 2026-09-18T14:04:18.9818469+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\DnaChemistryList.cc
 Completed at 2026-09-18T14:04:24.1582708+02:00: copied compile_commands.json
+Skipped at 2026-09-18T14:37:44.3669384+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-09-18T14:40:36.6130902+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-09-18T15:15:39.6752167+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-18__output-dir-arg\01-grill\resume.md
+Skipped at 2026-09-18T15:17:00.8016881+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\OutputDir.hh
+Triggered at 2026-09-18T15:17:13.2451373+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\OutputDirTest.cc
+Completed at 2026-09-18T15:17:19.2087653+02:00: copied compile_commands.json
+Skipped at 2026-09-18T15:17:39.5490441+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\OutputDir.hh
+Skipped at 2026-09-18T15:17:45.7686774+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\OutputDir.hh
+Skipped at 2026-09-18T15:17:51.1391450+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CMakeLists.txt
+Triggered at 2026-09-18T15:18:21.9162600+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\OutputDir.cc
+Completed at 2026-09-18T15:18:27.2507147+02:00: copied compile_commands.json
+Skipped at 2026-09-18T15:33:36.7059423+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-09-18T15:33:48.3702528+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
