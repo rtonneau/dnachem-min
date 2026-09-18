@@ -20,11 +20,15 @@
 #include "DnaChemistryWorld.hh"
 #include "DnaLogger.hh"
 #include "PureWaterReactions.hh"
+#include "ReactionTableDump.hh"
+#include "ScavengerReactionAccess.hh"
 
+#include "G4ApplicationState.hh"
 #include "G4ChemDissociationChannels_option1.hh"
 #include "G4DNABoundingBox.hh"
 #include "G4DNAChemistryManager.hh"
 #include "G4DNAMolecularReactionTable.hh"
+#include "G4GenericMessenger.hh"
 #include "G4MolecularConfiguration.hh"
 #include "G4MoleculeDefinition.hh"
 #include "G4MoleculeTable.hh"
@@ -92,6 +96,13 @@ DnaChemistryList::DnaChemistryList()
   // releases - rather than deletes - it, leaving ownership with the PhysicsList
   // that holds it (avoids a double free).
   G4DNAChemistryManager::Instance()->SetChemistryList(this);
+
+  fMessenger = std::make_unique<G4GenericMessenger>(this, "/chem/reaction/",
+                                                    "Chemistry reaction-table diagnostics");
+  auto& dumpCmd = fMessenger->DeclareProperty(
+    "dump", fReactionDumpFile,
+    "Write the full reaction table (bimolecular + acid-base networks) to <filename>.");
+  dumpCmd.SetStates(G4State_PreInit);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -221,6 +232,12 @@ void DnaChemistryList::ConstructProcess()
     scavenger->SetCounterAgainstTime();
     G4Scheduler::Instance()->SetScavengerMaterial(std::move(scavenger));
   }
+
+  // Both networks (bimolecular + acid-base) are fully constructed by this
+  // point; opt-in dump for external checks (see /chem/reaction/dump).
+  if (!fReactionDumpFile.empty()) {
+    ReactionTableDump::DumpReactionTable(fReactionDumpFile);
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -262,7 +279,7 @@ void DnaChemistryList::RegisterAcidBaseScavengerProcesses(const G4DNABoundingBox
   // G4ChemDissociationChannels_option1::ConstructMolecule()) -- silently
   // making those reactions unreachable.
   auto build = [&](MolConf mol, std::initializer_list<Rx> reactions) {
-    auto* process = new G4DNAScavengerProcess("G4DNAScavengerProcess", boundary);
+    auto* process = new ScavengerReactionAccess("G4DNAScavengerProcess", boundary);
     for (const auto& r : reactions) {
       auto* rd = new G4DNAMolecularReactionData(r.rate, mol, r.bulk);
       for (auto* p : r.products) {

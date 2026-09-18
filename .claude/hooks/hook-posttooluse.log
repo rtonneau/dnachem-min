@@ -122,3 +122,23 @@ Triggered at 2026-09-18T11:29:23.7347773+02:00: C:\DEV\GEANT4\SIM\dnachem-min\si
 Completed at 2026-09-18T11:29:29.5360865+02:00: copied compile_commands.json
 Triggered at 2026-09-18T11:29:53.8504823+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ArgParser.cc
 Completed at 2026-09-18T11:29:59.4853792+02:00: copied compile_commands.json
+Skipped at 2026-09-18T13:57:02.0956779+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-18__reaction-table-export\01-grill\resume.md
+Skipped at 2026-09-18T14:01:33.8838653+02:00: C:\Users\rtonneau\.claude\plans\abundant-leaping-ritchie.md
+Skipped at 2026-09-18T14:02:12.1295086+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\ScavengerReactionAccess.hh
+Skipped at 2026-09-18T14:02:29.7666989+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\ReactionTableDump.hh
+Triggered at 2026-09-18T14:02:53.9283920+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ReactionTableDump.cc
+Completed at 2026-09-18T14:02:59.0488268+02:00: copied compile_commands.json
+Triggered at 2026-09-18T14:03:03.9127892+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ReactionTableDump.cc
+Completed at 2026-09-18T14:03:09.4279338+02:00: copied compile_commands.json
+Skipped at 2026-09-18T14:03:14.7462469+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\DnaChemistryList.hh
+Skipped at 2026-09-18T14:03:21.5446781+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\DnaChemistryList.hh
+Triggered at 2026-09-18T14:03:28.0392757+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\DnaChemistryList.cc
+Completed at 2026-09-18T14:03:33.2036106+02:00: copied compile_commands.json
+Triggered at 2026-09-18T14:03:39.6185043+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\DnaChemistryList.cc
+Completed at 2026-09-18T14:03:44.8556012+02:00: copied compile_commands.json
+Triggered at 2026-09-18T14:03:49.1778147+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\DnaChemistryList.cc
+Completed at 2026-09-18T14:03:54.6205691+02:00: copied compile_commands.json
+Triggered at 2026-09-18T14:03:58.6234937+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\DnaChemistryList.cc
+Completed at 2026-09-18T14:04:03.7351300+02:00: copied compile_commands.json
+Triggered at 2026-09-18T14:04:18.9818469+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\DnaChemistryList.cc
+Completed at 2026-09-18T14:04:24.1582708+02:00: copied compile_commands.json

@@ -23,8 +23,11 @@
 #include "G4VUserChemistryList.hh"
 #include "globals.hh"
 
+#include <memory>
+
 class G4DNABoundingBox;
 class G4DNAMolecularReactionTable;
+class G4GenericMessenger;
 class DnaChemistryWorld;
 
 class DnaChemistryList : public G4VUserChemistryList, public G4VPhysicsConstructor
@@ -52,6 +55,13 @@ private:
   /// (UHDR: ChemPureWaterBuilder::WaterScavengerReaction). Always active --
   /// this network is baseline aqueous chemistry, not O2-specific.
   void RegisterAcidBaseScavengerProcesses(const G4DNABoundingBox& boundary) const;
+
+  /// Exposes /chem/reaction/dump <filename>.
+  std::unique_ptr<G4GenericMessenger> fMessenger;
+
+  /// Target file for ConstructProcess() to dump the reaction table to;
+  /// empty (default) disables the dump.
+  G4String fReactionDumpFile;
 };
 
 #endif // DnaChemistryList_h
