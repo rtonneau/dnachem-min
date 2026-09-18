@@ -7,6 +7,7 @@
 #include "DnaLogger.hh"
 #include "DnaLoggerMessenger.hh"
 #include "ArgParser.hh"
+#include "OutputDir.hh"
 #include "PhysicsList.hh"
 
 #include "G4ScoringManager.hh"
@@ -61,10 +62,22 @@ int main(int argc, char **argv)
     }
     return true;
   });
+  // "--dir <path>" redirects all output files (Species.Txt, the CSV
+  // ntuples, per-thread/per-event pre-chemical dumps, and the
+  // /chem/reaction/dump target) into <path> instead of cwd. <path> itself
+  // is created if missing; its parent must already exist.
+  argParser.AddStringFlag("--dir");
   if (!argParser.Parse(argc, argv))
   {
     DnaLogger::SetLevel(DnaLogger::Level::Error);
     DnaLogger::Print(DnaLogger::Level::Error, argParser.GetError());
+    exit(1);
+  }
+  G4String outputDirError;
+  if (!OutputDir::Configure(argParser.GetString("--dir"), outputDirError))
+  {
+    DnaLogger::SetLevel(DnaLogger::Level::Error);
+    DnaLogger::Print(DnaLogger::Level::Error, outputDirError);
     exit(1);
   }
   G4int requestedThreads = argParser.GetInt("--threads");

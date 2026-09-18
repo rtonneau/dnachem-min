@@ -39,9 +39,21 @@ ntuples, `Species_nt_species.csv` (aggregate sumG/sumG2 per species/time) and
 `Species_nt_species_all.csv` (same, per event); in MT mode the per-event
 pre-chemical dumps are `output_event_t<thread>_e<event>.txt`.
 
+Pass `--dir <path>` to redirect every output file above (plus the
+`/chem/reaction/dump` target, if the macro sets one) into `<path>` instead of
+cwd — useful for isolating each run's output when scripting many `sim.exe`
+invocations. `<path>` itself is created if missing; its parent must already
+exist. `--dir` can appear anywhere on the command line, but the macro
+filename must still come first (`argv[1]`):
+
+```bash
+./sim beam.in --dir runs/001
+```
+
 ## Key Files
 
-- `sim.cc`: application setup. Runs multithreaded by default (`G4RunManagerType::MT`, batch default 4 threads; `/run/numberOfThreads N` overrides before `/run/initialize`; flip to `Serial` in one line for reproducible runs). Set `useGUI` to `true` only for interactive GUI runs.
+- `sim.cc`: application setup. Runs multithreaded by default (`G4RunManagerType::MT`, batch default 4 threads; `/run/numberOfThreads N` overrides before `/run/initialize`; flip to `Serial` in one line for reproducible runs). Set `useGUI` to `true` only for interactive GUI runs. CLI flags (`--threads`, `--dir`) are registered here via `src/ArgParser.cc`.
+- `src/OutputDir.cc`: process-wide output directory (`--dir`), configured once in `main()` before any worker thread starts. `Resolve(filename)` is called at every output-file site (`ScoreSpecies.cc`, `TimeStepAction.cc`, `DnaChemistryList.cc`'s reaction-table dump) to prefix it onto the configured directory, or leaves it unchanged when `--dir` wasn't passed.
 - `src/DetectorConstruction.cc`: homogeneous water-box geometry; owns the `DnaChemistryWorld` (its boundary sizes the world box).
 - `src/PhysicsList.cc`: simplified UHDR-style modular list — holds `G4EmDNAPhysics` + `DnaChemistryList` and drives their `ConstructParticle()`/`ConstructProcess()` directly (no string dispatch, no `RegisterPhysics`). Change the EM-DNA physics option by editing the constructor. Sets SBS as the chemistry time-step model (the only one `DnaChemistryList` supports).
 - `src/DnaChemistryList.cc`: project chemical stage (`G4VUserChemistryList` + `G4VPhysicsConstructor`) — molecule set, water dissociation, reaction table, time-step model. Replaces macro `/chem/species` and `/chem/reaction/add`. Hard-codes SBS as the only chemistry time-step model (IRT and IRT_syn are not supported). Pure-water + O2-derived reaction chemistry lives in `PureWaterReactions.cc`; the pH-driven acid-base buffer network (`H3Op(B)`/`OHm(B)`, registered as per-molecule `G4DNAScavengerProcess`) and the full O2⁻/HO2/HO2⁻/O⁻/O3⁻ network are baseline/unconditional — this chemistry can produce O2 from pure water radiolysis on its own (see `docs/adr/0001-baseline-acid-base-buffer.md`). Only an exogenous dissolved-O2 supply mechanism remains deferred to future work — `/chem/env/O2` currently has no effect on the chemistry.
@@ -65,6 +77,10 @@ Use the project-defined `DnaLogger` for application logging. Set its level in a 
 ```
 
 The logger is implemented in `src/DnaLogger.cc` and exposed to Geant4 commands by `src/DnaLoggerMessenger.cc`. Use `/dnaLogger/verbose Debug` for detailed diagnostics; do not add ad hoc console logging where `DnaLogger` is appropriate.
+
+## Testing
+
+When testing `sim.exe`, use a 25 keV electron gun and `/run/beamOn 10`. The chemistry time limit defaults to 1 µs, set by `G4Scheduler::Instance()->SetEndTime(1. * microsecond)` in `src/ActionInitialization.cc::Build()`, which runs on `/run/initialize`. To override it in a macro, issue `/scheduler/endTime <value> <unit>` *after* `/run/initialize` — a command issued before that point gets overwritten by `Build()`'s hardcoded call.
 
 ## Planning
 Before any non-trivial change, enter plan mode and write the plan to `.claude/plans/`.

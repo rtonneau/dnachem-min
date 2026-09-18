@@ -1,5 +1,7 @@
 #include "TimeStepAction.hh"
 
+#include "OutputDir.hh"
+
 #include "G4DNAChemistryManager.hh"
 #include "G4Scheduler.hh"
 #include "G4ITTrackHolder.hh"
@@ -179,7 +181,7 @@ void TimeStepAction::DumpPreChemical(G4int eventID)
     fileName = "output_event_t" + std::to_string(G4Threading::G4GetThreadId()) +
                "_e" + std::to_string(eventID) + ".txt";
   }
-  G4DNAChemistryManager::Instance()->WriteInto(fileName);
+  G4DNAChemistryManager::Instance()->WriteInto(OutputDir::Resolve(fileName));
 
   G4ITTrackHolder *trackHolder = G4ITTrackHolder::Instance();
 

@@ -46,6 +46,12 @@ target_link_libraries(ArgParserTest ${Geant4_LIBRARIES})
 target_include_directories(ArgParserTest PRIVATE ${project_include_dirs})
 add_test(NAME ArgParserTest COMMAND ArgParserTest)
 
+# Standalone unit test for OutputDir (no Geant4 runtime init required).
+add_executable(OutputDirTest test/OutputDirTest.cc src/OutputDir.cc)
+target_link_libraries(OutputDirTest ${Geant4_LIBRARIES})
+target_include_directories(OutputDirTest PRIVATE ${project_include_dirs})
+add_test(NAME OutputDirTest COMMAND OutputDirTest)
+
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but
 # CMAKE_BUILD_TYPE is known at build time with MSVC.

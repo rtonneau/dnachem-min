@@ -19,6 +19,7 @@
 #include "DetectorConstruction.hh"
 #include "DnaChemistryWorld.hh"
 #include "DnaLogger.hh"
+#include "OutputDir.hh"
 #include "PureWaterReactions.hh"
 #include "ReactionTableDump.hh"
 #include "ScavengerReactionAccess.hh"
@@ -236,7 +237,7 @@ void DnaChemistryList::ConstructProcess()
   // Both networks (bimolecular + acid-base) are fully constructed by this
   // point; opt-in dump for external checks (see /chem/reaction/dump).
   if (!fReactionDumpFile.empty()) {
-    ReactionTableDump::DumpReactionTable(fReactionDumpFile);
+    ReactionTableDump::DumpReactionTable(OutputDir::Resolve(fReactionDumpFile));
   }
 }
 

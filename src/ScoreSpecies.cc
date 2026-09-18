@@ -13,6 +13,8 @@
 //
 #include "ScoreSpecies.hh"
 
+#include "OutputDir.hh"
+
 #include "G4Event.hh"
 #include "G4UnitsTable.hh"
 
@@ -273,7 +275,7 @@ void ScoreSpecies::PrintAll()
 
 void ScoreSpecies::ASCII()
 {
-  std::ofstream out("Species.Txt");
+  std::ofstream out(OutputDir::Resolve("Species.Txt"));
   if (!out)
     return;
 
@@ -321,7 +323,7 @@ void ScoreSpecies::OutputAndClear()
 void ScoreSpecies::WriteWithAnalysisManager(G4VAnalysisManager *analysisManager)
 {
   //  G4cout << "ScoreSpecies::WriteWithAnalysisManager" << G4endl;
-  analysisManager->OpenFile("Species");
+  analysisManager->OpenFile(OutputDir::Resolve("Species"));
   int fNtupleID = analysisManager->CreateNtuple("species", "species");
   analysisManager->CreateNtupleIColumn(fNtupleID, "speciesID");
   analysisManager->CreateNtupleIColumn(fNtupleID, "number");
