@@ -39,6 +39,13 @@ target_include_directories(sim PRIVATE ${project_include_dirs})
 
 add_custom_target(Simulation DEPENDS sim)
 
+# Standalone unit test for ArgParser (no Geant4 runtime init required).
+enable_testing()
+add_executable(ArgParserTest test/ArgParserTest.cc src/ArgParser.cc)
+target_link_libraries(ArgParserTest ${Geant4_LIBRARIES})
+target_include_directories(ArgParserTest PRIVATE ${project_include_dirs})
+add_test(NAME ArgParserTest COMMAND ArgParserTest)
+
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but
 # CMAKE_BUILD_TYPE is known at build time with MSVC.

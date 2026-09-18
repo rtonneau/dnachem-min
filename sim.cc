@@ -6,6 +6,7 @@
 #include "DetectorConstruction.hh"
 #include "DnaLogger.hh"
 #include "DnaLoggerMessenger.hh"
+#include "ArgParser.hh"
 #include "PhysicsList.hh"
 
 #include "G4ScoringManager.hh"
@@ -23,45 +24,6 @@
 
 static const G4bool useGUI = false;
 std::ofstream out;
-
-// Parses an optional "--threads N" flag out of argv (the macro file, if given,
-// must be argv[1] and precede it). Returns the validated thread count, or 0 if
-// the flag was not given. Prints via DnaLogger and exits(1) on any malformed
-// or out-of-range value -- the DnaLogger level is forced to Error first since
-// it otherwise defaults to Quiet before "/dnaLogger/verbose" can be applied.
-static G4int ParseThreadsArg(int argc, char **argv)
-{
-  for (int i = 1; i < argc; ++i)
-  {
-    if (G4String(argv[i]) != "--threads")
-      continue;
-
-    auto fail = [](const G4String &message)
-    {
-      DnaLogger::SetLevel(DnaLogger::Level::Error);
-      DnaLogger::Print(DnaLogger::Level::Error, "--threads: " + message);
-      exit(1);
-    };
-
-    if (i + 1 >= argc)
-      fail("missing value");
-
-    const char *value = argv[i + 1];
-    char *end = nullptr;
-    long parsed = std::strtol(value, &end, 10);
-    if (end == value || *end != '\0' || parsed <= 0)
-      fail("value must be a positive integer, got '" + G4String(value) + "'");
-
-    G4int available = G4Threading::G4GetNumberOfCores();
-    if (parsed > available)
-      fail("requested " + std::to_string(parsed) + " threads, but only "
-           + std::to_string(available) + " cores are available");
-
-    return static_cast<G4int>(parsed);
-  }
-
-  return 0;
-}
 
 // Makes the RNG seed an explicit, documented property instead of an
 // undocumented CLHEP default. This reproduces the pre-chemistry physics
@@ -86,7 +48,26 @@ int main(int argc, char **argv)
 
   // Default is Serial (single-threaded, reproducible). Pass "--threads N" on
   // the command line to run multithreaded with N worker threads instead.
-  G4int requestedThreads = ParseThreadsArg(argc, argv);
+  // DnaLogger level is forced to Error first since it otherwise defaults to
+  // Quiet before "/dnaLogger/verbose" can be applied.
+  ArgParser argParser;
+  argParser.AddIntFlag("--threads", [](G4int value, G4String &err) {
+    G4int available = G4Threading::G4GetNumberOfCores();
+    if (value > available)
+    {
+      err = "requested " + std::to_string(value) + " threads, but only "
+            + std::to_string(available) + " cores are available";
+      return false;
+    }
+    return true;
+  });
+  if (!argParser.Parse(argc, argv))
+  {
+    DnaLogger::SetLevel(DnaLogger::Level::Error);
+    DnaLogger::Print(DnaLogger::Level::Error, argParser.GetError());
+    exit(1);
+  }
+  G4int requestedThreads = argParser.GetInt("--threads");
   G4RunManagerType runManagerType =
       (requestedThreads > 0) ? G4RunManagerType::MT : G4RunManagerType::Serial;
 
