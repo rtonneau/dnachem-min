@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Architecture review for dnachem-min — sim.cc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
+    </script>
+    <style>
+      .seam { stroke-dasharray: 4 4; }
+      .leak { stroke: #dc2626; }
+      .deep {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+      }
+      .badge {
+        display: inline-block;
+        padding: 0.15rem 0.6rem;
+        border-radius: 9999px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+      .badge-strong { background: #d1fae5; color: #065f46; }
+      .badge-explore { background: #fef3c7; color: #92400e; }
+      .badge-speculative { background: #e2e8f0; color: #334155; }
+      .tag {
+        display: inline-block;
+        padding: 0.1rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.7rem;
+        background: #eef2ff;
+        color: #3730a3;
+        font-family: ui-monospace, monospace;
+      }
+    </style>
+  </head>
+  <body class="bg-stone-50 text-slate-900 font-sans">
+    <main class="max-w-5xl mx-auto px-6 py-12 space-y-14">
+      <header class="space-y-3 border-b border-slate-200 pb-6">
+        <h1 class="font-serif text-3xl">Architecture review — dnachem-min</h1>
+        <p class="text-sm text-slate-500">sim.cc only · 2026-09-17</p>
+        <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-500 pt-2">
+          <span><span class="inline-block w-4 h-3 border border-slate-500 align-middle mr-1"></span>module</span>
+          <span><span class="inline-block w-4 h-0 border-t-2 border-dashed border-slate-500 align-middle mr-1"></span>seam</span>
+          <span><span class="inline-block w-4 h-0 border-t-2 border-red-600 align-middle mr-1"></span>leakage</span>
+          <span><span class="inline-block w-4 h-3 deep align-middle mr-1"></span>deep module</span>
+        </div>
+      </header>
+
+      <section id="candidates" class="space-y-14">
+
+        <!-- Candidate A -->
+        <article id="candidate-a" class="space-y-4">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="badge badge-strong">Strong</span>
+            <span class="tag">in-process</span>
+            <h2 class="font-serif text-xl">Give <code>ParseThreadsArg</code> a testable failure mode</h2>
+          </div>
+          <p class="font-mono text-sm text-slate-600">sim.cc:32–64</p>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">Before</p>
+              <div class="mermaid">
+                sequenceDiagram
+                  participant Caller
+                  participant Parse as ParseThreadsArg
+                  participant Proc as process
+                  Caller->>Parse: (argc, argv)
+                  Parse->>Parse: validate
+                  Parse--xProc: exit(1)
+                  Note over Proc: caller and any<br/>test harness die too
+              </div>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">After</p>
+              <div class="mermaid">
+                sequenceDiagram
+                  participant Caller
+                  participant Resolve as ResolveThreads
+                  Caller->>Resolve: (argc, argv)
+                  Resolve->>Resolve: validate
+                  Resolve-->>Caller: value | error
+                  Note over Caller: main logs + exits.<br/>a test just asserts.
+              </div>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="font-semibold text-slate-700">Problem</p>
+              <p>The interface's failure mode is <code>exit(1)</code> — invisible at the call site and fatal to whatever process calls it, so the validation logic (blank flag, non-numeric, over-core-count) can only be exercised by running the whole binary and reading stderr.</p>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-700">Solution</p>
+              <p>Return the parsed count or an error (e.g. a small variant, or throw and let <code>main</code> catch) instead of calling <code>exit</code> inside the module. <code>main</code> becomes the thin adapter that logs and exits; the module stays deep but its interface stops lying about what a caller can observe.</p>
+            </div>
+          </div>
+          <ul class="text-sm list-disc list-inside text-slate-700">
+            <li>Deletion test: the validation rules don't disappear, they'd have to be reinvented in <code>main</code> — this module earns its keep, it just hides its exit at the wrong seam</li>
+            <li>Leverage: same validation, callable from a unit test with no Geant4 runtime</li>
+            <li>Locality: every "what counts as a valid thread count" question answered in one place, including in a test</li>
+          </ul>
+        </article>
+
+        <!-- Candidate B -->
+        <article id="candidate-b" class="space-y-4">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="badge badge-strong">Strong</span>
+            <span class="tag">in-process</span>
+            <h2 class="font-serif text-xl">Extract a <code>RunConfig</code> resolver out of <code>main</code></h2>
+          </div>
+          <p class="font-mono text-sm text-slate-600">sim.cc:76–150</p>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">Before — interleaved</p>
+              <div class="mermaid">
+                flowchart TD
+                  A["parse --threads"] --> B["pick Serial vs MT"]
+                  B --> C["G4RunManagerFactory::Create"]
+                  C --> D["SetNumberOfThreads"]
+                  D --> E["resolve macro path<br/>(argv[1] or beam.in)"]
+                  E --> F["ApplyCommand /control/execute"]
+                  classDef leak stroke:#dc2626,stroke-width:2px;
+                  class B,E leak
+              </div>
+              <p class="text-xs text-slate-500 mt-2">Decision logic (B, E) sits between two Geant4 calls — can't test it without linking the whole run manager.</p>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">After — resolved, then wired</p>
+              <div class="mermaid">
+                flowchart TD
+                  R["ResolveRunConfig(argc, argv)<br/>-&gt; {type, threads, macroFile}"]:::deep --> W["wire Geant4 objects<br/>from the resolved config"]
+                  classDef deep fill:#0f172a,color:#fff,stroke:#0f172a;
+              </div>
+              <p class="text-xs text-slate-500 mt-2">One pure call, testable with plain argv arrays; <code>main</code> just acts on the result.</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="font-semibold text-slate-700">Problem</p>
+              <p>The thread count → run-manager-type decision and the <code>"macro/" + argv[1]</code>-or-<code>beam.in</code> fallback are plain statements sitting inside <code>main</code>, interleaved with <code>G4RunManagerFactory</code> calls. There is no seam a test can enter through — exercising "what macro file do we pick" means running the batch executable.</p>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-700">Solution</p>
+              <p>Pull the decisions into a pure <code>ResolveRunConfig(argc, argv)</code> returning a small struct (run-manager type, thread count, macro path). <code>main</code> calls it once, then does Geant4 wiring — unconditionally, no branching left to get wrong.</p>
+            </div>
+          </div>
+          <ul class="text-sm list-disc list-inside text-slate-700">
+            <li>Leverage: dnachem-min has no unit-test harness yet (per the CTest tickets in <code>.scratch/geant4-testing/</code>) — this is a natural first module that doesn't need a Geant4 runtime to test at all</li>
+            <li>Locality: the "which macro, how many threads" question moves from a scan of <code>main</code> to one function signature</li>
+            <li><code>main</code> shrinks to two calls: resolve, then wire</li>
+          </ul>
+        </article>
+
+        <!-- Candidate C -->
+        <article id="candidate-c" class="space-y-4">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="badge badge-explore">Worth exploring</span>
+            <span class="tag">ports &amp; adapters</span>
+            <h2 class="font-serif text-xl">Give GUI and batch execution a shared seam</h2>
+          </div>
+          <p class="font-mono text-sm text-slate-600">sim.cc:117–150</p>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">Before</p>
+              <div class="mermaid">
+                flowchart TD
+                  M[main] -->|useGUI true| G["inline: new G4VisExecutive,<br/>new G4UIExecutive, SessionStart,<br/>manual delete"]
+                  M -->|useGUI false| Bt["inline: build macro path,<br/>ApplyCommand /control/execute"]
+              </div>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">After</p>
+              <div class="mermaid">
+                flowchart TD
+                  M[main] -.->|seam| I["interface: Run(UIManager)"]
+                  I === GA["adapter: interactive session"]
+                  I === BA["adapter: batch macro"]
+                  classDef seamNode stroke-dasharray: 4 4;
+                  class I seamNode
+              </div>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="font-semibold text-slate-700">Problem</p>
+              <p>GUI and batch are two real adapters of "how the run executes" — two adapters justify a seam — but today they're an inline <code>if</code>/<code>else</code> in <code>main</code> with manual <code>new</code>/<code>delete</code> resource management duplicated in the GUI branch only.</p>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-700">Solution</p>
+              <p>A small <code>Run(mode, UIManager)</code> seam with an interactive adapter and a batch adapter, each owning its own resource lifetimes.</p>
+            </div>
+          </div>
+          <div class="rounded-md border border-amber-300 bg-amber-50 text-amber-900 text-sm p-3">
+            Tension: <code>CLAUDE.md</code> asks for no abstractions beyond what the task needs, and <code>useGUI</code> is a single hardcoded compile-time flag flipped by hand, not a runtime choice. Worth doing only if GUI mode sees real use beyond occasional interactive debugging — otherwise the interface being introduced would have exactly one caller per binary, which is a hypothetical seam, not a real one.
+          </div>
+        </article>
+
+        <!-- Candidate D -->
+        <article id="candidate-d" class="space-y-4">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="badge badge-speculative">Speculative</span>
+            <h2 class="font-serif text-xl">Dead <code>std::ofstream out;</code> global is now MT-adjacent</h2>
+          </div>
+          <p class="font-mono text-sm text-slate-600">sim.cc:25</p>
+          <div class="rounded-lg border border-slate-200 bg-white p-4 text-sm">
+            <p>File-scope <code>std::ofstream out;</code> has no reader or writer anywhere in <code>src/</code> — <code>ScoreSpecies.cc</code> declares its own local <code>out</code> for <code>Species.Txt</code> and never touches this one. <code>.claude/plan-class-based-chemistry.md</code> already flagged it as "unused; if wired up later it is not thread-safe. Leave alone for now."</p>
+          </div>
+          <p class="text-sm">That note predates this file's <code>--threads</code>/MT support added in the multithreading commit. The deletion test now clearly says delete: nothing reads this global, and MT worker threads make a future accidental write to it a real race rather than a hypothetical one. No seam is being served by keeping it.</p>
+        </article>
+
+      </section>
+
+      <section id="top-recommendation">
+        <div class="rounded-xl border-2 border-emerald-700 bg-emerald-50 p-6">
+          <p class="text-xs uppercase tracking-wider text-emerald-800 mb-1">Top recommendation</p>
+          <h2 class="font-serif text-xl mb-2">
+            <a href="#candidate-b" class="underline decoration-emerald-700">Extract the <code>RunConfig</code> resolver (Candidate B)</a>
+          </h2>
+          <p class="text-sm text-emerald-900">dnachem-min has no unit-test harness yet — only full-binary macro runs. <code>ResolveRunConfig</code> would be the first module in the project testable without a Geant4 runtime at all, and it directly de-risks the CLI/thread-count logic the project is already worried about getting right (per the CTest ticket series). Pair it with Candidate A so the resolver's own failure paths are assertable, not just its happy path.</p>
+        </div>
+      </section>
+
+    </main>
+  </body>
+</html>

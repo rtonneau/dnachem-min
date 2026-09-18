@@ -1,0 +1,38 @@
+{
+  "runconfig-resolver": {
+    "strength": "Strong",
+    "files": [
+      "sim.cc"
+    ],
+    "problem": "The Serial-vs-MT decision and the \"macro/\" + argv[1]-or-beam.in fallback are plain statements interleaved with G4RunManagerFactory calls inside main, with no seam a test can enter through.",
+    "solution": "Extract a pure ResolveRunConfig(argc, argv) returning {type, threads, macroFile}; main calls it once, then wires Geant4 objects from the result.",
+    "benefits": "Leverage: first module in the project testable without a Geant4 runtime. Locality: the \"which macro, how many threads\" question moves from a scan of main to one function signature.",
+    "sourceDirection": "only review sim.cc",
+    "sourceReport": "scout-reports/architecture-review-2026-09-17T15-51-54-188Z.html",
+    "createdAt": "2026-09-17T15:51:54.188Z"
+  },
+  "gui-batch-seam": {
+    "strength": "Worth exploring",
+    "files": [
+      "sim.cc"
+    ],
+    "problem": "GUI and batch are two real adapters of how the run executes, but today they're an inline if/else in main with manual new/delete resource management duplicated only in the GUI branch.",
+    "solution": "Give them a shared Run(mode, UIManager) seam with an interactive adapter and a batch adapter, each owning its own resource lifetimes.",
+    "benefits": "Tension flagged: useGUI is a hardcoded compile-time flag with one caller per binary, a hypothetical seam per CLAUDE.md's no-extra-abstraction rule -- only worth it if GUI mode sees real use beyond occasional debugging.",
+    "sourceDirection": "only review sim.cc",
+    "sourceReport": "scout-reports/architecture-review-2026-09-17T15-51-54-188Z.html",
+    "createdAt": "2026-09-17T15:51:54.188Z"
+  },
+  "remove-dead-out-global": {
+    "strength": "Speculative",
+    "files": [
+      "sim.cc"
+    ],
+    "problem": "File-scope std::ofstream out; has no reader or writer anywhere in src/ -- ScoreSpecies.cc declares its own unrelated local out for Species.Txt.",
+    "solution": "Delete the dead global. Previously flagged 'leave alone for now' in .claude/plan-class-based-chemistry.md, but that note predates this file's new --threads/MT support, which makes an eventual accidental write to it a real data race rather than a hypothetical one.",
+    "benefits": "Deletion test says delete: nothing reads this global, and no seam is being served by keeping it.",
+    "sourceDirection": "only review sim.cc",
+    "sourceReport": "scout-reports/architecture-review-2026-09-17T15-51-54-188Z.html",
+    "createdAt": "2026-09-17T15:51:54.188Z"
+  }
+}
