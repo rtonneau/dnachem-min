@@ -2,6 +2,7 @@
 #define CHEM4_Run_h 1
 
 #include "DetectorConstruction.hh"
+#include "ReactionCounter.hh"
 
 #include "G4Run.hh"
 #include "globals.hh"
@@ -23,10 +24,17 @@ public:
 
     G4double GetSumDose() const { return fSumEne; }
     G4VPrimitiveScorer *GetPrimitiveScorer() const { return fScorerRun; }
+    ReactionCounter *GetReactionCounter() const { return fReactionCounter; }
 
 private:
     G4double fSumEne;
     G4VPrimitiveScorer *fScorerRun;
+    // Points at TimeStepAction's live counter on a worker thread (where
+    // reactions are actually counted); on the master thread (which never
+    // registers a TimeStepAction/runs chemistry) falls back to
+    // fOwnedReactionCounter, used purely as the Merge() accumulation target.
+    ReactionCounter *fReactionCounter;
+    ReactionCounter fOwnedReactionCounter;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

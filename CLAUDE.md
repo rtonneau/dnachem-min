@@ -39,6 +39,8 @@ ntuples, `Species_nt_species.csv` (aggregate sumG/sumG2 per species/time) and
 `Species_nt_species_all.csv` (same, per event); in MT mode the per-event
 pre-chemical dumps are `output_event_t<thread>_e<event>.txt`.
 
+Each run also writes `Reactions.Txt` and `Reactions_nt_reactions.csv`: per-time-bin firing counts of each bimolecular reaction (counted live in `TimeStepAction::UserReactionAction` via `ReactionCounter`, merged across threads in `Run::Merge`, aggregated over all events). Acid-base/scavenger reactions are not counted (they never reach that hook). Multiple `/run/beamOn` in one macro overwrite `Reactions.Txt` and produce `_bis` CSV names, same as the species files.
+
 Pass `--dir <path>` to redirect every output file above (plus the
 `/chem/reaction/dump` target, if the macro sets one) into `<path>` instead of
 cwd — useful for isolating each run's output when scripting many `sim.exe`

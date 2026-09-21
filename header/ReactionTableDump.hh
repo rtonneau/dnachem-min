@@ -15,9 +15,17 @@
 #include "globals.hh"
 
 #include <iosfwd>
+#include <vector>
 
 namespace ReactionTableDump
 {
+/// Formats "A + B -> C + D" (no rate) from reactant/product names. Pure
+/// string logic, shared by WriteLine here and by TimeStepAction's live
+/// per-occurrence reaction counting, so both report reactions under
+/// identical labels.
+G4String FormatReactionLabel(const G4String& reactant1, const G4String& reactant2,
+                              const std::vector<G4String>& productNames);
+
 /// Writes the shared bimolecular reaction table (pure water + O2 network).
 void WriteBimolecular(std::ostream& out);
 

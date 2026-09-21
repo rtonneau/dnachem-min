@@ -52,6 +52,20 @@ target_link_libraries(OutputDirTest ${Geant4_LIBRARIES})
 target_include_directories(OutputDirTest PRIVATE ${project_include_dirs})
 add_test(NAME OutputDirTest COMMAND OutputDirTest)
 
+# Standalone unit test for ReactionTableDump::FormatReactionLabel (pure string
+# logic, no Geant4 runtime init required).
+add_executable(ReactionTableDumpTest test/ReactionTableDumpTest.cc src/ReactionTableDump.cc src/DnaLogger.cc)
+target_link_libraries(ReactionTableDumpTest ${Geant4_LIBRARIES})
+target_include_directories(ReactionTableDumpTest PRIVATE ${project_include_dirs})
+add_test(NAME ReactionTableDumpTest COMMAND ReactionTableDumpTest)
+
+# Standalone unit test for ReactionCounter (pure accumulation/binning logic,
+# no Geant4 runtime init required).
+add_executable(ReactionCounterTest test/ReactionCounterTest.cc src/ReactionCounter.cc src/OutputDir.cc)
+target_link_libraries(ReactionCounterTest ${Geant4_LIBRARIES})
+target_include_directories(ReactionCounterTest PRIVATE ${project_include_dirs})
+add_test(NAME ReactionCounterTest COMMAND ReactionCounterTest)
+
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but
 # CMAKE_BUILD_TYPE is known at build time with MSVC.

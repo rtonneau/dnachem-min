@@ -2,6 +2,7 @@
 #define ITACTION_H
 
 #include "G4UserTimeStepAction.hh"
+#include "ReactionCounter.hh"
 
 class TimeStepAction : public G4UserTimeStepAction
 {
@@ -20,9 +21,13 @@ public:
 
   virtual void EndProcessing();
 
+  ReactionCounter &GetReactionCounter() { return fReactionCounter; }
+
 private:
   void WriteChemistryOutput(G4int eventID); // Helper function to write output
   void DumpPreChemical(G4int eventID);      // Helper function to dump pre-chemical state
+
+  ReactionCounter fReactionCounter;
 };
 
 #endif // ITACTION_H

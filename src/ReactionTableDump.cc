@@ -14,6 +14,7 @@
 
 #include <fstream>
 #include <ostream>
+#include <sstream>
 #include <vector>
 
 namespace
@@ -24,21 +25,34 @@ void WriteLine(std::ostream& out, const G4String& reactant1, const G4String& rea
                G4double rate,
                const std::vector<const G4MolecularConfiguration*>& products)
 {
-  out << reactant1 << " + " << reactant2 << " ->";
-  if (products.empty()) {
-    out << " (no products)";
+  std::vector<G4String> productNames;
+  productNames.reserve(products.size());
+  for (const auto* p : products) {
+    productNames.push_back(p->GetName());
   }
-  else {
-    for (std::size_t i = 0; i < products.size(); ++i) {
-      out << (i == 0 ? " " : " + ") << products[i]->GetName();
-    }
-  }
-  out << "    k = " << (rate / kRateUnit) << " M^-1 s^-1\n";
+  out << ReactionTableDump::FormatReactionLabel(reactant1, reactant2, productNames) << "    k = "
+      << (rate / kRateUnit) << " M^-1 s^-1\n";
 }
 }  // namespace
 
 namespace ReactionTableDump
 {
+G4String FormatReactionLabel(const G4String& reactant1, const G4String& reactant2,
+                              const std::vector<G4String>& productNames)
+{
+  std::ostringstream oss;
+  oss << reactant1 << " + " << reactant2 << " ->";
+  if (productNames.empty()) {
+    oss << " (no products)";
+  }
+  else {
+    for (std::size_t i = 0; i < productNames.size(); ++i) {
+      oss << (i == 0 ? " " : " + ") << productNames[i];
+    }
+  }
+  return oss.str();
+}
+
 void WriteBimolecular(std::ostream& out)
 {
   auto* reactionTable = G4DNAMolecularReactionTable::GetReactionTable();

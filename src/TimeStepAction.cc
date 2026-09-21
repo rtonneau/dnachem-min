@@ -1,18 +1,24 @@
 #include "TimeStepAction.hh"
 
+#include "DnaLogger.hh"
 #include "OutputDir.hh"
+#include "ReactionTableDump.hh"
 
 #include "G4DNAChemistryManager.hh"
+#include "G4DNAMolecularReactionTable.hh"
 #include "G4Scheduler.hh"
 #include "G4ITTrackHolder.hh"
 #include "G4AnalysisManager.hh"
+#include "G4Molecule.hh"
+#include "G4MolecularConfiguration.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
 #include "G4RunManager.hh"
 #include "G4Threading.hh"
 
+#include <vector>
+
 // #include "G4ITScheduler.hh"
-// #include "G4Molecule.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -76,10 +82,37 @@ void TimeStepAction::UserPostTimeStepAction() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-// Here you can retrieve information related to reactions
-void TimeStepAction::UserReactionAction(const G4Track & /*a*/, const G4Track & /*b*/,
+// Counts each bimolecular reaction that fires, binned by time, so a
+// per-reaction rate-over-time output can be written at end of run (see
+// Run::Merge / RunAction::EndOfRunAction).
+void TimeStepAction::UserReactionAction(const G4Track &a, const G4Track &b,
                                         const std::vector<G4Track *> * /*products*/)
 {
+  const auto *molA = GetMolecule(a)->GetMolecularConfiguration();
+  const auto *molB = GetMolecule(b)->GetMolecularConfiguration();
+
+  const auto *reactionData =
+      G4DNAMolecularReactionTable::GetReactionTable()->GetReactionData(molA, molB);
+  if (reactionData == nullptr) {
+    DnaLogger::Print(DnaLogger::Level::Warning,
+                     "[TimeStepAction] reaction fired with no matching reaction-table entry: "
+                     + molA->GetName() + " + " + molB->GetName());
+    return;
+  }
+
+  std::vector<G4String> productNames;
+  const G4int nbProducts = reactionData->GetNbProducts();
+  productNames.reserve(nbProducts);
+  for (G4int i = 0; i < nbProducts; ++i) {
+    productNames.push_back(reactionData->GetProduct(i)->GetName());
+  }
+
+  G4String label = ReactionTableDump::FormatReactionLabel(
+      reactionData->GetReactant1()->GetName(), reactionData->GetReactant2()->GetName(),
+      productNames);
+
+  fReactionCounter.Record(label, G4Scheduler::Instance()->GetGlobalTime());
+
   // Example to display reactions with product
   // S. Incerti, H. Tran
   // 2019/01/24
