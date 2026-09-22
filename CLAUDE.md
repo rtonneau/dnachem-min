@@ -12,22 +12,9 @@ The geometry is one homogeneous water box. Do not introduce voxelization or G4Vo
 
 Requirements: Geant4 11.0+ with DNA models, CMake 3.16+, a C++20 compiler, and HDF5 with C++ support.
 
-Building always requires the MSVC x64 dev environment loaded in the shell first — a plain shell fails on the compile step with missing STL headers (e.g. `cstddef`, `complex`) even though `cmake` configures without error. Load it before the build commands below, e.g. from PowerShell:
+How to build, run and test (MSVC environment, the `build/` vs `build-ninja/` split, background runs, verification checklist) is in `.claude/geant4-instructions.md`; the values it uses are the `build`, `run` and `test` sections of `.claude/.claude-project.json`. Follow it instead of re-deriving the procedure.
 
-```powershell
-$vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-cmd /c "`"$vsPath\VC\Auxiliary\Build\vcvars64.bat`" && <build commands>"
-```
-
-Build outside the source tree using `RelWithDebInfo`:
-
-```bash
-cd build
-cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
-cmake --build . --config RelWithDebInfo
-```
-
-Run from `build/`; the build copies `macro/` there. `sim.cc` prepends `macro/` to the argument itself, so pass the filename only:
+Project-specific: `build/` is RelWithDebInfo (run `sim`), `build-ninja/` is Debug (ctest). `sim.cc` prepends `macro/` to the macro argument itself, so pass the filename only, from the run build dir (the build copies `macro/` there):
 
 ```bash
 ./sim beam.in      # pure-water radiolysis
@@ -54,7 +41,7 @@ filename must still come first (`argv[1]`):
 
 ## Key Files
 
-- `sim.cc`: application setup. Runs multithreaded by default (`G4RunManagerType::MT`, batch default 4 threads; `/run/numberOfThreads N` overrides before `/run/initialize`; flip to `Serial` in one line for reproducible runs). Set `useGUI` to `true` only for interactive GUI runs. CLI flags (`--threads`, `--dir`) are registered here via `src/ArgParser.cc`.
+- `sim.cc`: application setup. Runs Serial by default; `--threads N` (N > 0) selects the MT run manager (`G4RunManagerType::MT`), and `/run/numberOfThreads N` in a macro can still override before `/run/initialize`. Set `useGUI` to `true` only for interactive GUI runs. CLI flags (`--threads`, `--dir`) are registered here via `src/ArgParser.cc`.
 - `src/OutputDir.cc`: process-wide output directory (`--dir`), configured once in `main()` before any worker thread starts. `Resolve(filename)` is called at every output-file site (`ScoreSpecies.cc`, `TimeStepAction.cc`, `DnaChemistryList.cc`'s reaction-table dump) to prefix it onto the configured directory, or leaves it unchanged when `--dir` wasn't passed.
 - `src/DetectorConstruction.cc`: homogeneous water-box geometry; owns the `DnaChemistryWorld` (its boundary sizes the world box).
 - `src/PhysicsList.cc`: simplified UHDR-style modular list — holds `G4EmDNAPhysics` + `DnaChemistryList` and drives their `ConstructParticle()`/`ConstructProcess()` directly (no string dispatch, no `RegisterPhysics`). Change the EM-DNA physics option by editing the constructor. Sets SBS as the chemistry time-step model (the only one `DnaChemistryList` supports).
@@ -81,6 +68,8 @@ Use the project-defined `DnaLogger` for application logging. Set its level in a 
 The logger is implemented in `src/DnaLogger.cc` and exposed to Geant4 commands by `src/DnaLoggerMessenger.cc`. Use `/dnaLogger/verbose Debug` for detailed diagnostics; do not add ad hoc console logging where `DnaLogger` is appropriate.
 
 ## Testing
+
+Unit tests (`test/*Test.cc`, plain `assert` + CTest) must be built and run from `build-ninja/` (Debug); see `.claude/geant4-instructions.md` section 5 for the `NDEBUG` and Debug-CRT-dialog pitfalls.
 
 When testing `sim.exe`, use a 25 keV electron gun and `/run/beamOn 10`. The chemistry time limit defaults to 1 µs, set by `G4Scheduler::Instance()->SetEndTime(1. * microsecond)` in `src/ActionInitialization.cc::Build()`, which runs on `/run/initialize`. To override it in a macro, issue `/scheduler/endTime <value> <unit>` *after* `/run/initialize` — a command issued before that point gets overwritten by `Build()`'s hardcoded call.
 
