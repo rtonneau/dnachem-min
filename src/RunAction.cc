@@ -119,6 +119,17 @@ void RunAction::EndOfRunAction(const G4Run *run)
                               "[RunAction] reaction counts written (Reactions.Txt / "
                               "Reactions_nt_reactions.csv / ReactionsMetadata.csv)");
         }
+
+        // Write the total energy deposited in the simulation volume (merged
+        // across worker threads by Run::Merge; accumulated per-step by
+        // ScoreSpecies::ProcessHits into Run::fSumEne).
+        std::ofstream energyOut(OutputDir::Resolve("EnergyDeposit.Txt"));
+        energyOut << "Total energy deposited in simulation volume: "
+                  << G4BestUnit(masterRun->GetSumDose(), "Energy") << "\n";
+        energyOut.close();
+
+        DnaLogger::Print(DnaLogger::Level::Info,
+                          "[RunAction] energy deposit written (EnergyDeposit.Txt)");
     }
 }
 
