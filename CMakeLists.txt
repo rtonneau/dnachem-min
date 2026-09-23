@@ -66,6 +66,13 @@ target_link_libraries(ReactionCounterTest ${Geant4_LIBRARIES})
 target_include_directories(ReactionCounterTest PRIVATE ${project_include_dirs})
 add_test(NAME ReactionCounterTest COMMAND ReactionCounterTest)
 
+# Standalone unit test for PhysicsInteractionCounter (fully generic,
+# portable, no dnachem-min-specific dependency -- no OutputDir.cc needed).
+add_executable(PhysicsInteractionCounterTest test/PhysicsInteractionCounterTest.cc src/PhysicsInteractionCounter.cc)
+target_link_libraries(PhysicsInteractionCounterTest ${Geant4_LIBRARIES})
+target_include_directories(PhysicsInteractionCounterTest PRIVATE ${project_include_dirs})
+add_test(NAME PhysicsInteractionCounterTest COMMAND PhysicsInteractionCounterTest)
+
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but
 # CMAKE_BUILD_TYPE is known at build time with MSVC.
