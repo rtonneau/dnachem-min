@@ -28,6 +28,16 @@ pre-chemical dumps are `output_event_t<thread>_e<event>.txt`.
 
 Each run also writes `Reactions.Txt`, `Reactions_nt_reactions.csv`, and `ReactionsMetadata.csv`: per-time-bin firing counts of each bimolecular reaction (counted live in `TimeStepAction::UserReactionAction` via `ReactionCounter`, merged across threads in `Run::Merge`, aggregated over all events). `Reactions_nt_reactions.csv` rows are `(reactionId, time, count)`; `ReactionsMetadata.csv` maps each `reactionId` to its full `"A + B -> C + D"` label (`Reactions.Txt` still prints the full label directly). Acid-base/scavenger reactions are not counted (they never reach that hook). Multiple `/run/beamOn` in one macro overwrite `Reactions.Txt` and produce `_bis` CSV names, same as the species files. The default time-bin edges are a built-in 7-entry table; override them with `/chem/reaction/timeBinsFixed <width> <unit>` (a fixed step, expanded up to the chemistry scheduler's end time) or `/chem/reaction/timeBinsList <e1> <e2> ... <eN> <unit>` (explicit edges) — both `PreInit`, mutually exclusive (last one issued wins). The `[RunAction] reaction counts written...` line is logged via `DnaLogger` at `Info` level, so it's silent by default (`/dnaLogger/verbose Info` to see it).
 
+Each run also writes `EnergyDeposit.Txt` (total energy deposited in the simulation
+volume, human-readable) and `PhysicsInteractions.Txt`/`PhysicsInteractions.csv`
+(per-process physical-interaction firing counts — totals only, no time binning;
+only discrete G4DNA physics processes are counted, e.g. `e-_G4DNAIonisation`,
+`e-_G4DNAExcitation`, `e-_G4DNAElastic`, `e-_G4DNAVibExcitation`,
+`e-_G4DNAAttachment` — `Transportation` and other bookkeeping steps are excluded).
+These are wired in `RunAction::EndOfRunAction` the same way as the species/reaction
+outputs: `PhysicsInteractionCounter` is recorded live per step by `SteppingAction`,
+merged across worker threads in `Run::Merge`, and cleared after writing.
+
 Pass `--dir <path>` to redirect every output file above (plus the
 `/chem/reaction/dump` target, if the macro sets one) into `<path>` instead of
 cwd — useful for isolating each run's output when scripting many `sim.exe`
@@ -55,6 +65,8 @@ silently picking one; the same path from both is a harmless no-op.
 - `src/DnaChemistryList.cc`: project chemical stage (`G4VUserChemistryList` + `G4VPhysicsConstructor`) — molecule set, water dissociation, reaction table, time-step model. Replaces macro `/chem/species` and `/chem/reaction/add`. Hard-codes SBS as the only chemistry time-step model (IRT and IRT_syn are not supported). Pure-water + O2-derived reaction chemistry lives in `PureWaterReactions.cc`; the pH-driven acid-base buffer network (`H3Op(B)`/`OHm(B)`, registered as per-molecule `G4DNAScavengerProcess`) and the full O2⁻/HO2/HO2⁻/O⁻/O3⁻ network are baseline/unconditional — this chemistry can produce O2 from pure water radiolysis on its own (see `docs/adr/0001-baseline-acid-base-buffer.md`). Only an exogenous dissolved-O2 supply mechanism remains deferred to future work — `/chem/env/O2` currently has no effect on the chemistry. Also owns `/chem/reaction/timeBinsFixed` / `timeBinsList` (`ApplyReactionTimeBinning()`, applied from `RunAction::BeginOfRunAction` once the scheduler end time is final) and `/chem/reaction/dump`.
 - `src/ReactionCounter.cc`: per-time-bin bimolecular reaction-firing counts. Kernel/DLL-free by design (see file header) — `ConfigureBinEdges`/`ParseBinEdgesList` are covered by `test/ReactionCounterTest.cc`; do not call `G4UnitDefinition::GetValueOf()` from here or its test (observed to corrupt memory when the Debug test binary links a differently-built Geant4 install — use the local `TimeUnitValue` table instead).
 - `src/PureWaterReactions.cc`: portable, project-agnostic reaction-table builder (`PureWaterReactions::BuildPureWaterReactions`) — the 9 base pure-water reactions plus the full O2-derived second-order network from the Geant4-DNA UHDR example. No `dnachem-min`-specific includes; copy-paste portable to another project.
+- `src/PhysicsInteractionCounter.cc`: portable, project-agnostic string-frequency counter (`Record`/`Merge`/`Clear`/`WriteAscii`/`WriteCsv`, stream-only I/O, no dnachem-min-specific includes) — copy-paste portable to another Geant4-DNA project, same convention as `PureWaterReactions.cc`.
+- `src/SteppingAction.cc`: per-step physical-interaction counting — records `G4Step::GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()` into a `PhysicsInteractionCounter` whenever the name contains `"G4DNA"` (discrete G4DNA physics processes only, excludes `Transportation`).
 - `src/DnaChemistryWorld.cc`: `G4VChemistryWorld` subclass — diffusion boundary + bulk solvent composition (water, H3O+/OH- from pH, optional dissolved O2). Messenger: `/chem/env/pH`, `/chem/env/O2` (both PreInit).
 - `src/PrimaryGeneratorAction.cc`: electron source configuration.
 - `src/TimeStepAction.cc`: chemistry time stepping.

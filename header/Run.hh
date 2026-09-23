@@ -3,6 +3,7 @@
 
 #include "DetectorConstruction.hh"
 #include "ReactionCounter.hh"
+#include "PhysicsInteractionCounter.hh"
 
 #include "G4Run.hh"
 #include "globals.hh"
@@ -25,6 +26,7 @@ public:
     G4double GetSumDose() const { return fSumEne; }
     G4VPrimitiveScorer *GetPrimitiveScorer() const { return fScorerRun; }
     ReactionCounter *GetReactionCounter() const { return fReactionCounter; }
+    PhysicsInteractionCounter *GetInteractionCounter() const { return fInteractionCounter; }
 
 private:
     G4double fSumEne;
@@ -35,6 +37,10 @@ private:
     // fOwnedReactionCounter, used purely as the Merge() accumulation target.
     ReactionCounter *fReactionCounter;
     ReactionCounter fOwnedReactionCounter;
+    // Same pattern as fReactionCounter/fOwnedReactionCounter, but for
+    // SteppingAction's live PhysicsInteractionCounter.
+    PhysicsInteractionCounter *fInteractionCounter;
+    PhysicsInteractionCounter fOwnedInteractionCounter;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

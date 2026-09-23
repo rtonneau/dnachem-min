@@ -3,6 +3,7 @@
 #include "RunAction.hh"
 #include "ScoreSpecies.hh"
 #include "TimeStepAction.hh"
+#include "SteppingAction.hh"
 
 #include "G4Event.hh"
 #include "G4HCofThisEvent.hh"
@@ -16,7 +17,7 @@
 
 #include <map>
 
-Run::Run() : G4Run(), fSumEne(0), fScorerRun(0), fReactionCounter(nullptr)
+Run::Run() : G4Run(), fSumEne(0), fScorerRun(0), fReactionCounter(nullptr), fInteractionCounter(nullptr)
 {
     G4MultiFunctionalDetector *mfdet = dynamic_cast<G4MultiFunctionalDetector *>(
         G4SDManager::GetSDMpointer()->FindSensitiveDetector("mfDetector"));
@@ -28,6 +29,11 @@ Run::Run() : G4Run(), fSumEne(0), fScorerRun(0), fReactionCounter(nullptr)
         dynamic_cast<TimeStepAction *>(G4Scheduler::Instance()->GetUserTimeStepAction());
     fReactionCounter =
         (timeStepAction != nullptr) ? &timeStepAction->GetReactionCounter() : &fOwnedReactionCounter;
+
+    auto *steppingAction = const_cast<SteppingAction *>(
+        dynamic_cast<const SteppingAction *>(G4RunManager::GetRunManager()->GetUserSteppingAction()));
+    fInteractionCounter =
+        (steppingAction != nullptr) ? &steppingAction->GetInteractionCounter() : &fOwnedInteractionCounter;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -85,6 +91,9 @@ void Run::Merge(const G4Run *aRun)
     // merging so a subsequent run doesn't double-count.
     fReactionCounter->Merge(*localRun->fReactionCounter);
     localRun->fReactionCounter->Clear();
+
+    fInteractionCounter->Merge(*localRun->fInteractionCounter);
+    localRun->fInteractionCounter->Clear();
 
     G4Run::Merge(aRun);
 }

@@ -119,6 +119,37 @@ void RunAction::EndOfRunAction(const G4Run *run)
                               "[RunAction] reaction counts written (Reactions.Txt / "
                               "Reactions_nt_reactions.csv / ReactionsMetadata.csv)");
         }
+
+        // Write the total energy deposited in the simulation volume (merged
+        // across worker threads by Run::Merge; accumulated per-step by
+        // ScoreSpecies::ProcessHits into Run::fSumEne).
+        std::ofstream energyOut(OutputDir::Resolve("EnergyDeposit.Txt"));
+        energyOut << "Total energy deposited in simulation volume: "
+                  << G4BestUnit(masterRun->GetSumDose(), "Energy") << "\n";
+        energyOut.close();
+
+        DnaLogger::Print(DnaLogger::Level::Info,
+                          "[RunAction] energy deposit written (EnergyDeposit.Txt)");
+
+        // Write the physical-stage interaction firing counts (merged across
+        // worker threads by Run::Merge -> PhysicsInteractionCounter::Merge).
+        PhysicsInteractionCounter *interactionCounter = masterRun->GetInteractionCounter();
+        if (interactionCounter != nullptr)
+        {
+            std::ofstream interactionsOut(OutputDir::Resolve("PhysicsInteractions.Txt"));
+            interactionCounter->WriteAscii(interactionsOut);
+            interactionsOut.close();
+
+            std::ofstream interactionsCsv(OutputDir::Resolve("PhysicsInteractions.csv"));
+            interactionCounter->WriteCsv(interactionsCsv);
+            interactionsCsv.close();
+
+            interactionCounter->Clear();
+
+            DnaLogger::Print(DnaLogger::Level::Info,
+                              "[RunAction] physical interaction counts written "
+                              "(PhysicsInteractions.Txt / PhysicsInteractions.csv)");
+        }
     }
 }
 
