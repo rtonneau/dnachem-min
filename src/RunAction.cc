@@ -130,6 +130,26 @@ void RunAction::EndOfRunAction(const G4Run *run)
 
         DnaLogger::Print(DnaLogger::Level::Info,
                           "[RunAction] energy deposit written (EnergyDeposit.Txt)");
+
+        // Write the physical-stage interaction firing counts (merged across
+        // worker threads by Run::Merge -> PhysicsInteractionCounter::Merge).
+        PhysicsInteractionCounter *interactionCounter = masterRun->GetInteractionCounter();
+        if (interactionCounter != nullptr)
+        {
+            std::ofstream interactionsOut(OutputDir::Resolve("PhysicsInteractions.Txt"));
+            interactionCounter->WriteAscii(interactionsOut);
+            interactionsOut.close();
+
+            std::ofstream interactionsCsv(OutputDir::Resolve("PhysicsInteractions.csv"));
+            interactionCounter->WriteCsv(interactionsCsv);
+            interactionsCsv.close();
+
+            interactionCounter->Clear();
+
+            DnaLogger::Print(DnaLogger::Level::Info,
+                              "[RunAction] physical interaction counts written "
+                              "(PhysicsInteractions.Txt / PhysicsInteractions.csv)");
+        }
     }
 }
 

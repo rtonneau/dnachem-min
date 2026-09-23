@@ -8,6 +8,7 @@
 #include "RunAction.hh"
 #include "EventAction.hh"
 #include "TrackingAction.hh"
+#include "SteppingAction.hh"
 
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
@@ -40,6 +41,7 @@ void ActionInitialization::Build() const
   SetUserAction(new EventAction());
   SetUserAction(new StackingAction());
   SetUserAction(new TrackingAction());
+  SetUserAction(new SteppingAction());
   // Chemistry part
   if (G4DNAChemistryManager::IsActivated())
   {
