@@ -80,6 +80,65 @@ static void TestConfigureRejectsMissingParent()
   assert(!fs::exists(target));
 }
 
+// --- ConfigureFromMacro --------------------------------------------------
+
+static void TestConfigureFromMacroSetsDirWhenNoneConfiguredYet()
+{
+  ResetTestRoot();
+  G4String err;
+  assert(OutputDir::Configure("", err)); // simulates --dir absent
+
+  fs::path target = TestRoot() / "macro-only";
+  assert(OutputDir::ConfigureFromMacro(target.string().c_str(), err));
+  assert(err.empty());
+  assert(fs::exists(target));
+  assert(fs::is_directory(target));
+}
+
+static void TestConfigureFromMacroNoOpWhenSamePathAlreadyConfigured()
+{
+  ResetTestRoot();
+  fs::path target = TestRoot() / "same-path";
+
+  G4String err;
+  assert(OutputDir::Configure(target.string().c_str(), err)); // simulates --dir <target>
+  assert(OutputDir::ConfigureFromMacro(target.string().c_str(), err));
+  assert(err.empty());
+}
+
+static void TestConfigureFromMacroConflictsWithDifferentCliPath()
+{
+  ResetTestRoot();
+  fs::path cliTarget = TestRoot() / "from-cli";
+  fs::path macroTarget = TestRoot() / "from-macro";
+
+  G4String err;
+  assert(OutputDir::Configure(cliTarget.string().c_str(), err)); // simulates --dir <cliTarget>
+  assert(!OutputDir::ConfigureFromMacro(macroTarget.string().c_str(), err));
+  assert(!err.empty());
+
+  // State must be unchanged: Resolve() still uses the CLI-configured directory.
+  fs::path expected = cliTarget / "Species.Txt";
+  assert(OutputDir::Resolve("Species.Txt") == expected.string().c_str());
+}
+
+static void TestConfigureFromMacroConflictsWithDifferentEarlierMacroPath()
+{
+  ResetTestRoot();
+  G4String err;
+  assert(OutputDir::Configure("", err)); // simulates --dir absent
+
+  fs::path firstTarget = TestRoot() / "macro-first";
+  fs::path secondTarget = TestRoot() / "macro-second";
+
+  assert(OutputDir::ConfigureFromMacro(firstTarget.string().c_str(), err));
+  assert(!OutputDir::ConfigureFromMacro(secondTarget.string().c_str(), err));
+  assert(!err.empty());
+
+  fs::path expected = firstTarget / "Species.Txt";
+  assert(OutputDir::Resolve("Species.Txt") == expected.string().c_str());
+}
+
 // --- Resolve -------------------------------------------------------------
 
 static void TestResolveWithoutConfigureReturnsFilenameUnchanged()
@@ -109,6 +168,10 @@ int main()
   TestConfigureAcceptsAlreadyExistingDirectory();
   TestConfigureRejectsPathThatIsAFile();
   TestConfigureRejectsMissingParent();
+  TestConfigureFromMacroSetsDirWhenNoneConfiguredYet();
+  TestConfigureFromMacroNoOpWhenSamePathAlreadyConfigured();
+  TestConfigureFromMacroConflictsWithDifferentCliPath();
+  TestConfigureFromMacroConflictsWithDifferentEarlierMacroPath();
   TestResolveWithoutConfigureReturnsFilenameUnchanged();
   TestResolveJoinsConfiguredDirectory();
 

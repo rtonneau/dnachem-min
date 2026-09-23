@@ -34,6 +34,16 @@ void WriteAcidBase(std::ostream& out);
 
 /// Opens `filename` and writes both networks, in labeled sections.
 void DumpReactionTable(const G4String& filename);
+
+/// Returns the formatted label for the bimolecular reaction with this
+/// `reactionID` (G4DNAMolecularReactionData::GetReactionID(), 1-based,
+/// stable once the reaction table is built). Builds and caches the full
+/// id -> label table from the live G4DNAMolecularReactionTable singleton on
+/// first call; safe to call concurrently from worker threads (the cache is
+/// built once, read-only after). Used by TimeStepAction's live
+/// per-occurrence reaction counting to avoid re-formatting the label on
+/// every firing.
+const G4String& LabelFor(G4int reactionID);
 }  // namespace ReactionTableDump
 
 #endif  // ReactionTableDump_h

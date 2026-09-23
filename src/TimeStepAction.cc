@@ -100,17 +100,7 @@ void TimeStepAction::UserReactionAction(const G4Track &a, const G4Track &b,
     return;
   }
 
-  std::vector<G4String> productNames;
-  const G4int nbProducts = reactionData->GetNbProducts();
-  productNames.reserve(nbProducts);
-  for (G4int i = 0; i < nbProducts; ++i) {
-    productNames.push_back(reactionData->GetProduct(i)->GetName());
-  }
-
-  G4String label = ReactionTableDump::FormatReactionLabel(
-      reactionData->GetReactant1()->GetName(), reactionData->GetReactant2()->GetName(),
-      productNames);
-
+  const G4String& label = ReactionTableDump::LabelFor(reactionData->GetReactionID());
   fReactionCounter.Record(label, G4Scheduler::Instance()->GetGlobalTime());
 
   // Example to display reactions with product

@@ -27,6 +27,16 @@ namespace OutputDir
   /// Joins the configured directory with filename, or returns filename
   /// unchanged if the configured directory is empty.
   G4String Resolve(const G4String &filename);
+
+  /// Sets the configured output directory from a macro command, for use
+  /// alongside (never together with a differing value from) Configure().
+  /// If no directory is configured yet, behaves exactly like Configure(dir,
+  /// err). If a directory is already configured (by an earlier Configure()
+  /// or ConfigureFromMacro() call) and dir is the same raw string, this is a
+  /// harmless no-op that returns true. If a directory is already configured
+  /// and dir differs, state is left unchanged and this returns false with
+  /// err describing the conflict.
+  G4bool ConfigureFromMacro(const G4String &dir, G4String &err);
 }
 
 #endif // OutputDir_h

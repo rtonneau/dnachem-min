@@ -42,6 +42,22 @@ G4bool OutputDir::Configure(const G4String &dir, G4String &err)
   return true;
 }
 
+G4bool OutputDir::ConfigureFromMacro(const G4String &dir, G4String &err)
+{
+  if (!gConfiguredDir.empty())
+  {
+    if (dir == gConfiguredDir)
+      return true;
+
+    err = "output directory already set to '" + gConfiguredDir + "'; '" + dir
+          + "' conflicts with it -- use only one of --dir or /run/outputDir, "
+            "with matching values";
+    return false;
+  }
+
+  return Configure(dir, err);
+}
+
 G4String OutputDir::Resolve(const G4String &filename)
 {
   if (gConfiguredDir.empty())

@@ -254,3 +254,31 @@ Skipped at 2026-09-23T12:35:36.4859876+02:00: C:\Users\rtonneau\.claude\projects
 Skipped at 2026-09-23T13:53:07.9518795+02:00: C:\Users\rtonneau\.claude\plans\cozy-hatching-hopper.md
 Skipped at 2026-09-23T13:53:28.8550343+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\reaction_counter.in
 Skipped at 2026-09-23T13:53:55.2144328+02:00: C:\DEV\GEANT4\SIM\dnachem-min\README.md
+Skipped at 2026-09-23T14:34:02.5715074+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-23__review-how-reaction-label-are-attributed-and-computed-for-the\.write-payload.md
+Skipped at 2026-09-23T14:34:16.7033863+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\ReactionTableDump.hh
+Triggered at 2026-09-23T14:34:19.9685989+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ReactionTableDump.cc
+Completed at 2026-09-23T14:34:26.3298692+02:00: copied compile_commands.json
+Triggered at 2026-09-23T14:34:35.0886632+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ReactionTableDump.cc
+Completed at 2026-09-23T14:34:39.7176153+02:00: copied compile_commands.json
+Triggered at 2026-09-23T14:34:44.1642844+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\TimeStepAction.cc
+Completed at 2026-09-23T14:34:49.2980383+02:00: copied compile_commands.json
+Skipped at 2026-09-23T15:07:47.4447300+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-23__dir-argument-should-also-have-a-macro-dile-entry-associated-but\.write-payload.md
+Triggered at 2026-09-23T15:08:29.6216513+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\OutputDirTest.cc
+Completed at 2026-09-23T15:08:34.8395392+02:00: copied compile_commands.json
+Triggered at 2026-09-23T15:08:39.9415224+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\OutputDirTest.cc
+Completed at 2026-09-23T15:08:44.9916979+02:00: copied compile_commands.json
+Skipped at 2026-09-23T15:09:00.0143831+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\OutputDir.hh
+Triggered at 2026-09-23T15:09:04.2255041+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\OutputDir.cc
+Completed at 2026-09-23T15:09:09.4710279+02:00: copied compile_commands.json
+Skipped at 2026-09-23T15:09:56.3510847+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\OutputDirMessenger.hh
+Triggered at 2026-09-23T15:10:07.4927532+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\OutputDirMessenger.cc
+Completed at 2026-09-23T15:10:12.7609943+02:00: copied compile_commands.json
+Triggered at 2026-09-23T15:10:20.6391906+02:00: C:\DEV\GEANT4\SIM\dnachem-min\sim.cc
+Completed at 2026-09-23T15:10:24.5113703+02:00: copied compile_commands.json
+Triggered at 2026-09-23T15:10:29.0255396+02:00: C:\DEV\GEANT4\SIM\dnachem-min\sim.cc
+Completed at 2026-09-23T15:10:33.0868048+02:00: copied compile_commands.json
+Triggered at 2026-09-23T15:10:36.1597855+02:00: C:\DEV\GEANT4\SIM\dnachem-min\sim.cc
+Completed at 2026-09-23T15:10:41.4171658+02:00: copied compile_commands.json
+Skipped at 2026-09-23T15:11:27.7782362+02:00: C:\DEV\GEANT4\SIM\dnachem-min\build\macro\smoke_outputdir_macro_only.in
+Skipped at 2026-09-23T15:11:30.9487773+02:00: C:\DEV\GEANT4\SIM\dnachem-min\build\macro\smoke_outputdir_conflict.in
+Skipped at 2026-09-23T15:11:34.3799269+02:00: C:\DEV\GEANT4\SIM\dnachem-min\build\macro\smoke_outputdir_same.in

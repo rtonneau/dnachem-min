@@ -13,6 +13,7 @@
 #include "G4SystemOfUnits.hh"
 
 #include <fstream>
+#include <mutex>
 #include <ostream>
 #include <sstream>
 #include <vector>
@@ -115,5 +116,35 @@ void DumpReactionTable(const G4String& filename)
 
   DnaLogger::Print(DnaLogger::Level::Info,
                    "[ReactionTableDump] reaction table written to " + filename);
+}
+
+namespace
+{
+std::once_flag gLabelCacheOnce;
+std::vector<G4String> gLabelCache;
+
+void BuildLabelCache()
+{
+  auto* reactionTable = G4DNAMolecularReactionTable::GetReactionTable();
+  gLabelCache.assign(reactionTable->GetNReactions(), G4String());
+
+  for (const auto* rd : reactionTable->GetVectorOfReactionData()) {
+    std::vector<G4String> productNames;
+    const G4int nbProducts = rd->GetNbProducts();
+    productNames.reserve(nbProducts);
+    for (G4int i = 0; i < nbProducts; ++i) {
+      productNames.push_back(rd->GetProduct(i)->GetName());
+    }
+    gLabelCache.at(rd->GetReactionID() - 1) =
+        FormatReactionLabel(rd->GetReactant1()->GetName(), rd->GetReactant2()->GetName(),
+                            productNames);
+  }
+}
+}  // namespace
+
+const G4String& LabelFor(G4int reactionID)
+{
+  std::call_once(gLabelCacheOnce, BuildLabelCache);
+  return gLabelCache.at(reactionID - 1);
 }
 }  // namespace ReactionTableDump

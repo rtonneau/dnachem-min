@@ -8,6 +8,7 @@
 #include "DnaLoggerMessenger.hh"
 #include "ArgParser.hh"
 #include "OutputDir.hh"
+#include "OutputDirMessenger.hh"
 #include "PhysicsList.hh"
 
 #include "G4ScoringManager.hh"
@@ -95,6 +96,8 @@ int main(int argc, char **argv)
 
   // Exposes "/dnaLogger/verbose <level>" so the logging level can be set from a macro
   DnaLoggerMessenger *dnaLoggerMessenger = new DnaLoggerMessenger();
+  // Exposes "/run/outputDir <path>" as a macro-file counterpart to --dir
+  OutputDirMessenger *outputDirMessenger = new OutputDirMessenger();
 
   //////////
   // Set mandatory user initialization classes
@@ -152,6 +155,7 @@ int main(int argc, char **argv)
   // Clean up
   delete theTimer;
   delete dnaLoggerMessenger;
+  delete outputDirMessenger;
   delete runManager;
 
   return 0;

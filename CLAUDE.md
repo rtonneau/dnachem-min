@@ -39,10 +39,17 @@ filename must still come first (`argv[1]`):
 ./sim beam.in --dir runs/001
 ```
 
+The macro command `/run/outputDir <path>` (`PreInit` only) is a second way
+to set the same output directory, for when `--dir` isn't convenient (e.g. a
+self-contained macro). `--dir` is always applied before the macro executes,
+so if both are used with *different* paths, `/run/outputDir` raises a fatal
+`G4Exception` (`ConflictingOutputDir`) and aborts the run rather than
+silently picking one; the same path from both is a harmless no-op.
+
 ## Key Files
 
 - `sim.cc`: application setup. Runs Serial by default; `--threads N` (N > 0) selects the MT run manager (`G4RunManagerType::MT`), and `/run/numberOfThreads N` in a macro can still override before `/run/initialize`. Set `useGUI` to `true` only for interactive GUI runs. CLI flags (`--threads`, `--dir`) are registered here via `src/ArgParser.cc`.
-- `src/OutputDir.cc`: process-wide output directory (`--dir`), configured once in `main()` before any worker thread starts. `Resolve(filename)` is called at every output-file site (`ScoreSpecies.cc`, `TimeStepAction.cc`, `DnaChemistryList.cc`'s reaction-table dump) to prefix it onto the configured directory, or leaves it unchanged when `--dir` wasn't passed.
+- `src/OutputDir.cc`: process-wide output directory (`--dir`), configured once in `main()` before any worker thread starts. `Resolve(filename)` is called at every output-file site (`ScoreSpecies.cc`, `TimeStepAction.cc`, `DnaChemistryList.cc`'s reaction-table dump) to prefix it onto the configured directory, or leaves it unchanged when `--dir` wasn't passed. `ConfigureFromMacro()` backs the `/run/outputDir` macro command (`src/OutputDirMessenger.cc`) — same effect as `Configure()` when nothing is set yet, a no-op when the macro repeats the already-configured path, and a fatal `G4Exception` when it differs (raised by the messenger, not by `OutputDir` itself, which stays pure/testable).
 - `src/DetectorConstruction.cc`: homogeneous water-box geometry; owns the `DnaChemistryWorld` (its boundary sizes the world box).
 - `src/PhysicsList.cc`: simplified UHDR-style modular list — holds `G4EmDNAPhysics` + `DnaChemistryList` and drives their `ConstructParticle()`/`ConstructProcess()` directly (no string dispatch, no `RegisterPhysics`). Change the EM-DNA physics option by editing the constructor. Sets SBS as the chemistry time-step model (the only one `DnaChemistryList` supports).
 - `src/DnaChemistryList.cc`: project chemical stage (`G4VUserChemistryList` + `G4VPhysicsConstructor`) — molecule set, water dissociation, reaction table, time-step model. Replaces macro `/chem/species` and `/chem/reaction/add`. Hard-codes SBS as the only chemistry time-step model (IRT and IRT_syn are not supported). Pure-water + O2-derived reaction chemistry lives in `PureWaterReactions.cc`; the pH-driven acid-base buffer network (`H3Op(B)`/`OHm(B)`, registered as per-molecule `G4DNAScavengerProcess`) and the full O2⁻/HO2/HO2⁻/O⁻/O3⁻ network are baseline/unconditional — this chemistry can produce O2 from pure water radiolysis on its own (see `docs/adr/0001-baseline-acid-base-buffer.md`). Only an exogenous dissolved-O2 supply mechanism remains deferred to future work — `/chem/env/O2` currently has no effect on the chemistry. Also owns `/chem/reaction/timeBinsFixed` / `timeBinsList` (`ApplyReactionTimeBinning()`, applied from `RunAction::BeginOfRunAction` once the scheduler end time is final) and `/chem/reaction/dump`.
@@ -58,7 +65,7 @@ filename must still come first (`argv[1]`):
 
 ## Macro and Logging
 
-Common macro controls include `/run/initialize`, `/gun/particle e-`, `/gun/energy`, `/process/chem/TimeStepModel` (`SBS` only — `DnaChemistryList` hard-codes SBS regardless of this command), `/chem/env/O2 <percent>` (currently a no-op for chemistry — the O2/acid-base network is always active regardless; reserved for a future dissolved-O2 supply mechanism), `/chem/env/pH <double>` (still active — drives the bulk H3O+(B)/OH-(B) buffer concentration used by the always-on acid-base network), `/chem/reaction/timeBinsFixed <width> <unit>` / `/chem/reaction/timeBinsList <e1> ... <eN> <unit>` (reaction-count time binning, see above), and `/run/beamOn`. Species and reactions are defined in `src/DnaChemistryList.cc`/`src/PureWaterReactions.cc`, not via `/chem/species` / `/chem/reaction/add` — do not re-add those to macros (`/chem/reaction/UI` resets the shared reaction table and wipes the class-built one). Example macros: `beam.in` (pure water), `beam_02.in` (SBS variant), `beam_o2.in` (sets `/chem/env/O2 21`, currently inert; pH = 7).
+Common macro controls include `/run/initialize`, `/run/outputDir <path>` (macro-file counterpart to `--dir`, see above), `/gun/particle e-`, `/gun/energy`, `/process/chem/TimeStepModel` (`SBS` only — `DnaChemistryList` hard-codes SBS regardless of this command), `/chem/env/O2 <percent>` (currently a no-op for chemistry — the O2/acid-base network is always active regardless; reserved for a future dissolved-O2 supply mechanism), `/chem/env/pH <double>` (still active — drives the bulk H3O+(B)/OH-(B) buffer concentration used by the always-on acid-base network), `/chem/reaction/timeBinsFixed <width> <unit>` / `/chem/reaction/timeBinsList <e1> ... <eN> <unit>` (reaction-count time binning, see above), and `/run/beamOn`. Species and reactions are defined in `src/DnaChemistryList.cc`/`src/PureWaterReactions.cc`, not via `/chem/species` / `/chem/reaction/add` — do not re-add those to macros (`/chem/reaction/UI` resets the shared reaction table and wipes the class-built one). Example macros: `beam.in` (pure water), `beam_02.in` (SBS variant), `beam_o2.in` (sets `/chem/env/O2 21`, currently inert; pH = 7).
 
 Use the project-defined `DnaLogger` for application logging. Set its level in a macro with:
 
@@ -72,7 +79,7 @@ The logger is implemented in `src/DnaLogger.cc` and exposed to Geant4 commands b
 
 Unit tests (`test/*Test.cc`, plain `assert` + CTest) must be built and run from `build-ninja/` (Debug); see `.claude/geant4-instructions.md` section 5 for the `NDEBUG` and Debug-CRT-dialog pitfalls.
 
-When testing `sim.exe`, use a 25 keV electron gun and `/run/beamOn 10`. The chemistry time limit defaults to 1 µs, set by `G4Scheduler::Instance()->SetEndTime(1. * microsecond)` in `src/ActionInitialization.cc::Build()`, which runs on `/run/initialize`. To override it in a macro, issue `/scheduler/endTime <value> <unit>` *after* `/run/initialize` — a command issued before that point gets overwritten by `Build()`'s hardcoded call.
+When testing `sim.exe`, use a 25 keV electron gun and `/run/beamOn 2`. The chemistry time limit defaults to 1 µs, set by `G4Scheduler::Instance()->SetEndTime(1. * microsecond)` in `src/ActionInitialization.cc::Build()`, which runs on `/run/initialize`. To override it in a macro, issue `/scheduler/endTime <value> <unit>` *after* `/run/initialize` — a command issued before that point gets overwritten by `Build()`'s hardcoded call.
 
 ## Planning
 Before any non-trivial change, enter plan mode and write the plan to `.claude/plans/`.
