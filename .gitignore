@@ -53,3 +53,5 @@ compile_commands.json
 !/build-ninja/update-compile-cmd.ps1
 
 /.scratch/**
+.work/
+.scratch/

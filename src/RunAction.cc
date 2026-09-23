@@ -4,7 +4,10 @@
 #include "RunAction.hh"
 
 #include "DetectorConstruction.hh"
+#include "DnaChemistryList.hh"
+#include "DnaLogger.hh"
 #include "OutputDir.hh"
+#include "PhysicsList.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "ReactionCounter.hh"
 #include "Run.hh"
@@ -47,7 +50,19 @@ void RunAction::BeginOfRunAction(const G4Run *run)
         G4DNAChemistryManager::GetInstanceIfExists()->BeginOfRunAction(run);
 
     if (IsMaster())
+    {
         G4cout << "### Run " << run->GetRunID() << " starts." << G4endl;
+
+        // Resolve any /chem/reaction/timeBinsFixed or timeBinsList macro
+        // command into ReactionCounter's shared bin-edge table. Must happen
+        // here (not earlier) since "fixed" mode depends on the chemistry
+        // scheduler's end time, which a macro may still override between
+        // /run/initialize and /run/beamOn.
+        auto *physicsList = dynamic_cast<const PhysicsList *>(
+            G4RunManager::GetRunManager()->GetUserPhysicsList());
+        if (physicsList != nullptr)
+            physicsList->GetChemistryList()->ApplyReactionTimeBinning();
+    }
 
     // informs the runManager to save random number seed
     G4RunManager::GetRunManager()->SetRandomNumberStore(false);
@@ -93,10 +108,16 @@ void RunAction::EndOfRunAction(const G4Run *run)
             G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
             analysisManager->SetDefaultFileType("csv");
             reactionCounter->WriteCsv(analysisManager);
+
+            std::ofstream metadataOut(OutputDir::Resolve("ReactionsMetadata.csv"));
+            reactionCounter->WriteMetadata(metadataOut);
+            metadataOut.close();
+
             reactionCounter->Clear();
 
-            G4cout << "[RunAction] reaction counts written (Reactions.Txt / Reactions_nt_reactions.csv)"
-                   << G4endl;
+            DnaLogger::Print(DnaLogger::Level::Info,
+                              "[RunAction] reaction counts written (Reactions.Txt / "
+                              "Reactions_nt_reactions.csv / ReactionsMetadata.csv)");
         }
     }
 }

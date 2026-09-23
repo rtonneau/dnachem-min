@@ -31,6 +31,10 @@ public:
   /// True when the chemical stage is present (queried by StackingAction).
   inline G4bool IsChemistryEnabled() const { return fEmDNAChemistryList != nullptr; }
 
+  /// The single, MT-shared chemistry stage instance (queried by RunAction to
+  /// apply any /chem/reaction/timeBins* macro configuration).
+  inline const DnaChemistryList* GetChemistryList() const { return fEmDNAChemistryList.get(); }
+
 private:
   std::unique_ptr<G4VPhysicsConstructor> fEmDNAPhysicsList;
   std::unique_ptr<DnaChemistryList> fEmDNAChemistryList;

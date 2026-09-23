@@ -46,7 +46,21 @@ public:
   void ConstructReactionTable(G4DNAMolecularReactionTable* reactionTable) override;
   void ConstructTimeStepModel(G4DNAMolecularReactionTable* reactionTable) override;
 
+  /// Resolves any /chem/reaction/timeBinsFixed or /chem/reaction/timeBinsList
+  /// macro command into ReactionCounter::ConfigureBinEdges() -- a no-op if
+  /// neither was issued (ReactionCounter keeps its built-in default table).
+  /// Must be called after the chemistry scheduler's end time is final (i.e.
+  /// from RunAction::BeginOfRunAction, not any earlier), since the "fixed"
+  /// mode expands its step into edges up to that end time. Raises a
+  /// FatalException if both commands were issued, or if timeBinsList's value
+  /// is malformed (parsing is deferred to here, not macro-issue time, since
+  /// timeBinsList is a plain string property -- see fReactionTimeBinsList).
+  void ApplyReactionTimeBinning() const;
+
 private:
+  /// /chem/reaction/timeBinsFixed <width> <unit> setter.
+  void SetReactionTimeBinsFixed(G4double width);
+
   /// The project chemistry world, via the run manager's detector.
   const DnaChemistryWorld* ChemistryWorld(const G4String& caller) const;
 
@@ -62,6 +76,21 @@ private:
   /// Target file for ConstructProcess() to dump the reaction table to;
   /// empty (default) disables the dump.
   G4String fReactionDumpFile;
+
+  /// True once /chem/reaction/timeBinsFixed has been issued.
+  G4bool fReactionBinWidthSet = false;
+
+  /// Set by timeBinsFixed; only meaningful when fReactionBinWidthSet.
+  G4double fReactionBinWidth = 0.;
+
+  /// Raw /chem/reaction/timeBinsList value, e.g. "1 10 100 picosecond";
+  /// empty (default) means the command wasn't issued. A DeclareProperty
+  /// (not DeclareMethod): G4GenericMessenger's method dispatch re-tokenizes
+  /// a combined multi-token command value by the bound function's argument
+  /// count, truncating a "<e1> ... <eN> <unit>" string to just its first
+  /// token; DeclareProperty's G4String::FromString() assigns it intact.
+  /// Parsed lazily by ApplyReactionTimeBinning().
+  G4String fReactionTimeBinsList;
 };
 
 #endif // DnaChemistryList_h

@@ -21,6 +21,7 @@
 #include "DnaLogger.hh"
 #include "OutputDir.hh"
 #include "PureWaterReactions.hh"
+#include "ReactionCounter.hh"
 #include "ReactionTableDump.hh"
 #include "ScavengerReactionAccess.hh"
 
@@ -30,6 +31,7 @@
 #include "G4DNAChemistryManager.hh"
 #include "G4DNAMolecularReactionTable.hh"
 #include "G4GenericMessenger.hh"
+#include "G4Scheduler.hh"
 #include "G4MolecularConfiguration.hh"
 #include "G4MoleculeDefinition.hh"
 #include "G4MoleculeTable.hh"
@@ -104,6 +106,63 @@ DnaChemistryList::DnaChemistryList()
     "dump", fReactionDumpFile,
     "Write the full reaction table (bimolecular + acid-base networks) to <filename>.");
   dumpCmd.SetStates(G4State_PreInit);
+
+  auto& timeBinsFixedCmd = fMessenger->DeclareMethodWithUnit(
+    "timeBinsFixed", "picosecond", &DnaChemistryList::SetReactionTimeBinsFixed,
+    "Bin the reaction-count output (Reactions.Txt / Reactions_nt_reactions.csv) at this fixed "
+    "time step, up to the chemistry scheduler's end time. Mutually exclusive with timeBinsList "
+    "(issuing both is a fatal configuration error). Neither issued -> a built-in 7-edge default "
+    "table is used.");
+  timeBinsFixedCmd.SetStates(G4State_PreInit);
+
+  // DeclareProperty, not DeclareMethod: see fReactionTimeBinsList's doc comment.
+  auto& timeBinsListCmd = fMessenger->DeclareProperty(
+    "timeBinsList", fReactionTimeBinsList,
+    "Bin the reaction-count output at these explicit edges: '<e1> <e2> ... <eN> <unit>' (e.g. "
+    "'1 10 100 1000 picosecond'). Mutually exclusive with timeBinsFixed (issuing both is a fatal "
+    "configuration error).");
+  timeBinsListCmd.SetStates(G4State_PreInit);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DnaChemistryList::SetReactionTimeBinsFixed(G4double width)
+{
+  fReactionBinWidthSet = true;
+  fReactionBinWidth = width;
+}
+
+void DnaChemistryList::ApplyReactionTimeBinning() const
+{
+  const G4bool listRequested = !fReactionTimeBinsList.empty();
+  if (fReactionBinWidthSet && listRequested) {
+    G4Exception("DnaChemistryList::ApplyReactionTimeBinning", "ConflictingTimeBins", FatalException,
+                "/chem/reaction/timeBinsFixed and /chem/reaction/timeBinsList were both issued -- "
+                "use only one per run.");
+    return;
+  }
+
+  if (fReactionBinWidthSet) {
+    const G4double endTime = G4Scheduler::Instance()->GetEndTime();
+    std::vector<G4double> edges;
+    for (G4double edge = fReactionBinWidth; edge < endTime + fReactionBinWidth;
+         edge += fReactionBinWidth) {
+      edges.push_back(edge);
+    }
+    ReactionCounter::ConfigureBinEdges(edges);
+    return;
+  }
+
+  if (listRequested) {
+    std::vector<G4double> edges;
+    G4String error;
+    if (!ReactionCounter::ParseBinEdgesList(fReactionTimeBinsList, edges, error)) {
+      G4Exception("DnaChemistryList::ApplyReactionTimeBinning", "InvalidTimeBinsList", FatalException,
+                  error.c_str());
+      return;
+    }
+    ReactionCounter::ConfigureBinEdges(edges);
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

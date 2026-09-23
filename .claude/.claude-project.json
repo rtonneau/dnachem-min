@@ -49,11 +49,11 @@
       "Species_nt_species.csv",
       "Reactions.Txt",
       "Reactions_nt_reactions.csv",
+      "ReactionsMetadata.csv",
       "output_event_<n>.txt (Serial) or output_event_t<thread>_e<event>.txt (MT)"
     ],
     "successMarkers": [
       "[RunAction] species yields written",
-      "[RunAction] reaction counts written",
       "The simulation took"
     ],
     "failureMarkers": [

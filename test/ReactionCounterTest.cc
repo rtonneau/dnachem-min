@@ -121,6 +121,147 @@ static void TestClearEmptiesCounts()
   assert(counter.GetCounts().empty());
 }
 
+// --- ConfigureBinEdges -----------------------------------------------------
+
+static void TestConfigureBinEdgesChangesBinFor()
+{
+  ReactionCounter::ConfigureBinEdges({5 * CLHEP::picosecond, 50 * CLHEP::picosecond});
+
+  assert(ReactionCounter::BinFor(1 * CLHEP::picosecond) == 5 * CLHEP::picosecond);
+  assert(ReactionCounter::BinFor(10 * CLHEP::picosecond) == 50 * CLHEP::picosecond);
+  assert(ReactionCounter::BinFor(1000 * CLHEP::picosecond) == 50 * CLHEP::picosecond);
+
+  ReactionCounter::ConfigureBinEdges(ReactionCounter::DefaultBinEdges());
+}
+
+static void TestConfigureBinEdgesSortsUnsortedInput()
+{
+  ReactionCounter::ConfigureBinEdges({50 * CLHEP::picosecond, 5 * CLHEP::picosecond});
+
+  assert(ReactionCounter::BinFor(1 * CLHEP::picosecond) == 5 * CLHEP::picosecond);
+
+  ReactionCounter::ConfigureBinEdges(ReactionCounter::DefaultBinEdges());
+}
+
+static void TestConfigureBinEdgesEmptyIsNoOp()
+{
+  ReactionCounter::ConfigureBinEdges({5 * CLHEP::picosecond});
+  ReactionCounter::ConfigureBinEdges({});
+
+  assert(ReactionCounter::BinFor(1 * CLHEP::picosecond) == 5 * CLHEP::picosecond);
+
+  ReactionCounter::ConfigureBinEdges(ReactionCounter::DefaultBinEdges());
+}
+
+static void TestConfigureBinEdgesRestoresDefault()
+{
+  ReactionCounter::ConfigureBinEdges({5 * CLHEP::picosecond});
+  ReactionCounter::ConfigureBinEdges(ReactionCounter::DefaultBinEdges());
+
+  assert(ReactionCounter::BinFor(10 * CLHEP::picosecond) == 10 * CLHEP::picosecond);
+}
+
+// --- ParseBinEdgesList ---------------------------------------------------
+
+static void TestParseBinEdgesListParsesValuesAndUnit()
+{
+  std::vector<G4double> edges;
+  G4String error;
+
+  G4bool ok = ReactionCounter::ParseBinEdgesList("1 10 100 picosecond", edges, error);
+
+  assert(ok);
+  assert(edges.size() == 3);
+  assert(edges[0] == 1 * CLHEP::picosecond);
+  assert(edges[1] == 10 * CLHEP::picosecond);
+  assert(edges[2] == 100 * CLHEP::picosecond);
+}
+
+static void TestParseBinEdgesListRejectsTooFewTokens()
+{
+  std::vector<G4double> edges;
+  G4String error;
+
+  G4bool ok = ReactionCounter::ParseBinEdgesList("picosecond", edges, error);
+
+  assert(!ok);
+  assert(!error.empty());
+  assert(edges.empty());
+}
+
+static void TestParseBinEdgesListRejectsNonNumericEdge()
+{
+  std::vector<G4double> edges;
+  G4String error;
+
+  G4bool ok = ReactionCounter::ParseBinEdgesList("abc 10 picosecond", edges, error);
+
+  assert(!ok);
+  assert(!error.empty());
+}
+
+static void TestParseBinEdgesListRejectsEmptyString()
+{
+  std::vector<G4double> edges;
+  G4String error;
+
+  G4bool ok = ReactionCounter::ParseBinEdgesList("", edges, error);
+
+  assert(!ok);
+  assert(!error.empty());
+}
+
+static void TestParseBinEdgesListRejectsUnknownUnit()
+{
+  std::vector<G4double> edges;
+  G4String error;
+
+  G4bool ok = ReactionCounter::ParseBinEdgesList("1 10 meter", edges, error);
+
+  assert(!ok);
+  assert(!error.empty());
+}
+
+static void TestParseBinEdgesListAcceptsUnitSymbol()
+{
+  std::vector<G4double> edges;
+  G4String error;
+
+  G4bool ok = ReactionCounter::ParseBinEdgesList("1 10 ps", edges, error);
+
+  assert(ok);
+  assert(edges.size() == 2);
+  assert(edges[0] == 1 * CLHEP::picosecond);
+  assert(edges[1] == 10 * CLHEP::picosecond);
+}
+
+// --- BuildReactionIdMap ------------------------------------------------
+
+static void TestBuildReactionIdMapAssignsSortedIds()
+{
+  ReactionCounter counter;
+  counter.Record("H + H -> H2", 1 * CLHEP::picosecond);
+  counter.Record("e_aq + e_aq -> H2 + OHm + OHm", 10 * CLHEP::picosecond);
+
+  auto idMap = counter.BuildReactionIdMap();
+
+  assert(idMap.size() == 2);
+  assert(idMap.at("H + H -> H2") == 0);
+  assert(idMap.at("e_aq + e_aq -> H2 + OHm + OHm") == 1);
+}
+
+static void TestBuildReactionIdMapDeduplicatesAcrossBins()
+{
+  ReactionCounter counter;
+  counter.Record("H + H -> H2", 1 * CLHEP::picosecond);
+  counter.Record("H + H -> H2", 10 * CLHEP::picosecond);
+
+  auto idMap = counter.BuildReactionIdMap();
+
+  assert(idMap.size() == 1);
+  assert(idMap.at("H + H -> H2") == 0);
+}
+
 // --- WriteAscii --------------------------------------------------------
 
 static void TestWriteAsciiFormatsBinThenReactionCountLines()
@@ -160,6 +301,21 @@ int main()
   TestMergeDoesNotModifyOther();
 
   TestClearEmptiesCounts();
+
+  TestConfigureBinEdgesChangesBinFor();
+  TestConfigureBinEdgesSortsUnsortedInput();
+  TestConfigureBinEdgesEmptyIsNoOp();
+  TestConfigureBinEdgesRestoresDefault();
+
+  TestParseBinEdgesListParsesValuesAndUnit();
+  TestParseBinEdgesListRejectsTooFewTokens();
+  TestParseBinEdgesListRejectsNonNumericEdge();
+  TestParseBinEdgesListRejectsEmptyString();
+  TestParseBinEdgesListRejectsUnknownUnit();
+  TestParseBinEdgesListAcceptsUnitSymbol();
+
+  TestBuildReactionIdMapAssignsSortedIds();
+  TestBuildReactionIdMapDeduplicatesAcrossBins();
 
   TestWriteAsciiFormatsBinThenReactionCountLines();
 
