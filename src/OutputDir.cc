@@ -9,6 +9,7 @@ namespace
 {
   G4String gConfiguredDir = "";
   G4String gPrefix = "";
+  G4String gSubdir = "";
 }
 
 G4bool OutputDir::Configure(const G4String &dir, G4String &err)
@@ -63,14 +64,62 @@ G4String OutputDir::Resolve(const G4String &filename)
 {
   G4String name = gPrefix.empty() ? filename : G4String(gPrefix + filename);
 
-  if (gConfiguredDir.empty())
+  if (gConfiguredDir.empty() && gSubdir.empty())
     return name;
 
-  std::filesystem::path joined = std::filesystem::path(gConfiguredDir.c_str()) / name.c_str();
+  std::filesystem::path joined(gConfiguredDir.c_str());
+  if (!gSubdir.empty())
+    joined /= gSubdir.c_str();
+  joined /= name.c_str();
   return G4String(joined.string().c_str());
 }
 
 void OutputDir::SetPrefix(const G4String &prefix)
 {
   gPrefix = prefix;
+}
+
+G4bool OutputDir::ConfigureSubdir(const G4String &subdir, G4String &err)
+{
+  if (subdir.empty())
+  {
+    gSubdir = "";
+    return true;
+  }
+
+  std::filesystem::path sub(subdir.c_str());
+  if (sub.has_root_path())
+  {
+    err = subdir + ": must be a relative path";
+    return false;
+  }
+  for (const auto &part : sub)
+  {
+    if (part == "..")
+    {
+      err = subdir + ": must not contain a '..' component";
+      return false;
+    }
+  }
+
+  std::filesystem::path target(gConfiguredDir.c_str());
+  target /= sub;
+
+  std::error_code ec;
+  if (std::filesystem::exists(target, ec))
+  {
+    if (!std::filesystem::is_directory(target, ec))
+    {
+      err = subdir + ": already exists and is not a directory";
+      return false;
+    }
+  }
+  else if (!std::filesystem::create_directories(target, ec) || ec)
+  {
+    err = subdir + ": could not create directory";
+    return false;
+  }
+
+  gSubdir = subdir;
+  return true;
 }

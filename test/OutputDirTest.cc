@@ -199,6 +199,133 @@ static void TestResolveAppliesPrefixBeforeJoiningDirectory()
   OutputDir::Configure("", err);   // restore for later tests
 }
 
+// --- ConfigureSubdir / Resolve subdir -------------------------------------
+
+static void TestConfigureSubdirCreatesFolderUnderConfiguredDir()
+{
+  ResetTestRoot();
+  fs::path base = TestRoot() / "sub-base";
+
+  G4String err;
+  assert(OutputDir::Configure(base.string().c_str(), err));
+  assert(OutputDir::ConfigureSubdir("run01", err));
+  assert(fs::is_directory(base / "run01"));
+
+  fs::path expected = base / "run01" / "Species.Txt";
+  assert(OutputDir::Resolve("Species.Txt") == expected.string().c_str());
+
+  assert(OutputDir::ConfigureSubdir("", err));
+  OutputDir::Configure("", err); // restore for later tests
+}
+
+static void TestConfigureSubdirCreatesNestedFolders()
+{
+  ResetTestRoot();
+  fs::path base = TestRoot() / "sub-nested";
+
+  G4String err;
+  assert(OutputDir::Configure(base.string().c_str(), err));
+  assert(OutputDir::ConfigureSubdir("scan1/run01", err));
+  assert(fs::is_directory(base / "scan1" / "run01"));
+
+  OutputDir::ConfigureSubdir("", err);
+  OutputDir::Configure("", err);
+}
+
+static void TestConfigureSubdirAcceptsAlreadyExistingFolder()
+{
+  ResetTestRoot();
+  fs::path base = TestRoot() / "sub-existing";
+  fs::create_directories(base / "run01");
+
+  G4String err;
+  assert(OutputDir::Configure(base.string().c_str(), err));
+  assert(OutputDir::ConfigureSubdir("run01", err));
+
+  OutputDir::ConfigureSubdir("", err);
+  OutputDir::Configure("", err);
+}
+
+static void TestConfigureSubdirRejectsAbsolutePath()
+{
+  ResetTestRoot();
+  fs::path absolute = TestRoot() / "elsewhere";
+
+  G4String err;
+  OutputDir::Configure("", err);
+  assert(!OutputDir::ConfigureSubdir(absolute.string().c_str(), err));
+  assert(!err.empty());
+  assert(!fs::exists(absolute));
+  assert(OutputDir::Resolve("Species.Txt") == "Species.Txt");
+}
+
+static void TestConfigureSubdirRejectsParentTraversal()
+{
+  ResetTestRoot();
+  fs::path base = TestRoot() / "sub-escape";
+
+  G4String err;
+  assert(OutputDir::Configure(base.string().c_str(), err));
+  assert(!OutputDir::ConfigureSubdir("../escaped", err));
+  assert(!err.empty());
+  assert(!fs::exists(TestRoot() / "escaped"));
+
+  G4String err2;
+  assert(!OutputDir::ConfigureSubdir("a/../../escaped", err2));
+  assert(!err2.empty());
+
+  OutputDir::Configure("", err);
+}
+
+static void TestConfigureSubdirRejectsPathThatIsAFile()
+{
+  ResetTestRoot();
+  fs::path base = TestRoot() / "sub-file";
+  fs::create_directories(base);
+  std::ofstream(base / "run01") << "not a directory";
+
+  G4String err;
+  assert(OutputDir::Configure(base.string().c_str(), err));
+  assert(!OutputDir::ConfigureSubdir("run01", err));
+  assert(!err.empty());
+
+  OutputDir::Configure("", err);
+}
+
+static void TestResolveCombinesSubdirAndPrefix()
+{
+  ResetTestRoot();
+  fs::path base = TestRoot() / "sub-prefix";
+
+  G4String err;
+  assert(OutputDir::Configure(base.string().c_str(), err));
+  assert(OutputDir::ConfigureSubdir("run02", err));
+  OutputDir::SetPrefix("p_");
+
+  fs::path expected = base / "run02" / "p_Species.Txt";
+  assert(OutputDir::Resolve("Species.Txt") == expected.string().c_str());
+
+  OutputDir::SetPrefix("");
+  OutputDir::ConfigureSubdir("", err);
+  OutputDir::Configure("", err);
+}
+
+static void TestClearingSubdirRestoresPlainResolve()
+{
+  ResetTestRoot();
+  fs::path base = TestRoot() / "sub-clear";
+
+  G4String err;
+  assert(OutputDir::Configure(base.string().c_str(), err));
+  assert(OutputDir::ConfigureSubdir("run03", err));
+  assert(OutputDir::ConfigureSubdir("", err));
+
+  fs::path expected = base / "Species.Txt";
+  assert(OutputDir::Resolve("Species.Txt") == expected.string().c_str());
+
+  OutputDir::Configure("", err);
+}
+
 int main()
 {
   TestConfigureEmptyDirIsNoOp();
@@ -215,6 +342,14 @@ int main()
   TestResolveWithoutPrefixLeavesFilenameUnchanged();
   TestResolvePrependsPrefixToFilename();
   TestResolveAppliesPrefixBeforeJoiningDirectory();
+  TestConfigureSubdirCreatesFolderUnderConfiguredDir();
+  TestConfigureSubdirCreatesNestedFolders();
+  TestConfigureSubdirAcceptsAlreadyExistingFolder();
+  TestConfigureSubdirRejectsAbsolutePath();
+  TestConfigureSubdirRejectsParentTraversal();
+  TestConfigureSubdirRejectsPathThatIsAFile();
+  TestResolveCombinesSubdirAndPrefix();
+  TestClearingSubdirRestoresPlainResolve();
 
   std::error_code ec;
   fs::remove_all(TestRoot(), ec);

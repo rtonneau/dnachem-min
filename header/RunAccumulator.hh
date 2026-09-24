@@ -49,6 +49,11 @@ namespace RunAccumulator
   /// unchanged, sets err, and returns false.
   G4bool TryReservePrefix(const G4String &prefix, G4bool enforceUniqueness,
                            G4String &err);
+
+  /// Same contract as TryReservePrefix, for dump subfolder names. Kept in
+  /// a separate set: a prefix and a subfolder never collide with each other.
+  G4bool TryReserveSubdir(const G4String &subdir, G4bool enforceUniqueness,
+                           G4String &err);
 }
 
 #endif // RunAccumulator_h

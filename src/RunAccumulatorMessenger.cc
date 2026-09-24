@@ -24,6 +24,17 @@ RunAccumulatorMessenger::RunAccumulatorMessenger()
     fpDumpCmd->SetParameterName("prefix", /*omittable=*/true);
     fpDumpCmd->SetDefaultValue("");
     fpDumpCmd->AvailableForStates(G4State_Idle);
+
+    fpDumpToDirCmd = new G4UIcmdWithAString("/run/dumpDataAndResetToDir", this);
+    fpDumpToDirCmd->SetGuidance(
+        "Same as /run/dumpDataAndReset, but writes the output files "
+        "(unprefixed) into a subfolder of the output directory (or of cwd "
+        "if none is set) instead of using a filename prefix. The subfolder "
+        "is created if missing; nested names (scan1/run01) are allowed. "
+        "Absolute paths and '..' are rejected. Fatal if the name was "
+        "already used earlier in this run.");
+    fpDumpToDirCmd->SetParameterName("subdir", /*omittable=*/false);
+    fpDumpToDirCmd->AvailableForStates(G4State_Idle);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
@@ -31,6 +42,7 @@ RunAccumulatorMessenger::RunAccumulatorMessenger()
 RunAccumulatorMessenger::~RunAccumulatorMessenger()
 {
     delete fpDumpCmd;
+    delete fpDumpToDirCmd;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
@@ -44,6 +56,27 @@ void RunAccumulatorMessenger::SetNewValue(G4UIcommand *command, G4String newValu
         {
             G4Exception("RunAccumulatorMessenger::SetNewValue", "DuplicateDumpPrefix",
                         FatalException, err.c_str());
+        }
+    }
+    else if (command == fpDumpToDirCmd)
+    {
+        G4String err;
+        if (newValue.empty() || !OutputDir::ConfigureSubdir(newValue, err))
+        {
+            if (err.empty())
+                err = "subfolder name must not be empty";
+            G4Exception("RunAccumulatorMessenger::SetNewValue", "InvalidDumpSubdir",
+                        FatalException, err.c_str());
+        }
+        else if (!RunAccumulator::TryReserveSubdir(newValue, /*enforceUniqueness=*/true, err))
+        {
+            OutputDir::ConfigureSubdir("", err);
+            G4Exception("RunAccumulatorMessenger::SetNewValue", "DuplicateDumpSubdir",
+                        FatalException, err.c_str());
+        }
+        else
+        {
+            WriteAllAndReset(/*prefix=*/"", newValue);
         }
     }
 }
@@ -74,6 +107,16 @@ G4bool RunAccumulatorMessenger::DumpAndReset(const G4String &prefix, G4bool enfo
     if (!RunAccumulator::TryReservePrefix(prefix, enforceUniqueness, err))
         return false;
 
+    WriteAllAndReset(prefix, /*subdir=*/"");
+    return true;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
+
+void RunAccumulatorMessenger::WriteAllAndReset(const G4String &prefix, const G4String &subdir)
+{
+    // The subfolder (if any) was already validated, created and reserved by
+    // the caller; OutputDir::Resolve() applies it together with the prefix.
     OutputDir::SetPrefix(prefix);
 
     // Species: the ScoreSpecies scorer is itself the persistent,
@@ -137,11 +180,12 @@ G4bool RunAccumulatorMessenger::DumpAndReset(const G4String &prefix, G4bool enfo
 
     RunAccumulator::ClearAccumulated();
     OutputDir::SetPrefix("");
+    G4String err;
+    OutputDir::ConfigureSubdir("", err);
 
     // Plain G4cout (not DnaLogger): this is the run.successMarkers line the
     // project's own smoke-test verification checks for -- see
     // .claude/.claude-project.json and .claude/geant4-instructions.md.
-    G4cout << "[RunAccumulatorMessenger] dumped and reset (prefix='" << prefix << "')" << G4endl;
-
-    return true;
+    G4cout << "[RunAccumulatorMessenger] dumped and reset (prefix='" << prefix << "', subdir='"
+           << subdir << "')" << G4endl;
 }

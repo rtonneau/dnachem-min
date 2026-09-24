@@ -69,8 +69,24 @@ its CSV ntuples — without it, a later dump cycle reusing the same ntuple
 names ("species"/"reactions") under a new prefix hits a Geant4 analysis-
 manager limitation (its per-ntuple file registry isn't cleared by
 `CloseFile()` alone) and silently renames or drops that dump's CSV output;
-`Clear()` avoids that entirely, so distinct prefixes never collide. If a
-macro never issues `/run/dumpDataAndReset` and there is still accumulated
+`Clear()` avoids that entirely, so distinct prefixes never collide.
+
+`/run/dumpDataAndResetToDir <subdir>` (`Idle` state, parameter required) is the
+same dump, but writes the unprefixed files into `<subdir>` under the output
+directory (`--dir` / `/run/outputDir`, or cwd if none) instead of using a
+filename prefix — e.g. `/run/beamOn 4`, `/run/dumpDataAndResetToDir run01`,
+`/run/beamOn 4`, `/run/dumpDataAndResetToDir run02` yields `run01/` and
+`run02/`, each with the full file set. The folder is created if missing
+(`OutputDir::ConfigureSubdir`); nested names such as `scan1/run01` are allowed,
+absolute paths and `..` components are a fatal `G4Exception`
+(`InvalidDumpSubdir`). Reusing a name within the same process is a fatal
+`G4Exception` (`DuplicateDumpSubdir`, `RunAccumulator::TryReserveSubdir` — a
+set separate from the prefix one); a folder already on disk from an earlier
+process is reused and its files overwritten. It does not combine with a
+prefix. The MT per-event `output_event_t*_e*.txt` files stay in the top output
+directory (they are written continuously, outside any dump).
+
+If a macro never issues `/run/dumpDataAndReset` and there is still accumulated
 data pending when the program is about to exit, a safety-net flush fires
 automatically with the fixed prefix `EndOfRun_` (see
 `RunAccumulatorMessenger::FlushIfPending`, called from `sim.cc` just before
@@ -121,7 +137,7 @@ silently picking one; the same path from both is a harmless no-op.
 
 ## Macro and Logging
 
-Common macro controls include `/run/initialize`, `/run/outputDir <path>` (macro-file counterpart to `--dir`, see above), `/run/dumpDataAndReset [prefix]` (dump-and-reset accumulated output, see above), `/gun/particle e-`, `/gun/energy`, `/process/chem/TimeStepModel` (`SBS` only — `DnaChemistryList` hard-codes SBS regardless of this command), `/chem/env/O2 <percent>` (currently a no-op for chemistry — the O2/acid-base network is always active regardless; reserved for a future dissolved-O2 supply mechanism), `/chem/env/pH <double>` (still active — drives the bulk H3O+(B)/OH-(B) buffer concentration used by the always-on acid-base network), `/chem/reaction/timeBinsFixed <width> <unit>` / `/chem/reaction/timeBinsList <e1> ... <eN> <unit>` (reaction-count time binning, see above), and `/run/beamOn`. Species and reactions are defined in `src/DnaChemistryList.cc`/`src/PureWaterReactions.cc`, not via `/chem/species` / `/chem/reaction/add` — do not re-add those to macros (`/chem/reaction/UI` resets the shared reaction table and wipes the class-built one). Example macros: `beam.in` (pure water), `beam_02.in` (SBS variant), `beam_o2.in` (sets `/chem/env/O2 21`, currently inert; pH = 7).
+Common macro controls include `/run/initialize`, `/run/outputDir <path>` (macro-file counterpart to `--dir`, see above), `/run/dumpDataAndReset [prefix]` / `/run/dumpDataAndResetToDir <subdir>` (dump-and-reset accumulated output, into filename-prefixed files or a subfolder, see above), `/gun/particle e-`, `/gun/energy`, `/process/chem/TimeStepModel` (`SBS` only — `DnaChemistryList` hard-codes SBS regardless of this command), `/chem/env/O2 <percent>` (currently a no-op for chemistry — the O2/acid-base network is always active regardless; reserved for a future dissolved-O2 supply mechanism), `/chem/env/pH <double>` (still active — drives the bulk H3O+(B)/OH-(B) buffer concentration used by the always-on acid-base network), `/chem/reaction/timeBinsFixed <width> <unit>` / `/chem/reaction/timeBinsList <e1> ... <eN> <unit>` (reaction-count time binning, see above), and `/run/beamOn`. Species and reactions are defined in `src/DnaChemistryList.cc`/`src/PureWaterReactions.cc`, not via `/chem/species` / `/chem/reaction/add` — do not re-add those to macros (`/chem/reaction/UI` resets the shared reaction table and wipes the class-built one). Example macros: `beam.in` (pure water), `beam_02.in` (SBS variant), `beam_o2.in` (sets `/chem/env/O2 21`, currently inert; pH = 7).
 
 Use the project-defined `DnaLogger` for application logging. Set its level in a macro with:
 
