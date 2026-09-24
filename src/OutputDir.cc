@@ -8,6 +8,7 @@
 namespace
 {
   G4String gConfiguredDir = "";
+  G4String gPrefix = "";
 }
 
 G4bool OutputDir::Configure(const G4String &dir, G4String &err)
@@ -60,9 +61,16 @@ G4bool OutputDir::ConfigureFromMacro(const G4String &dir, G4String &err)
 
 G4String OutputDir::Resolve(const G4String &filename)
 {
-  if (gConfiguredDir.empty())
-    return filename;
+  G4String name = gPrefix.empty() ? filename : G4String(gPrefix + filename);
 
-  std::filesystem::path joined = std::filesystem::path(gConfiguredDir.c_str()) / filename.c_str();
+  if (gConfiguredDir.empty())
+    return name;
+
+  std::filesystem::path joined = std::filesystem::path(gConfiguredDir.c_str()) / name.c_str();
   return G4String(joined.string().c_str());
+}
+
+void OutputDir::SetPrefix(const G4String &prefix)
+{
+  gPrefix = prefix;
 }
