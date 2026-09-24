@@ -282,3 +282,46 @@ Completed at 2026-09-23T15:10:41.4171658+02:00: copied compile_commands.json
 Skipped at 2026-09-23T15:11:27.7782362+02:00: C:\DEV\GEANT4\SIM\dnachem-min\build\macro\smoke_outputdir_macro_only.in
 Skipped at 2026-09-23T15:11:30.9487773+02:00: C:\DEV\GEANT4\SIM\dnachem-min\build\macro\smoke_outputdir_conflict.in
 Skipped at 2026-09-23T15:11:34.3799269+02:00: C:\DEV\GEANT4\SIM\dnachem-min\build\macro\smoke_outputdir_same.in
+Skipped at 2026-09-23T15:38:09.6286537+02:00: C:\DEV\GEANT4\SIM\dnachem-min\README.md
+Skipped at 2026-09-23T15:38:13.2163629+02:00: C:\DEV\GEANT4\SIM\dnachem-min\README.md
+Skipped at 2026-09-23T15:40:38.7914235+02:00: C:\DEV\GEANT4\SIM\dnachem-min\build\macro\smoke_outputdir_winpath.in
+Skipped at 2026-09-23T16:12:24.5782591+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-23__physics-stage-output\.write-payload.md
+Skipped at 2026-09-23T16:18:58.1414466+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-23__physics-stage-output\.write-payload.md
+Skipped at 2026-09-23T16:20:19.7760536+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-23__physics-stage-output\.write-payload.md
+Skipped at 2026-09-23T16:21:13.7588450+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\PhysicsInteractionCounter.hh
+Triggered at 2026-09-23T16:21:18.1761474+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\PhysicsInteractionCounter.cc
+Completed at 2026-09-23T16:21:23.4697296+02:00: copied compile_commands.json
+Triggered at 2026-09-23T16:21:36.6049023+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\PhysicsInteractionCounterTest.cc
+Completed at 2026-09-23T16:21:41.0994871+02:00: copied compile_commands.json
+Skipped at 2026-09-23T16:21:45.8201885+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CMakeLists.txt
+Skipped at 2026-09-23T16:22:32.3992959+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-23__physics-stage-output\03-implement\01-physics-interaction-counter\commit-log.md
+Triggered at 2026-09-23T16:22:48.5293376+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\RunAction.cc
+Completed at 2026-09-23T16:22:53.0274535+02:00: copied compile_commands.json
+Skipped at 2026-09-23T16:23:00.8876147+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.claude\.claude-project.json
+Skipped at 2026-09-23T16:23:23.7896060+02:00: C:\DEV\GEANT4\SIM\dnachem-min\build\macro\smoke_energy.in
+Skipped at 2026-09-23T16:31:50.8137935+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-23__physics-stage-output\03-implement\02-energy-deposit-output\commit-log.md
+Skipped at 2026-09-23T16:32:02.6293281+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\SteppingAction.hh
+Triggered at 2026-09-23T16:32:06.6837687+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\SteppingAction.cc
+Completed at 2026-09-23T16:32:15.0772905+02:00: copied compile_commands.json
+Triggered at 2026-09-23T16:32:18.8234749+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ActionInitialization.cc
+Completed at 2026-09-23T16:32:22.9566494+02:00: copied compile_commands.json
+Triggered at 2026-09-23T16:32:26.3204567+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ActionInitialization.cc
+Completed at 2026-09-23T16:32:31.1884672+02:00: copied compile_commands.json
+Skipped at 2026-09-23T16:32:34.5536007+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\Run.hh
+Skipped at 2026-09-23T16:32:41.4286206+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\Run.hh
+Triggered at 2026-09-23T16:32:44.6871427+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\Run.cc
+Completed at 2026-09-23T16:32:49.8307932+02:00: copied compile_commands.json
+Triggered at 2026-09-23T16:32:58.0250521+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\Run.cc
+Completed at 2026-09-23T16:33:02.7530421+02:00: copied compile_commands.json
+Triggered at 2026-09-23T16:33:06.8525229+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\Run.cc
+Completed at 2026-09-23T16:33:11.9898696+02:00: copied compile_commands.json
+Triggered at 2026-09-23T16:33:19.6500404+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\RunAction.cc
+Completed at 2026-09-23T16:33:24.8311155+02:00: copied compile_commands.json
+Skipped at 2026-09-23T16:33:33.2543051+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.claude\.claude-project.json
+Skipped at 2026-09-23T16:42:01.1431029+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-23__physics-stage-output\03-implement\03-physical-interaction-wiring\commit-log.md
+Skipped at 2026-09-23T16:42:16.5510272+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-09-23T16:42:24.6448876+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-09-23T16:42:43.3253081+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-23__physics-stage-output\03-implement\04-docs\commit-log.md
+Skipped at 2026-09-23T19:57:37.3269725+02:00: C:\Users\rtonneau\.claude\projects\C--DEV-GEANT4-SIM-dnachem-min\memory\physics-stage-output-feature.md
+Skipped at 2026-09-23T19:57:45.0629151+02:00: C:\Users\rtonneau\.claude\projects\C--DEV-GEANT4-SIM-dnachem-min\memory\portable-class-convention.md
+Skipped at 2026-09-23T19:57:50.3628270+02:00: C:\Users\rtonneau\.claude\projects\C--DEV-GEANT4-SIM-dnachem-min\memory\MEMORY.md

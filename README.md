@@ -46,6 +46,21 @@ Other flags:
 filename must still come first. `<path>` is created if missing; its parent
 must already exist.
 
+The macro command `/run/outputDir <path>` (`PreInit` only, before
+`/run/initialize`) sets the same output directory from inside a macro
+instead of the command line:
+
+```text
+/run/outputDir runs/001
+
+/run/initialize
+```
+
+`--dir` is always applied before the macro runs, so if a macro sets a
+*different* path than `--dir` did, the run aborts with a fatal
+configuration error instead of silently picking one. Setting the same path
+from both is a harmless no-op.
+
 ## Output files
 
 Each run writes:
@@ -180,7 +195,9 @@ the full procedure, including `NDEBUG` and Debug-CRT-dialog pitfalls.
 
 ## Repo layout
 
-- `sim.cc` — application entry point, CLI flags (`--threads`, `--dir`)
+- `sim.cc` — application entry point, CLI flags (`--threads`, `--dir`) and
+  macro-command messengers (`--dir`'s counterpart, `/run/outputDir`, lives
+  in `src/OutputDirMessenger.cc`)
 - `src/`, `header/` — implementation and headers (`DetectorConstruction`,
   `PhysicsList`, `DnaChemistryList`, `PureWaterReactions`,
   `DnaChemistryWorld`, `ReactionCounter`, `ScoreSpecies`, `TimeStepAction`,
