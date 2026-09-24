@@ -42,7 +42,7 @@
     "smoke": {
       "gun": "/gun/particle e-, /gun/energy 25 keV",
       "beamOn": 10,
-      "note": "Write a scratch macro into <runBuildDir>/macro (untracked). Do not edit macro/beam.in (100 keV: about 30 min Serial for 6 events)."
+      "note": "Write a scratch macro into <runBuildDir>/macro (untracked). Do not edit macro/beam.in (100 keV: about 30 min Serial for 6 events). End the macro with '/run/dumpDataAndReset' (no prefix) so the files in run.outputs are produced with their bare names -- omitting it falls back to the EndOfRun_-prefixed safety-net dump at process exit instead."
     },
     "outputs": [
       "Species.Txt",
@@ -56,9 +56,7 @@
       "output_event_<n>.txt (Serial) or output_event_t<thread>_e<event>.txt (MT)"
     ],
     "successMarkers": [
-      "[RunAction] species yields written",
-      "[RunAction] energy deposit written",
-      "[RunAction] physical interaction counts written",
+      "[RunAccumulatorMessenger] dumped and reset",
       "The simulation took"
     ],
     "failureMarkers": [
@@ -66,9 +64,7 @@
       "FatalException",
       "non-zero exit code"
     ],
-    "benignWarnings": [
-      "Analysis_W001 (Ntuple filename ... already in use, renamed *_bis.csv): several /run/beamOn in one macro"
-    ]
+    "benignWarnings": []
   },
 
   "test": {

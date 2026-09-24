@@ -8,7 +8,9 @@
 /// filename, or returns the filename unchanged if the configured directory
 /// is empty (including before Configure() is ever called). Not
 /// thread-synchronized -- callers must call Configure() before spawning any
-/// worker thread that calls Resolve().
+/// worker thread that calls Resolve(). SetPrefix()/Resolve() also apply an
+/// independent filename prefix (prepended before the directory join),
+/// separate from the configured directory.
 
 #ifndef OutputDir_h
 #define OutputDir_h 1
@@ -37,6 +39,11 @@ namespace OutputDir
   /// and dir differs, state is left unchanged and this returns false with
   /// err describing the conflict.
   G4bool ConfigureFromMacro(const G4String &dir, G4String &err);
+
+  /// Sets the filename prefix prepended (literally, no separator
+  /// inserted) to every filename passed to Resolve(), until the next
+  /// SetPrefix() call. Empty (the default) means no prefix.
+  void SetPrefix(const G4String &prefix);
 }
 
 #endif // OutputDir_h

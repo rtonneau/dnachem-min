@@ -161,6 +161,44 @@ static void TestResolveJoinsConfiguredDirectory()
   assert(OutputDir::Resolve("Species.Txt") == expected.string().c_str());
 }
 
+// --- SetPrefix / Resolve prefix -------------------------------------------
+
+static void TestResolveWithoutPrefixLeavesFilenameUnchanged()
+{
+  G4String err;
+  OutputDir::Configure("", err);
+  OutputDir::SetPrefix("");
+
+  assert(OutputDir::Resolve("Species.Txt") == "Species.Txt");
+}
+
+static void TestResolvePrependsPrefixToFilename()
+{
+  G4String err;
+  OutputDir::Configure("", err);
+  OutputDir::SetPrefix("run1_");
+
+  assert(OutputDir::Resolve("Species.Txt") == "run1_Species.Txt");
+
+  OutputDir::SetPrefix(""); // restore for later tests
+}
+
+static void TestResolveAppliesPrefixBeforeJoiningDirectory()
+{
+  ResetTestRoot();
+  fs::path target = TestRoot() / "prefixed";
+
+  G4String err;
+  assert(OutputDir::Configure(target.string().c_str(), err));
+  OutputDir::SetPrefix("run2_");
+
+  fs::path expected = target / "run2_Species.Txt";
+  assert(OutputDir::Resolve("Species.Txt") == expected.string().c_str());
+
+  OutputDir::SetPrefix("");        // restore for later tests
+  OutputDir::Configure("", err);   // restore for later tests
+}
+
 int main()
 {
   TestConfigureEmptyDirIsNoOp();
@@ -174,6 +212,9 @@ int main()
   TestConfigureFromMacroConflictsWithDifferentEarlierMacroPath();
   TestResolveWithoutConfigureReturnsFilenameUnchanged();
   TestResolveJoinsConfiguredDirectory();
+  TestResolveWithoutPrefixLeavesFilenameUnchanged();
+  TestResolvePrependsPrefixToFilename();
+  TestResolveAppliesPrefixBeforeJoiningDirectory();
 
   std::error_code ec;
   fs::remove_all(TestRoot(), ec);
