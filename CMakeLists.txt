@@ -73,6 +73,15 @@ target_link_libraries(PhysicsInteractionCounterTest ${Geant4_LIBRARIES})
 target_include_directories(PhysicsInteractionCounterTest PRIVATE ${project_include_dirs})
 add_test(NAME PhysicsInteractionCounterTest COMMAND PhysicsInteractionCounterTest)
 
+# Standalone unit test for RunAccumulator (pure accumulation/prefix
+# bookkeeping logic, no Geant4 kernel dependency -- DumpAndReset's
+# file-writing/species lookup lives in RunAccumulatorMessenger instead,
+# which is not unit-tested, matching this project's existing convention).
+add_executable(RunAccumulatorTest test/RunAccumulatorTest.cc src/RunAccumulator.cc src/ReactionCounter.cc src/PhysicsInteractionCounter.cc src/OutputDir.cc)
+target_link_libraries(RunAccumulatorTest ${Geant4_LIBRARIES})
+target_include_directories(RunAccumulatorTest PRIVATE ${project_include_dirs})
+add_test(NAME RunAccumulatorTest COMMAND RunAccumulatorTest)
+
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but
 # CMAKE_BUILD_TYPE is known at build time with MSVC.

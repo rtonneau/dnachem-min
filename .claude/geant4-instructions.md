@@ -75,8 +75,13 @@ Do not trust the exit code alone. Check all of:
 4. Each file in `run.outputs` exists, is non-empty, and the numbers are
    plausible (open the head of each; don't just `ls`).
 
-Several `/run/beamOn` in one macro can overwrite text outputs and rename CSVs
-(`*_bis.csv`). For a clean check of one run, use a macro with a single `beamOn`.
+Output files are only written when a macro issues `/run/dumpDataAndReset`
+(or, if it never does, once automatically at process exit under the
+`EndOfRun_` prefix) -- several `/run/beamOn` calls between dumps just
+accumulate into that one write. Reusing a prefix within the same process is
+a fatal error rather than a silent `*_bis.csv` rename; give each
+`/run/dumpDataAndReset` call in a macro a distinct prefix if you want
+separate output per segment.
 
 ## 5. Unit tests
 
