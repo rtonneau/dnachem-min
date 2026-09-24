@@ -13,6 +13,14 @@ if (-not $filePath -or [IO.Path]::GetExtension($filePath) -notin ".cc", ".cpp", 
 
 "Triggered at $(Get-Date -Format o): $filePath" | Out-File -FilePath $hookLogPath -Append -Encoding utf8
 
+# Fail-safe only (path validation lives in the dotfiles' check-env.ps1): without
+# these variables the CMake paths below would silently be empty.
+foreach ($name in "DEV_DIR", "G4_ROOT") {
+    if (-not [Environment]::GetEnvironmentVariable($name)) {
+        throw "$name is not set. Define the DEV_DIR and G4_ROOT user environment variables (dotfiles: scripts\setup-dev-env.ps1) and restart your shell/IDE."
+    }
+}
+
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $BuildDir = Join-Path $RepoRoot "build-ninja"
 $SourceDir = $RepoRoot
@@ -56,14 +64,30 @@ if (-not (Get-Command cl -ErrorAction SilentlyContinue)) {
     }
 }
 
+# Machine-specific roots come from the environment, never from this file:
+#   G4_ROOT = Geant4 install dir; DEV_DIR = dev root (G4Vox lives under DEV_DIR\GEANT4\LIB).
+# geant4InstallPath in .claude-project.json (may contain ${G4_ROOT} / ${DEV_DIR}) wins if present.
+function Expand-PathVariables([string]$Value) {
+    [regex]::Replace($Value, '\$\{(DEV_DIR|G4_ROOT)\}', { param($m) [Environment]::GetEnvironmentVariable($m.Groups[1].Value) })
+}
+
+$g4Install = $env:G4_ROOT
+$projectConfig = Join-Path $RepoRoot ".claude\.claude-project.json"
+if (Test-Path -LiteralPath $projectConfig) {
+    $cfg = Get-Content -LiteralPath $projectConfig -Raw | ConvertFrom-Json
+    if ($cfg.geant4InstallPath) { $g4Install = Expand-PathVariables $cfg.geant4InstallPath }
+}
+$g4Install = $g4Install.Replace("\", "/")
+$g4VoxInstall = (Join-Path $env:DEV_DIR "GEANT4\LIB\G4Vox-install").Replace("\", "/")
+
 $CMakeArgs = @(
     "-S", $SourceDir,
     "-B", $BuildDir,
     "-G", "Ninja",
     "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-    "-DGeant4_DIR=C:/DEV/GEANT4/geant4-v11.4.1-install/lib/cmake/Geant4",
-    "-DG4Vox_DIR=C:/DEV/GEANT4/LIB/G4Vox-install/lib/cmake/G4Vox",
-    "-DCMAKE_PREFIX_PATH=C:/DEV/GEANT4/geant4-v11.4.1-install;C:/DEV/GEANT4/LIB/G4Vox-install"
+    "-DGeant4_DIR=$g4Install/lib/cmake/Geant4",
+    "-DG4Vox_DIR=$g4VoxInstall/lib/cmake/G4Vox",
+    "-DCMAKE_PREFIX_PATH=$g4Install;$g4VoxInstall"
 )
 
 Write-Host "Configuring with CMake (Ninja)..." -ForegroundColor Cyan

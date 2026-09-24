@@ -1,8 +1,8 @@
 {
-  "geant4SourcePath": "C:\\DEV\\GEANT4\\geant4-v11.4.1-source\\geant4-v11.4.1",
-  "geant4InstallPath": "C:\\DEV\\GEANT4\\geant4-v11.4.1-install",
+  "geant4SourcePath": "${DEV_DIR}/GEANT4/geant4-v11.4.1-source/geant4-v11.4.1",
+  "geant4InstallPath": "${G4_ROOT}",
   "geant4Version": "11.4.1",
-  "kbPath": "C:\\DEV\\GEANT4\\geant4-v11.4.1-kb",
+  "kbPath": "${DEV_DIR}/GEANT4/geant4-v11.4.1-kb",
   "projectNotesPath": ".kb-notes",
 
   "build": {
@@ -15,7 +15,7 @@
     "runBuildType": "RelWithDebInfo",
     "testBuildDir": "build-ninja",
     "testBuildType": "Debug",
-    "toolchainFile": "C:/DEV/vcpkg/scripts/buildsystems/vcpkg.cmake",
+    "toolchainFile": "${DEV_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake",
     "extraCMakeArgs": [],
     "compileCommands": {
       "dir": "build-ninja",

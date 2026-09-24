@@ -1,12 +1,7 @@
 {
   "permissions": {
-    "additionalDirectories": [
-        "C:/DEV/GEANT4/geant4-v11.4.1-source",
-        "C:/DEV/GEANT4/geant4-v11.4.1-source/geant4-v11.4.1/examples",
-        "C:/DEV/GEANT4/geant4-v11.4.1-kb"
-    ],
     "deny": [
-        "Edit(C:/DEV/GEANT4/geant4-v11.4.1-source/**)"
+      "Edit(//**/geant4-v11.4.1-source/**)"
     ]
   },
 
@@ -17,7 +12,14 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/update-compile-cmd.ps1"
+            "command": "powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-ExecutionPolicy",
+              "Bypass",
+              "-File",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/update-compile-cmd.ps1"
+            ]
           }
         ]
       }
