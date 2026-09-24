@@ -10,6 +10,7 @@
 #include "OutputDir.hh"
 #include "OutputDirMessenger.hh"
 #include "PhysicsList.hh"
+#include "RunAccumulatorMessenger.hh"
 
 #include "G4ScoringManager.hh"
 #include "G4DNAChemistryManager.hh"
@@ -98,6 +99,9 @@ int main(int argc, char **argv)
   DnaLoggerMessenger *dnaLoggerMessenger = new DnaLoggerMessenger();
   // Exposes "/run/outputDir <path>" as a macro-file counterpart to --dir
   OutputDirMessenger *outputDirMessenger = new OutputDirMessenger();
+  // Exposes "/run/dumpDataAndReset [prefix]" to flush accumulated
+  // species/reaction/interaction/energy data to disk and reset it
+  RunAccumulatorMessenger *runAccumulatorMessenger = new RunAccumulatorMessenger();
 
   //////////
   // Set mandatory user initialization classes
@@ -146,6 +150,10 @@ int main(int argc, char **argv)
     UIManager->ApplyCommand("/control/execute " + macroFile);
   }
 
+  // Safety net: flush any accumulated data that was never explicitly
+  // dumped via /run/dumpDataAndReset, so it isn't silently lost.
+  runAccumulatorMessenger->FlushIfPending("EndOfRun_");
+
   // Stop the benchmark here
   theTimer->Stop();
 
@@ -156,6 +164,7 @@ int main(int argc, char **argv)
   delete theTimer;
   delete dnaLoggerMessenger;
   delete outputDirMessenger;
+  delete runAccumulatorMessenger;
   delete runManager;
 
   return 0;

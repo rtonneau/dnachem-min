@@ -6,23 +6,16 @@
 #include "DetectorConstruction.hh"
 #include "DnaChemistryList.hh"
 #include "DnaLogger.hh"
-#include "OutputDir.hh"
 #include "PhysicsList.hh"
 #include "PrimaryGeneratorAction.hh"
-#include "ReactionCounter.hh"
 #include "Run.hh"
-#include "ScoreSpecies.hh"
+#include "RunAccumulator.hh"
 
 #include "G4DNAChemistryManager.hh"
 
 #include "G4AccumulableManager.hh"
-#include "G4AnalysisManager.hh"
 #include "G4Run.hh"
 #include "G4RunManager.hh"
-#include "G4SystemOfUnits.hh"
-#include "G4UnitsTable.hh"
-
-#include <fstream>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -84,72 +77,20 @@ void RunAction::EndOfRunAction(const G4Run *run)
     {
         auto *masterRun = static_cast<const Run *>(run);
 
-        // Write the radiolytic-species yields (merged across worker threads by
-        // Run::Merge -> ScoreSpecies::AbsorbResultsFromWorkerScorer).
-        auto *scorer = dynamic_cast<ScoreSpecies *>(masterRun->GetPrimitiveScorer());
-        if (scorer != nullptr)
-        {
-            const G4int recorded = scorer->GetNumberOfRecordedEvents();
-            scorer->ASCII();          // Species.Txt (human-readable)
-            scorer->OutputAndClear(); // Species_nt_species(_all).csv, then clears the scorer
-            G4cout << "[RunAction] species yields written (Species.Txt / Species_nt_species*.csv) for "
-                   << recorded << " recorded event(s)" << G4endl;
-        }
-
-        // Write the per-reaction firing counts binned by time (merged across
-        // worker threads by Run::Merge -> ReactionCounter::Merge).
-        ReactionCounter *reactionCounter = masterRun->GetReactionCounter();
-        if (reactionCounter != nullptr)
-        {
-            std::ofstream reactionsOut(OutputDir::Resolve("Reactions.Txt"));
-            reactionCounter->WriteAscii(reactionsOut);
-            reactionsOut.close();
-
-            G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
-            analysisManager->SetDefaultFileType("csv");
-            reactionCounter->WriteCsv(analysisManager);
-
-            std::ofstream metadataOut(OutputDir::Resolve("ReactionsMetadata.csv"));
-            reactionCounter->WriteMetadata(metadataOut);
-            metadataOut.close();
-
-            reactionCounter->Clear();
-
-            DnaLogger::Print(DnaLogger::Level::Info,
-                              "[RunAction] reaction counts written (Reactions.Txt / "
-                              "Reactions_nt_reactions.csv / ReactionsMetadata.csv)");
-        }
-
-        // Write the total energy deposited in the simulation volume (merged
-        // across worker threads by Run::Merge; accumulated per-step by
-        // ScoreSpecies::ProcessHits into Run::fSumEne).
-        std::ofstream energyOut(OutputDir::Resolve("EnergyDeposit.Txt"));
-        energyOut << "Total energy deposited in simulation volume: "
-                  << G4BestUnit(masterRun->GetSumDose(), "Energy") << "\n";
-        energyOut.close();
+        // Species yields keep accumulating on their own (the ScoreSpecies
+        // scorer is itself the persistent, SD-registered accumulator, fed by
+        // Run::Merge -> AbsorbResultsFromWorkerScorer). Energy deposit and
+        // the two counters don't have that luxury -- Run is recreated fresh
+        // every beamOn -- so fold this run's totals into RunAccumulator's
+        // persistent, cross-run storage instead. Nothing is written to disk
+        // here: issue /run/dumpDataAndReset (or let the exit-time safety net
+        // in sim.cc fire) to flush everything.
+        RunAccumulator::Accumulate(masterRun->GetSumDose(), *masterRun->GetReactionCounter(),
+                                    *masterRun->GetInteractionCounter());
 
         DnaLogger::Print(DnaLogger::Level::Info,
-                          "[RunAction] energy deposit written (EnergyDeposit.Txt)");
-
-        // Write the physical-stage interaction firing counts (merged across
-        // worker threads by Run::Merge -> PhysicsInteractionCounter::Merge).
-        PhysicsInteractionCounter *interactionCounter = masterRun->GetInteractionCounter();
-        if (interactionCounter != nullptr)
-        {
-            std::ofstream interactionsOut(OutputDir::Resolve("PhysicsInteractions.Txt"));
-            interactionCounter->WriteAscii(interactionsOut);
-            interactionsOut.close();
-
-            std::ofstream interactionsCsv(OutputDir::Resolve("PhysicsInteractions.csv"));
-            interactionCounter->WriteCsv(interactionsCsv);
-            interactionsCsv.close();
-
-            interactionCounter->Clear();
-
-            DnaLogger::Print(DnaLogger::Level::Info,
-                              "[RunAction] physical interaction counts written "
-                              "(PhysicsInteractions.Txt / PhysicsInteractions.csv)");
-        }
+                          "[RunAction] accumulated this run's energy/reaction/interaction data -- "
+                          "use /run/dumpDataAndReset to write everything to files");
     }
 }
 
