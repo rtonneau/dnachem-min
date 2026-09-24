@@ -151,7 +151,7 @@ The logger is implemented in `src/DnaLogger.cc` and exposed to Geant4 commands b
 
 Unit tests (`test/*Test.cc`, plain `assert` + CTest) must be built and run from `build-ninja/` (Debug); see `.claude/geant4-instructions.md` section 5 for the `NDEBUG` and Debug-CRT-dialog pitfalls.
 
-When testing `sim.exe`, use a 25 keV electron gun and `/run/beamOn 2`. The chemistry time limit defaults to 1 µs, set by `G4Scheduler::Instance()->SetEndTime(1. * microsecond)` in `src/ActionInitialization.cc::Build()`, which runs on `/run/initialize`. To override it in a macro, issue `/scheduler/endTime <value> <unit>` *after* `/run/initialize` — a command issued before that point gets overwritten by `Build()`'s hardcoded call.
+When testing `sim.exe`, use a 10 keV electron gun and `/run/beamOn 2`. The chemistry time limit defaults to 1 µs, set by `G4Scheduler::Instance()->SetEndTime(1. * microsecond)` in `src/ActionInitialization.cc::Build()`, which runs on `/run/initialize`. To override it in a macro, issue `/scheduler/endTime <value> <unit>` *after* `/run/initialize` — a command issued before that point gets overwritten by `Build()`'s hardcoded call.
 
 ## Planning
 Before any non-trivial change, enter plan mode and write the plan to `.claude/plans/`.
