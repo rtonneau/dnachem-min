@@ -31,7 +31,8 @@
 # wipe the class-built reaction set.
 
 /run/beamOn 4
-/run/dumpDataAndReset run01_
+/run/dumpDataAndResetToDir run01
 /run/beamOn 4
-/run/dumpDataAndReset run02_
+/run/dumpDataAndResetToDir run02
 /run/beamOn 4
+/run/dumpDataAndResetToDir run03

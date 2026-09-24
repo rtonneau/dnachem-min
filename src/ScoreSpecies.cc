@@ -243,6 +243,11 @@ void ScoreSpecies::AbsorbResultsFromWorkerScorer(G4VPrimitiveScorer *workerScore
   }
 #endif
 
+  // The worker scorer persists across /run/beamOn calls (unlike Run), so
+  // empty it now that it has been absorbed -- otherwise the next run would
+  // merge its cumulative map into the master a second time.
+  right->fSpeciesInfoPerTime.clear();
+
   fNEvent += right->fNEvent;
   right->fNEvent = 0;
   right->fEdep = 0.;
