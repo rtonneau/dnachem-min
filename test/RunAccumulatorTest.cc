@@ -148,6 +148,42 @@ static void TestTryReservePrefixTreatsEmptyPrefixAsReservable()
   assert(!RunAccumulator::TryReservePrefix("", true, err2));
 }
 
+// --- TryReserveSubdir --------------------------------------------------
+
+static void TestTryReserveSubdirAcceptsFirstUse()
+{
+  G4String err;
+  assert(RunAccumulator::TryReserveSubdir("subdir_first", true, err));
+  assert(err.empty());
+}
+
+static void TestTryReserveSubdirRefusesRepeatWhenEnforced()
+{
+  G4String err;
+  assert(RunAccumulator::TryReserveSubdir("subdir_repeat", true, err));
+
+  G4String err2;
+  assert(!RunAccumulator::TryReserveSubdir("subdir_repeat", true, err2));
+  assert(!err2.empty());
+}
+
+static void TestTryReserveSubdirAllowsRepeatWhenNotEnforced()
+{
+  G4String err;
+  assert(RunAccumulator::TryReserveSubdir("subdir_unenforced", true, err));
+
+  G4String err2;
+  assert(RunAccumulator::TryReserveSubdir("subdir_unenforced", false, err2));
+  assert(err2.empty());
+}
+
+static void TestSubdirAndPrefixReservationsAreIndependent()
+{
+  G4String err;
+  assert(RunAccumulator::TryReservePrefix("shared_name", true, err));
+  assert(RunAccumulator::TryReserveSubdir("shared_name", true, err));
+}
+
 int main()
 {
   TestAccumulateSetsPendingFlag();
@@ -162,6 +198,11 @@ int main()
   TestTryReservePrefixRefusesRepeatWhenEnforced();
   TestTryReservePrefixAllowsRepeatWhenNotEnforced();
   TestTryReservePrefixTreatsEmptyPrefixAsReservable();
+
+  TestTryReserveSubdirAcceptsFirstUse();
+  TestTryReserveSubdirRefusesRepeatWhenEnforced();
+  TestTryReserveSubdirAllowsRepeatWhenNotEnforced();
+  TestSubdirAndPrefixReservationsAreIndependent();
 
   std::cout << "All RunAccumulator tests passed." << std::endl;
   return 0;

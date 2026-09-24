@@ -16,6 +16,11 @@ class G4UIcmdWithAString;
     earlier in this process is a fatal error -- see
     RunAccumulator::TryReservePrefix.
 
+    /run/dumpDataAndResetToDir <subdir> is the same flush, but writes the
+    (unprefixed) files into <subdir> under the output directory instead --
+    created if missing, relative and without "..", unique per process (see
+    OutputDir::ConfigureSubdir, RunAccumulator::TryReserveSubdir).
+
     Also exposes FlushIfPending(), called once from sim.cc right before the
     run manager is destroyed, as a safety net so data accumulated but never
     manually flushed isn't silently lost.
@@ -36,9 +41,16 @@ public:
     void FlushIfPending(const G4String &autoPrefix);
 
 private:
+    /// Reserves prefix (see enforceUniqueness), then WriteAllAndReset(prefix, "").
     G4bool DumpAndReset(const G4String &prefix, G4bool enforceUniqueness, G4String &err);
 
+    /// Writes every output file under the given prefix and (already
+    /// configured and reserved) subfolder, then resets all counters and
+    /// clears both from OutputDir. subdir is only used for the log line.
+    void WriteAllAndReset(const G4String &prefix, const G4String &subdir);
+
     G4UIcmdWithAString *fpDumpCmd;
+    G4UIcmdWithAString *fpDumpToDirCmd;
 };
 
 #endif // RUN_ACCUMULATOR_MESSENGER_HH

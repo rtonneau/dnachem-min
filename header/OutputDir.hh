@@ -10,7 +10,8 @@
 /// thread-synchronized -- callers must call Configure() before spawning any
 /// worker thread that calls Resolve(). SetPrefix()/Resolve() also apply an
 /// independent filename prefix (prepended before the directory join),
-/// separate from the configured directory.
+/// separate from the configured directory. ConfigureSubdir() adds an
+/// optional subfolder between the two: <dir>/<subdir>/<prefix><filename>.
 
 #ifndef OutputDir_h
 #define OutputDir_h 1
@@ -44,6 +45,16 @@ namespace OutputDir
   /// inserted) to every filename passed to Resolve(), until the next
   /// SetPrefix() call. Empty (the default) means no prefix.
   void SetPrefix(const G4String &prefix);
+
+  /// Sets a subfolder (relative to the configured output directory, or to
+  /// cwd if none is configured) that Resolve() inserts between the
+  /// directory and the prefixed filename, until the next ConfigureSubdir()
+  /// call. Creates it (and any missing intermediate folders) if needed; an
+  /// already-existing folder is accepted. Empty subdir clears it (no
+  /// filesystem access). Returns false and fills err -- leaving the
+  /// previous subfolder unchanged -- if subdir is absolute, contains a ".."
+  /// component, exists but is not a directory, or cannot be created.
+  G4bool ConfigureSubdir(const G4String &subdir, G4String &err);
 }
 
 #endif // OutputDir_h

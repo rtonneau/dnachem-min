@@ -12,6 +12,7 @@ namespace
   PhysicsInteractionCounter gAccumulatedInteractionCounter;
   G4bool gHasPendingData = false;
   std::set<G4String> gUsedPrefixes;
+  std::set<G4String> gUsedSubdirs;
 }
 
 void RunAccumulator::Accumulate(G4double energy, const ReactionCounter &reactions,
@@ -61,5 +62,18 @@ G4bool RunAccumulator::TryReservePrefix(const G4String &prefix, G4bool enforceUn
   }
 
   gUsedPrefixes.insert(prefix);
+  return true;
+}
+
+G4bool RunAccumulator::TryReserveSubdir(const G4String &subdir, G4bool enforceUniqueness,
+                                         G4String &err)
+{
+  if (enforceUniqueness && gUsedSubdirs.count(subdir) > 0)
+  {
+    err = "subfolder '" + subdir + "' was already used earlier in this run -- choose a different name";
+    return false;
+  }
+
+  gUsedSubdirs.insert(subdir);
   return true;
 }
