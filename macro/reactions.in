@@ -15,7 +15,7 @@
 # default -> ~10 bins). Must be issued before /run/initialize (PreInit).
 # Mutually exclusive with /chem/reaction/timeBinsList; leave both commented
 # out to fall back to the built-in 7-edge default table.
-/chem/reaction/timeBinsFixed 100 picosecond
+/chem/reaction/timeBinsFixed 1000 picosecond
 #/chem/reaction/timeBinsList 1 10 100 1000 picosecond
 
 /run/outputDir C:\DEV\GEANT4\DATA\260925
