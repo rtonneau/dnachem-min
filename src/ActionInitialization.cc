@@ -68,7 +68,11 @@ void ActionInitialization::Build() const
 void ActionInitialization::BuildMoleculeCounters() const
 {
   G4cout << "[ActionInitialization::BuildMoleculeCounter] ### Building molecule counters..." << G4endl;
-  G4MoleculeCounterManager::Instance()->SetResetCountersBeforeEvent(false); // defaults to false
+  // ScoreSpecies::EndOfEvent reads the counter once per event and normalises by that
+  // event's own energy deposit, so the counter must start every event empty (as in
+  // chem4-chem6). With false, event k would see the cumulative count of events 1..k and
+  // the summed G-values would be inflated by (nEvents+1)/2.
+  G4MoleculeCounterManager::Instance()->SetResetCountersBeforeEvent(true);  // defaults to false
   G4MoleculeCounterManager::Instance()->SetResetCountersBeforeRun(true);    // defaults to false
                                                                             // Basic (built-in) Counters
   {
