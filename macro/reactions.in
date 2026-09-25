@@ -18,21 +18,38 @@
 /chem/reaction/timeBinsFixed 100 picosecond
 #/chem/reaction/timeBinsList 1 10 100 1000 picosecond
 
-/run/outputDir C:\DEV\GEANT4\DATA\260924
+/run/outputDir C:\DEV\GEANT4\DATA\260925
 
 /run/initialize
 
 /gun/particle e-
-/gun/energy 10 keV
+
 
 # Species and reactions are defined in code (src/DnaChemistryList.cc).
 # The former "/chem/species" and "/chem/reaction/add" blocks were removed:
 # "/chem/reaction/UI" resets the shared G4DNAMolecularReactionTable and would
 # wipe the class-built reaction set.
 
-/run/beamOn 4
-/run/dumpDataAndResetToDir run01
-/run/beamOn 4
-/run/dumpDataAndResetToDir run02
-/run/beamOn 4
-/run/dumpDataAndResetToDir run03
+/gun/energy 10 keV
+/run/beamOn 100
+/run/dumpDataAndResetToDir run_10keV
+
+/gun/energy 25 keV
+/run/beamOn 100
+/run/dumpDataAndResetToDir run_25keV
+
+/gun/energy 50 keV
+/run/beamOn 100
+/run/dumpDataAndResetToDir run_50keV
+
+/gun/energy 100 keV
+/run/beamOn 100
+/run/dumpDataAndResetToDir run_100keV
+
+/gun/energy 200 keV
+/run/beamOn 100
+/run/dumpDataAndResetToDir run_200keV
+
+/gun/energy 500 keV
+/run/beamOn 100
+/run/dumpDataAndResetToDir run_500keV
