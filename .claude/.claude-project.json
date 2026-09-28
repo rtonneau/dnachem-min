@@ -74,7 +74,7 @@
     "list": "ctest --test-dir <testBuildDir> -N",
     "run": "ctest --test-dir <testBuildDir> --output-on-failure",
     "validation": "every test Passed and none Not Run",
-    "wiring": "add_executable(<X>Test test/<X>Test.cc src/<X>.cc [src deps]) + target_link_libraries(... ${Geant4_LIBRARIES}) + add_test(NAME <X>Test COMMAND <X>Test)",
+    "wiring": "add_executable(<X>Test test/<X>Test.cc src/<cluster>/<X>.cc [src deps]) + target_link_libraries(... ${Geant4_LIBRARIES}) + add_test(NAME <X>Test COMMAND <X>Test)",
     "scope": "pure logic only, no Geant4 kernel. Geant4-object code (scorers, actions, reaction tables) is verified by the smoke run."
   }
 }
