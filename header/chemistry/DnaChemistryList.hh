@@ -15,8 +15,9 @@
 /// (PureWaterReactions.cc) with the full acid-base network; another Chemistry
 /// may omit that buffer
 /// (docs/adr/0002-named-chemistries.md).
-/// An actual dissolved-O2 supply/population is deferred to future work;
-/// `/chem/env/O2` currently has no effect here.
+/// Exogenous scavengers (e.g. dissolved O2, `/chem/env/scavenger` on
+/// DnaChemistryWorld) react through the Chemistry's bulk reactions
+/// (docs/adr/0004-scavenger-reactions-per-chemistry.md).
 ///
 /// Time-step model: SBS only (hard-coded; IRT and IRT_syn are not
 /// supported).

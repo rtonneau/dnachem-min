@@ -13,9 +13,12 @@
 /// OHm(B) pseudo-species (UHDR: ChemPureWaterBuilder::WaterScavengerReaction)
 /// are registered as per-molecule G4DNAScavengerProcess from the
 /// bulk-reaction data list (PureWaterReactions::BuildPureWaterBulkReactions).
-/// The PureWater chemistry always carries the full network -- baseline aqueous chemistry
-/// (it can produce O2 from pure water radiolysis on its own), not gated by
-/// whether O2 is enabled. See docs/adr/0001-baseline-acid-base-buffer.md.
+/// The PureWater chemistry always carries the full network -- baseline
+/// aqueous chemistry (it can produce O2 from pure water radiolysis on its
+/// own), not gated by any scavenger. See
+/// docs/adr/0001-baseline-acid-base-buffer.md. The same list holds the
+/// scavenger reactions against exogenous bulk species set with
+/// /chem/env/scavenger (docs/adr/0004-scavenger-reactions-per-chemistry.md).
 
 #include "chemistry/DnaChemistryList.hh"
 
@@ -24,6 +27,7 @@
 #include "chemistry/ChemistrySelectMessenger.hh"
 #include "geometry/DetectorConstruction.hh"
 #include "geometry/DnaChemistryWorld.hh"
+#include "geometry/ScavengerSpec.hh"
 #include "chemistry/ChemistryTypes.hh"
 #include "core/DnaLogger.hh"
 #include "core/OutputDir.hh"
@@ -230,8 +234,18 @@ void DnaChemistryList::ConstructReactionTable(G4DNAMolecularReactionTable* react
     const_cast<DnaChemistryWorld*>(ChemistryWorld("ConstructReactionTable"));
   chemWorld->ConstructChemistryComponents();
 
-  // Ordinary (non-bulk) reactions of the selected Chemistry (default PureWater).
+  // A scavenger whose species no bulk reaction of the selected Chemistry uses
+  // would sit in the bulk without reacting. Master-only, so it warns once.
   const auto* chemistry = SelectedChemistry("ConstructReactionTable");
+  for (const auto& species :
+       ScavengerSpec::InertSpecies(chemWorld->GetScavengers(), chemistry->buildBulkReactions())) {
+    DnaLogger::Print(DnaLogger::Level::Warning,
+                     "[DnaChemistryList] scavenger " + species +
+                       " is inert: no bulk reaction of chemistry " + chemistry->name +
+                       " uses it as a partner");
+  }
+
+  // Ordinary (non-bulk) reactions of the selected Chemistry (default PureWater).
   chemistry->buildReactions(reactionTable);
 
   DnaLogger::Print(DnaLogger::Level::Info,

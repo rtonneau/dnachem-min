@@ -6,10 +6,9 @@
 /process/chem/TimeStepModel SBS
 
 # Dissolved O2 as a bulk scavenger: 21 % of a pure-O2 atmosphere
-# (air-equilibrated water). Currently inert -- the O2/acid-base chemistry is
-# always active regardless of this value; this command is reserved for a
-# future dissolved-O2 supply mechanism.
-/chem/env/O2 21
+# (air-equilibrated water, kH = 0.0013 M -> 2.73e-4 M). The reactions
+# (e_aq/H/O- + O2 bulk) come from the selected Chemistry.
+/chem/env/scavenger O2 21 %
 /chem/env/pH 7
 
 /run/initialize
