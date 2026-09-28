@@ -116,3 +116,28 @@ void PureWaterReactions::BuildPureWaterReactions(G4DNAMolecularReactionTable* re
   add(HO2, O2m, 9.70e7, {HO2m, O2});
   add(O2m, O2m, 1.0e2, {H2O2, O2, OHm, OHm});
 }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+ChemistryTypes::AcidBaseList PureWaterReactions::BuildPureWaterAcidBase()
+{
+  const G4double M = 1e-3 * m3 / (mole * s);  // bimolecular unit (M^-1 s^-1)
+  const G4double cW = 55.3;                   // bulk water molarity factor
+
+  // Same values and order as the former hard-coded list in DnaChemistryList.
+  return {
+    {"H", {{"H2O", 6.32 / s, {"e_aq", "H3Op(B)"}, 0}, {"OHm(B)", 2.49e7 * M, {"e_aq"}, 0}}},
+    {"e_aq",
+     {{"H3Op(B)", 2.25e10 * M, {"H"}, 0}, {"H2O", 1.57e1 * cW / s, {"H", "OHm(B)"}, 0}}},
+    {"O2m", {{"H3Op(B)", 4.78e10 * M, {kHO2}, 6}, {"H2O", 0.15 * cW / s, {kHO2, "OHm(B)"}, 0}}},
+    {kHO2, {{"OHm(B)", 1.27e10 * M, {"O2m"}, 0}, {"H2O", 7.58e5 / s, {"H3Op(B)", "O2m"}, 6}}},
+    {"HO2m",
+     {{"H3Op(B)", 4.78e10 * M, {"H2O2"}, 0}, {"H2O", 1.36e6 * cW / s, {"H2O2", "OHm(B)"}, 7}}},
+    {"Om", {{"H3Op(B)", 9.56e10 * M, {kOH}, 0}, {"H2O", 1.8e6 * cW / s, {kOH, "OHm(B)"}, 8}}},
+    {"O3m", {{"H3Op(B)", 9.0e10 * M, {kOH, "O2"}, 0}, {"H2O", 2.66e3 / s, {"Om", "O2"}, 0}}},
+    {"H2O2", {{"H2O", 7.86e-2 / s, {"HO2m", "H3Op(B)"}, 0}, {"OHm(B)", 1.27e10 * M, {"HO2m"}, 7}}},
+    {kOH, {{"OHm(B)", 1.27e10 * M, {"Om"}, 8}, {"H2O", 0.060176635 / s, {"Om", "H3Op(B)"}, 0}}},
+    {"OHm", {{"H3Op(B)", 1.13e11 * M, {}, 0}}},
+    {"H3Op", {{"OHm(B)", 1.13e11 * M, {}, 0}}},
+  };
+}

@@ -19,6 +19,8 @@
 #ifndef DnaChemistryList_h
 #define DnaChemistryList_h 1
 
+#include "ChemistryTypes.hh"
+
 #include "G4VPhysicsConstructor.hh"
 #include "G4VUserChemistryList.hh"
 #include "globals.hh"
@@ -64,11 +66,13 @@ private:
   /// The project chemistry world, via the run manager's detector.
   const DnaChemistryWorld* ChemistryWorld(const G4String& caller) const;
 
-  /// Per-molecule G4DNAScavengerProcess for the pH-driven acid-base buffer
-  /// equilibria against the bulk H3Op(B) / OHm(B) / H2O pseudo-species
-  /// (UHDR: ChemPureWaterBuilder::WaterScavengerReaction). Always active --
-  /// this network is baseline aqueous chemistry, not O2-specific.
-  void RegisterAcidBaseScavengerProcesses(const G4DNABoundingBox& boundary) const;
+  /// Registers one G4DNAScavengerProcess per entry of `list`: the pH-driven
+  /// acid-base buffer equilibria against the bulk H3Op(B) / OHm(B) / H2O
+  /// pseudo-species (UHDR: ChemPureWaterBuilder::WaterScavengerReaction).
+  /// The values come from the Chemistry (PureWater: always the full network);
+  /// an empty list registers nothing.
+  void RegisterAcidBaseScavengerProcesses(const G4DNABoundingBox& boundary,
+                                          const ChemistryTypes::AcidBaseList& list) const;
 
   /// Exposes /chem/reaction/dump <filename>.
   std::unique_ptr<G4GenericMessenger> fMessenger;
