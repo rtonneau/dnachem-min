@@ -21,102 +21,9 @@ Project-specific: `build/` is RelWithDebInfo (run `sim`), `build-ninja/` is Debu
 ./sim beam_o2.in   # with dissolved-O2 scavenger
 ```
 
-Species/reaction/energy/physical-interaction data accumulates across `/run/beamOn`
-calls rather than being written and reset after every run — species yields
-accumulate automatically (the `ScoreSpecies` scorer is itself a persistent,
-SD-registered object), while energy deposit and the two counters accumulate via
-`RunAccumulator` (`src/scoring/RunAccumulator.cc`), fed once per run from
-`RunAction::EndOfRunAction`. Nothing is written to disk until a macro issues
-`/run/dumpDataAndReset [prefix]` (`Idle` state, i.e. between `beamOn` calls),
-which writes everything accumulated since the last dump (or program start) and
-resets all counters to empty/zero:
-
-- `Species.Txt` (human-readable species yields vs. time) and two CSV ntuples,
-  `Species_nt_species.csv` (aggregate sumG/sumG2 per species/time) and
-  `Species_nt_species_all.csv` (same, per event); in MT mode the per-event
-  pre-chemical dumps are still written continuously as
-  `output_event_t<thread>_e<event>.txt` (unaffected by dump/reset).
-- `Reactions.Txt`, `Reactions_nt_reactions.csv`, and `ReactionsMetadata.csv`:
-  per-time-bin firing counts of each bimolecular reaction (counted live in
-  `TimeStepAction::UserReactionAction` via `ReactionCounter`, merged across
-  threads in `Run::Merge`, accumulated across runs by `RunAccumulator`).
-  `Reactions_nt_reactions.csv` rows are `(reactionId, time, count)`;
-  `ReactionsMetadata.csv` maps each `reactionId` to its full `"A + B -> C + D"`
-  label (`Reactions.Txt` still prints the full label directly). Acid-base/
-  scavenger reactions are not counted (they never reach that hook). The
-  default time-bin edges are a built-in 7-entry table; override them with
-  `/chem/reaction/timeBinsFixed <width> <unit>` (a fixed step, expanded up to
-  the chemistry scheduler's end time) or `/chem/reaction/timeBinsList <e1>
-  <e2> ... <eN> <unit>` (explicit edges) — both `PreInit`, mutually exclusive
-  (last one issued wins).
-- `EnergyDeposit.Txt` (total energy deposited in the simulation volume,
-  human-readable).
-- `PhysicsInteractions.Txt`/`PhysicsInteractions.csv` (per-process physical-
-  interaction firing counts — totals only, no time binning; only discrete
-  G4DNA physics processes are counted, e.g. `e-_G4DNAIonisation`,
-  `e-_G4DNAExcitation`, `e-_G4DNAElastic`, `e-_G4DNAVibExcitation`,
-  `e-_G4DNAAttachment` — `Transportation` and other bookkeeping steps are
-  excluded). `PhysicsInteractionCounter` is recorded live per step by
-  `SteppingAction`, merged across worker threads in `Run::Merge`, and
-  accumulated across runs by `RunAccumulator`, same as the reaction counts.
-
-`prefix` (optional, default none) is prepended literally to every filename
-above — no separator is inserted, so pass e.g. `run1_` if you want one.
-Reusing a prefix already used earlier in the same `sim.exe` process is a
-fatal error (`RunAccumulator::TryReservePrefix`), to catch accidental
-overwrites. Each dump also calls `G4AnalysisManager::Clear()` after writing
-its CSV ntuples — without it, a later dump cycle reusing the same ntuple
-names ("species"/"reactions") under a new prefix hits a Geant4 analysis-
-manager limitation (its per-ntuple file registry isn't cleared by
-`CloseFile()` alone) and silently renames or drops that dump's CSV output;
-`Clear()` avoids that entirely, so distinct prefixes never collide.
-
-`/run/dumpDataAndResetToDir <subdir>` (`Idle` state, parameter required) is the
-same dump, but writes the unprefixed files into `<subdir>` under the output
-directory (`--dir` / `/run/outputDir`, or cwd if none) instead of using a
-filename prefix — e.g. `/run/beamOn 4`, `/run/dumpDataAndResetToDir run01`,
-`/run/beamOn 4`, `/run/dumpDataAndResetToDir run02` yields `run01/` and
-`run02/`, each with the full file set. The folder is created if missing
-(`OutputDir::ConfigureSubdir`); nested names such as `scan1/run01` are allowed,
-absolute paths and `..` components are a fatal `G4Exception`
-(`InvalidDumpSubdir`). Reusing a name within the same process is a fatal
-`G4Exception` (`DuplicateDumpSubdir`, `RunAccumulator::TryReserveSubdir` — a
-set separate from the prefix one); a folder already on disk from an earlier
-process is reused and its files overwritten. It does not combine with a
-prefix. The MT per-event `output_event_t*_e*.txt` files stay in the top output
-directory (they are written continuously, outside any dump).
-
-If a macro never issues `/run/dumpDataAndReset` and there is still accumulated
-data pending when the program is about to exit, a safety-net flush fires
-automatically with the fixed prefix `EndOfRun_` (see
-`RunAccumulatorMessenger::FlushIfPending`, called from `sim.cc` just before
-the run manager is destroyed) — so data is never silently lost even if the
-operator forgets the manual call. The `[RunAccumulatorMessenger] dumped and
-reset...` line is a plain, always-visible `G4cout` line (unlike most of this
-project's diagnostics, which go through `DnaLogger` and are silent by
-default) — see `RunAccumulatorMessenger.cc`.
-
-Pass `--dir <path>` to redirect every output file above (plus the
-`/chem/reaction/dump` target, if the macro sets one) into `<path>` instead of
-cwd — useful for isolating each run's output when scripting many `sim.exe`
-invocations. `<path>` itself is created if missing; its parent must already
-exist. `--dir` can appear anywhere on the command line, but the macro
-filename must still come first (`argv[1]`):
-
-```bash
-./sim beam.in --dir runs/001
-```
-
-The macro command `/run/outputDir <path>` (`PreInit` only) is a second way
-to set the same output directory, for when `--dir` isn't convenient (e.g. a
-self-contained macro). `--dir` is always applied before the macro executes,
-so if both are used with *different* paths, `/run/outputDir` raises a fatal
-`G4Exception` (`ConflictingOutputDir`) and aborts the run rather than
-silently picking one; the same path from both is a harmless no-op.
+Output data (species, reactions, energy deposit, physics-interaction counts) accumulates across `/run/beamOn` calls; nothing is written until a macro issues `/run/dumpDataAndReset [prefix]` or `/run/dumpDataAndResetToDir <subdir>`, and a safety-net flush with prefix `EndOfRun_` fires at exit if data is still pending. `--dir <path>` / `/run/outputDir <path>` redirect all output. File formats, prefix/subdir rules and failure modes: the `sim-output` skill (`.claude/skills/sim-output/SKILL.md`).
 
 ## Source layout
-
-`src/` and `header/` are mirrored trees: `core/` (argument parsing, output directory, logging), `actions/` (run, event, tracking, stacking and stepping actions, action initialization, primary generator), `geometry/` (detector, chemistry world), `physics/` (physics list), `chemistry/` (chemistry list, registry and selection, time-step action, reaction-table dump) with `chemistry/catalog/` for the named Chemistries, and `scoring/` (species scorer, counters, run accumulator). `sim.cc` stays at the root and `test/` is flat.
 
 Project includes are rooted at `header/`, which is the only project include directory: `#include "chemistry/DnaChemistryList.hh"`. A new file goes in the directory of the concern it belongs to; a new Chemistry goes in `chemistry/catalog/`. Rationale: `docs/adr/0003-clustered-source-layout.md`.
 
@@ -124,7 +31,6 @@ Project includes are rooted at `header/`, which is the only project include dire
 
 - `sim.cc`: application setup. Runs Serial by default; `--threads N` (N > 0) selects the MT run manager (`G4RunManagerType::MT`), and `/run/numberOfThreads N` in a macro can still override before `/run/initialize`. Set `useGUI` to `true` only for interactive GUI runs. CLI flags (`--threads`, `--dir`) are registered here via `src/core/ArgParser.cc`.
 - `src/core/OutputDir.cc`: process-wide output directory (`--dir`), configured once in `main()` before any worker thread starts. `Resolve(filename)` is called at every output-file site (`ScoreSpecies.cc`, `TimeStepAction.cc`, `DnaChemistryList.cc`'s reaction-table dump) to prefix it onto the configured directory, or leaves it unchanged when `--dir` wasn't passed. `ConfigureFromMacro()` backs the `/run/outputDir` macro command (`src/core/OutputDirMessenger.cc`) — same effect as `Configure()` when nothing is set yet, a no-op when the macro repeats the already-configured path, and a fatal `G4Exception` when it differs (raised by the messenger, not by `OutputDir` itself, which stays pure/testable). It also holds a separate filename prefix (`SetPrefix()`/`gPrefix`, distinct from the directory) prepended before the directory join — set by `RunAccumulatorMessenger` around each `/run/dumpDataAndReset` flush, not exposed as its own macro command.
-- `src/geometry/DetectorConstruction.cc`: homogeneous water-box geometry; owns the `DnaChemistryWorld` (its boundary sizes the world box).
 - `src/physics/PhysicsList.cc`: simplified UHDR-style modular list — holds `G4EmDNAPhysics` + `DnaChemistryList` and drives their `ConstructParticle()`/`ConstructProcess()` directly (no string dispatch, no `RegisterPhysics`). Change the EM-DNA physics option by editing the constructor. Sets SBS as the chemistry time-step model (the only one `DnaChemistryList` supports).
 - `src/chemistry/DnaChemistryList.cc`: project chemical stage (`G4VUserChemistryList` + `G4VPhysicsConstructor`) — molecule set, water dissociation, reaction table, time-step model. Replaces macro `/chem/species` and `/chem/reaction/add`. Hard-codes SBS as the only chemistry time-step model (IRT and IRT_syn are not supported). The reaction content comes from the selected **Chemistry** (`/chem/select <name>`, default `PureWater`; see `ChemistryRegistry.cc` and `docs/adr/0002-named-chemistries.md`): its reaction table and its acid-base list. `PureWater` (`PureWaterReactions.cc`) carries the pH-driven acid-base buffer network (`H3Op(B)`/`OHm(B)`, registered as per-molecule `G4DNAScavengerProcess`) and the full O2⁻/HO2/HO2⁻/O⁻/O3⁻ network, baseline/unconditional for that Chemistry — it can produce O2 from pure water radiolysis on its own (see `docs/adr/0001-baseline-acid-base-buffer.md`); another Chemistry may supply a partial or empty acid-base list. Molecules and dissociation channels are shared by all Chemistries. Only an exogenous dissolved-O2 supply mechanism remains deferred to future work — `/chem/env/O2` currently has no effect on the chemistry. Also owns `/chem/reaction/timeBinsFixed` / `timeBinsList` (`ApplyReactionTimeBinning()`, applied from `RunAction::BeginOfRunAction` once the scheduler end time is final) and `/chem/reaction/dump`.
 - `src/scoring/ReactionCounter.cc`: per-time-bin bimolecular reaction-firing counts. Kernel/DLL-free by design (see file header) — `ConfigureBinEdges`/`ParseBinEdgesList` are covered by `test/ReactionCounterTest.cc`; do not call `G4UnitDefinition::GetValueOf()` from here or its test (observed to corrupt memory when the Debug test binary links a differently-built Geant4 install — use the local `TimeUnitValue` table instead).
@@ -137,13 +43,7 @@ Project includes are rooted at `header/`, which is the only project include dire
 - `src/scoring/RunAccumulator.cc`: process-wide accumulator for energy deposit and the two counters (`ReactionCounter`, `PhysicsInteractionCounter`), persisting across `/run/beamOn` calls — pure logic, no Geant4-kernel dependency, covered by `test/RunAccumulatorTest.cc`. Fed once per run from `RunAction::EndOfRunAction`; species yields don't need this (the `ScoreSpecies` scorer is itself persistent).
 - `src/scoring/RunAccumulatorMessenger.cc`: exposes `/run/dumpDataAndReset [prefix]` (`Idle` state) — writes everything accumulated since the last dump (species via a direct `ScoreSpecies` lookup, the rest via `RunAccumulator`), then resets it; `prefix` is prepended literally to every output filename via `OutputDir::SetPrefix`. Refuses to reuse a prefix already used earlier in the process (fatal `G4Exception`). Also exposes `FlushIfPending()`, called once from `sim.cc` right before the run manager is destroyed, as a safety net (fixed prefix `EndOfRun_`) for data never manually flushed.
 - `src/actions/SteppingAction.cc`: per-step physical-interaction counting — records `G4Step::GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()` into a `PhysicsInteractionCounter` whenever the name contains `"G4DNA"` (discrete G4DNA physics processes only, excludes `Transportation`).
-- `src/geometry/DnaChemistryWorld.cc`: `G4VChemistryWorld` subclass — diffusion boundary + bulk solvent composition (water, H3O+/OH- from pH, optional dissolved O2). Messenger: `/chem/env/pH`, `/chem/env/O2` (both PreInit).
-- `src/actions/PrimaryGeneratorAction.cc`: electron source configuration.
-- `src/chemistry/TimeStepAction.cc`: chemistry time stepping.
-- `src/scoring/ScoreSpecies.cc`: species-yield and G-value scoring, including HDF5 output.
 - `macro/*.in`: runtime beam and chemistry configuration. Prefer macro changes for species and reaction studies rather than hard-coding them.
-- `src/core/DnaLogger.cc` and `src/core/DnaLoggerMessenger.cc`: project-defined logging framework for console output and diagnostics.
-- `src/chemistry/ChemUtils.cc`: utility functions for chemistry species and reactions.
 
 ## Macro and Logging
 
