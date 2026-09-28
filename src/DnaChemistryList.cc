@@ -3,24 +3,30 @@
 ///
 /// Structure mirrors G4EmDNAChemistry_option3 and the UHDR example's
 /// EmDNAChemistry. Molecules + water dissociation channels come from
-/// G4ChemDissociationChannels_option1. The ordinary (non-bulk) reaction
-/// network -- pure-water radiolysis plus the O2-derived second-order
-/// network -- lives in the portable PureWaterReactions.cc.
+/// G4ChemDissociationChannels_option1. The reaction content (ordinary
+/// reaction table + acid-base list) comes from the Chemistry selected with
+/// /chem/select before /run/initialize (default PureWater, the portable
+/// PureWaterReactions.cc: pure-water radiolysis plus the O2-derived
+/// second-order network). See docs/adr/0002-named-chemistries.md.
 ///
 /// The pH-driven acid-base buffer equilibria against the bulk H3Op(B) /
 /// OHm(B) pseudo-species (UHDR: ChemPureWaterBuilder::WaterScavengerReaction)
-/// are always active, registered as per-molecule G4DNAScavengerProcess --
-/// this network is baseline aqueous chemistry (it can produce O2 from pure
-/// water radiolysis on its own), not gated by whether O2 is enabled. See
-/// docs/adr/0001-baseline-acid-base-buffer.md.
+/// are registered as per-molecule G4DNAScavengerProcess from the acid-base
+/// data list (PureWaterReactions::BuildPureWaterAcidBase). The PureWater
+/// chemistry always carries the full network -- baseline aqueous chemistry
+/// (it can produce O2 from pure water radiolysis on its own), not gated by
+/// whether O2 is enabled. See docs/adr/0001-baseline-acid-base-buffer.md.
 
 #include "DnaChemistryList.hh"
 
+#include "BuiltInChemistries.hh"
+#include "ChemistryRegistry.hh"
+#include "ChemistrySelectMessenger.hh"
 #include "DetectorConstruction.hh"
 #include "DnaChemistryWorld.hh"
+#include "ChemistryTypes.hh"
 #include "DnaLogger.hh"
 #include "OutputDir.hh"
-#include "PureWaterReactions.hh"
 #include "ReactionCounter.hh"
 #include "ReactionTableDump.hh"
 #include "ScavengerReactionAccess.hh"
@@ -62,7 +68,6 @@
 
 #include "G4PhysicsConstructorFactory.hh"
 
-#include <initializer_list>
 #include <memory>
 #include <vector>
 
@@ -70,12 +75,6 @@ G4_DECLARE_PHYSCONSTR_FACTORY(DnaChemistryList);
 
 namespace
 {
-// Configuration tags containing the UTF-8 degree sign (0xC2 0xB0), spelled
-// from explicit bytes so they match the names stored by
-// G4ChemDissociationChannels_option1 whatever this file's source encoding is.
-const G4String kOH = G4String("\xC2\xB0") + "OH";   // hydroxyl radical
-const G4String kHO2 = G4String("HO2") + "\xC2\xB0"; // hydroperoxyl radical
-
 using MolConf = const G4MolecularConfiguration*;
 
 MolConf Conf(const G4String& name, const G4String& caller)
@@ -100,6 +99,11 @@ DnaChemistryList::DnaChemistryList()
   // that holds it (avoids a double free).
   G4DNAChemistryManager::Instance()->SetChemistryList(this);
 
+  // Chemistries are registered before any macro can /chem/select one. The
+  // manager singleton above already exists, so /chem/ is there for the commands.
+  BuiltInChemistries::Register();
+  fSelectMessenger = std::make_unique<ChemistrySelectMessenger>();
+
   fMessenger = std::make_unique<G4GenericMessenger>(this, "/chem/reaction/",
                                                     "Chemistry reaction-table diagnostics");
   auto& dumpCmd = fMessenger->DeclareProperty(
@@ -122,6 +126,23 @@ DnaChemistryList::DnaChemistryList()
     "'1 10 100 1000 picosecond'). Mutually exclusive with timeBinsFixed (issuing both is a fatal "
     "configuration error).");
   timeBinsListCmd.SetStates(G4State_PreInit);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+DnaChemistryList::~DnaChemistryList() = default;
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+const ChemistryRegistry::Chemistry* DnaChemistryList::SelectedChemistry(
+  const G4String& caller) const
+{
+  const auto* chemistry = ChemistryRegistry::Selected();
+  if (chemistry == nullptr) {
+    G4Exception((G4String("DnaChemistryList::") + caller).c_str(), "NoChemistry", FatalException,
+                "No chemistry is selected and the default is not registered.");
+  }
+  return chemistry;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -209,12 +230,13 @@ void DnaChemistryList::ConstructReactionTable(G4DNAMolecularReactionTable* react
     const_cast<DnaChemistryWorld*>(ChemistryWorld("ConstructReactionTable"));
   chemWorld->ConstructChemistryComponents();
 
-  // Pure water + O2-derived second-order network (portable unit).
-  PureWaterReactions::BuildPureWaterReactions(reactionTable);
+  // Ordinary (non-bulk) reactions of the selected Chemistry (default PureWater).
+  const auto* chemistry = SelectedChemistry("ConstructReactionTable");
+  chemistry->buildReactions(reactionTable);
 
   DnaLogger::Print(DnaLogger::Level::Info,
-                   "[DnaChemistryList] reaction table constructed "
-                   "(pure water + O2 network)");
+                   "[DnaChemistryList] chemistry = " + chemistry->name +
+                     ", reaction table constructed");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -272,7 +294,8 @@ void DnaChemistryList::ConstructProcess()
   }
 
   auto* chemWorld = const_cast<DnaChemistryWorld*>(ChemistryWorld("ConstructProcess"));
-  RegisterAcidBaseScavengerProcesses(*chemWorld->GetChemistryBoundary());
+  RegisterAcidBaseScavengerProcesses(*chemWorld->GetChemistryBoundary(),
+                                    SelectedChemistry("ConstructProcess")->buildAcidBase());
 
   // Triggers InitializeMaster() -> ConstructReactionTable() ->
   // DnaChemistryWorld::ConstructChemistryComponents(): the bulk composition is
@@ -302,33 +325,11 @@ void DnaChemistryList::ConstructProcess()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void DnaChemistryList::RegisterAcidBaseScavengerProcesses(const G4DNABoundingBox& boundary) const
+void DnaChemistryList::RegisterAcidBaseScavengerProcesses(
+  const G4DNABoundingBox& boundary, const ChemistryTypes::AcidBaseList& list) const
 {
   auto* ph = G4PhysicsListHelper::GetPhysicsListHelper();
-
-  auto* e_aq = Conf("e_aq", "RegisterAcidBaseScavengerProcesses");
-  auto* H = Conf("H", "RegisterAcidBaseScavengerProcesses");
-  auto* OH = Conf(kOH, "RegisterAcidBaseScavengerProcesses");
-  auto* OHm = Conf("OHm", "RegisterAcidBaseScavengerProcesses");
-  auto* Om = Conf("Om", "RegisterAcidBaseScavengerProcesses");
-  auto* O2 = Conf("O2", "RegisterAcidBaseScavengerProcesses");
-  auto* O2m = Conf("O2m", "RegisterAcidBaseScavengerProcesses");
-  auto* O3m = Conf("O3m", "RegisterAcidBaseScavengerProcesses");
-  auto* HO2 = Conf(kHO2, "RegisterAcidBaseScavengerProcesses");
-  auto* HO2m = Conf("HO2m", "RegisterAcidBaseScavengerProcesses");
-  auto* H2O2 = Conf("H2O2", "RegisterAcidBaseScavengerProcesses");
-  auto* H3Op = Conf("H3Op", "RegisterAcidBaseScavengerProcesses");
-  auto* H3OpB = Conf("H3Op(B)", "RegisterAcidBaseScavengerProcesses");
-  auto* OHmB = Conf("OHm(B)", "RegisterAcidBaseScavengerProcesses");
-  auto* H2O = Conf("H2O", "RegisterAcidBaseScavengerProcesses");
-
-  struct Rx
-  {
-    MolConf bulk;
-    G4double rate;  // already dimensioned
-    std::vector<MolConf> products;
-    G4int type;
-  };
+  const G4String caller = "RegisterAcidBaseScavengerProcesses";
 
   // Registers against mol->GetDefinition() rather than a caller-supplied
   // class pointer: several species here (OHm, H3Op) have no dedicated
@@ -338,44 +339,20 @@ void DnaChemistryList::RegisterAcidBaseScavengerProcesses(const G4DNABoundingBox
   // private G4MoleculeDefinition("O", ...) created inside
   // G4ChemDissociationChannels_option1::ConstructMolecule()) -- silently
   // making those reactions unreachable.
-  auto build = [&](MolConf mol, std::initializer_list<Rx> reactions) {
+  for (const auto& entry : list) {
+    auto* mol = Conf(entry.molecule, caller);
     auto* process = new ScavengerReactionAccess("G4DNAScavengerProcess", boundary);
-    for (const auto& r : reactions) {
-      auto* rd = new G4DNAMolecularReactionData(r.rate, mol, r.bulk);
-      for (auto* p : r.products) {
-        rd->AddProduct(p);
+    for (const auto& r : entry.reactions) {
+      auto* rd = new G4DNAMolecularReactionData(r.rate, mol, Conf(r.partner, caller));
+      for (const auto& product : r.products) {
+        rd->AddProduct(Conf(product, caller));
       }
-      if (r.type != 0) {
-        rd->SetReactionType(r.type);
+      if (r.reactionType != 0) {
+        rd->SetReactionType(r.reactionType);
       }
       process->SetReaction(mol, rd);
     }
     auto* def = const_cast<G4MoleculeDefinition*>(mol->GetDefinition());
     ph->RegisterProcess(process, def);
-  };
-
-  const G4double M = 1e-3 * m3 / (mole * s);  // bimolecular unit (M^-1 s^-1)
-  const G4double cW = 55.3;                   // bulk water molarity factor
-
-  build(H, {{H2O, 6.32 / s, {e_aq, H3OpB}, 0}, {OHmB, 2.49e7 * M, {e_aq}, 0}});
-
-  build(e_aq, {{H3OpB, 2.25e10 * M, {H}, 0}, {H2O, 1.57e1 * cW / s, {H, OHmB}, 0}});
-
-  build(O2m, {{H3OpB, 4.78e10 * M, {HO2}, 6}, {H2O, 0.15 * cW / s, {HO2, OHmB}, 0}});
-
-  build(HO2, {{OHmB, 1.27e10 * M, {O2m}, 0}, {H2O, 7.58e5 / s, {H3OpB, O2m}, 6}});
-
-  build(HO2m, {{H3OpB, 4.78e10 * M, {H2O2}, 0}, {H2O, 1.36e6 * cW / s, {H2O2, OHmB}, 7}});
-
-  build(Om, {{H3OpB, 9.56e10 * M, {OH}, 0}, {H2O, 1.8e6 * cW / s, {OH, OHmB}, 8}});
-
-  build(O3m, {{H3OpB, 9.0e10 * M, {OH, O2}, 0}, {H2O, 2.66e3 / s, {Om, O2}, 0}});
-
-  build(H2O2, {{H2O, 7.86e-2 / s, {HO2m, H3OpB}, 0}, {OHmB, 1.27e10 * M, {HO2m}, 7}});
-
-  build(OH, {{OHmB, 1.27e10 * M, {Om}, 8}, {H2O, 0.060176635 / s, {Om, H3OpB}, 0}});
-
-  build(OHm, {{H3OpB, 1.13e11 * M, {}, 0}});
-
-  build(H3Op, {{OHmB, 1.13e11 * M, {}, 0}});
+  }
 }

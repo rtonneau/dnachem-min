@@ -1,7 +1,13 @@
-/// \file PureWaterReactions.cc
-/// \brief Implementation of the PureWaterReactions reaction-table builder
+/// \file BoscoloChemReactions.cc
+/// \brief Implementation of the BoscoloChemReactions reaction-table builder
+///
+/// WORK IN PROGRESS: the reaction rates, products and acid-base list in this
+/// Chemistry are a verbatim copy of the PureWater Chemistry. Edit them here to
+/// reproduce the BoscoloChem network. If this Chemistry omits the acid-base
+/// buffer (return an empty list from BuildBoscoloChemAcidBase), say so here:
+/// the buffer is then absent by design, see docs/adr/0002-named-chemistries.md.
 
-#include "PureWaterReactions.hh"
+#include "BoscoloChemReactions.hh"
 
 #include "G4DNAMolecularReactionTable.hh"
 #include "G4MolecularConfiguration.hh"
@@ -26,7 +32,7 @@ MolConf Conf(const G4String& name)
 {
   auto* p = G4MoleculeTable::Instance()->GetConfiguration(name);
   if (p == nullptr) {
-    G4Exception("PureWaterReactions::BuildPureWaterReactions", "MissingSpecies", FatalException,
+    G4Exception("BoscoloChemReactions::BuildBoscoloChemReactions", "MissingSpecies", FatalException,
                 (G4String("Unknown species configuration: ") + name).c_str());
   }
   return p;
@@ -35,7 +41,7 @@ MolConf Conf(const G4String& name)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PureWaterReactions::BuildPureWaterReactions(G4DNAMolecularReactionTable* reactionTable)
+void BoscoloChemReactions::BuildBoscoloChemReactions(G4DNAMolecularReactionTable* reactionTable)
 {
   auto add = [reactionTable](MolConf a, MolConf b, G4double k,
                              std::initializer_list<MolConf> products) {
@@ -119,7 +125,7 @@ void PureWaterReactions::BuildPureWaterReactions(G4DNAMolecularReactionTable* re
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ChemistryTypes::AcidBaseList PureWaterReactions::BuildPureWaterAcidBase()
+ChemistryTypes::AcidBaseList BoscoloChemReactions::BuildBoscoloChemAcidBase()
 {
   const G4double M = 1e-3 * m3 / (mole * s);  // bimolecular unit (M^-1 s^-1)
   const G4double cW = 55.3;                   // bulk water molarity factor

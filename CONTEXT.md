@@ -6,8 +6,18 @@ discussions; it is not a spec or implementation log.
 
 ## Language
 
-**Pure-water chemistry** (baseline chemistry):
-The always-active reaction network: the diffusion-controlled radical reactions
+**Chemistry**:
+A named, selectable definition of the reaction network (including its acid-base
+buffer rates), chosen once per process before initialization. Names are PascalCase
+and matched case-insensitively (`PureWater`, `BoscoloChem`, ...). All Chemistries
+share the same molecule set and dissociation channels. `PureWater` is the default.
+A Chemistry reproduces the network of a given paper or library; it is a variant of
+the reaction content only, not of the time-step model, physics, or scoring.
+_Avoid_: "chemistry model" (collides with the chemistry time-step model, e.g. SBS);
+"chemistry list" (that is the Geant4 class `G4VUserChemistryList`, the driver).
+
+**Pure-water chemistry** (the `PureWater` Chemistry, baseline chemistry):
+The default Chemistry's reaction network: the diffusion-controlled radical reactions
 between tracked molecules (e_aq, H, °OH, H2, H2O2, O2, O2⁻, HO2°, HO2⁻, O⁻, O3⁻...),
 plus the pH-dependent acid-base buffer equilibria against the bulk `H3Op(B)`/`OHm(B)`
 species. Active regardless of whether dissolved O2 is present — the network can

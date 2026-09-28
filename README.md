@@ -32,6 +32,7 @@ the executable:
 ```bash
 ./sim beam.in             # pure-water radiolysis
 ./sim beam_o2.in          # with dissolved-O2 scavenger config (see caveat below)
+./sim beam_boscolo.in     # BoscoloChem reaction network, see "Choosing a chemistry"
 ./sim reaction_counter.in # reaction-counting example, see below
 ```
 
@@ -103,6 +104,29 @@ no-op reserved for a future *exogenous* dissolved-O2 supply mechanism;
 buffer concentration. See `CONTEXT.md` and
 `docs/adr/0001-baseline-acid-base-buffer.md` for the full vocabulary and
 rationale.
+
+### Choosing a chemistry
+
+The reaction content (the reaction table and the acid-base buffer rates) is a
+named **Chemistry**. Pick one in the macro, before `/run/initialize`:
+
+```text
+/chem/select BoscoloChem
+/run/initialize
+```
+
+- `PureWater` is the default, so macros without `/chem/select` behave as before.
+- Names are case-insensitive. `/chem/list` prints the available ones.
+- An unknown name, or two different names in one process, is a fatal error.
+  The selection can't change after `/run/initialize`.
+- `BoscoloChem` is currently a copy of `PureWater`, marked work in progress
+  (`src/BoscoloChemReactions.cc`): edit its reactions there.
+- To add a Chemistry, copy `src/PureWaterReactions.cc` and its header, rename
+  them, and register the new builders in `src/BuiltInChemistries.cc`. A
+  Chemistry may leave the acid-base list partial or empty; see
+  `docs/adr/0002-named-chemistries.md`.
+
+`macro/beam_boscolo.in` is a ready-to-run example.
 
 Only SBS is supported as the chemistry time-step model
 (`/process/chem/TimeStepModel SBS`); IRT is rejected with a fatal exception.
@@ -200,7 +224,7 @@ the full procedure, including `NDEBUG` and Debug-CRT-dialog pitfalls.
   in `src/OutputDirMessenger.cc`)
 - `src/`, `header/` — implementation and headers (`DetectorConstruction`,
   `PhysicsList`, `DnaChemistryList`, `PureWaterReactions`,
-  `DnaChemistryWorld`, `ReactionCounter`, `ScoreSpecies`, `TimeStepAction`,
+  `BoscoloChemReactions`, `ChemistryRegistry`, `DnaChemistryWorld`, `ReactionCounter`, `ScoreSpecies`, `TimeStepAction`,
   `DnaLogger`, …)
 - `macro/` — runtime beam and chemistry configuration macros
 - `test/` — unit tests (CTest, no Geant4 kernel dependency)
@@ -210,9 +234,11 @@ the full procedure, including `NDEBUG` and Debug-CRT-dialog pitfalls.
 
 ## Further reading
 
-- `CONTEXT.md` — chemistry vocabulary (pure-water chemistry, scavenger, bulk
-  species)
+- `CONTEXT.md` — chemistry vocabulary (Chemistry, pure-water chemistry,
+  scavenger, bulk species)
 - `docs/adr/0001-baseline-acid-base-buffer.md` — why the acid-base/O2
   network is baseline rather than opt-in
+- `docs/adr/0002-named-chemistries.md` — why Chemistries are named and
+  selectable, and why the acid-base list can be empty
 - `CLAUDE.md` — full build/run/test procedure references, coding
   conventions, and agent workflow

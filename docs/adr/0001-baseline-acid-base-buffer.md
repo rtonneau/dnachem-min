@@ -30,3 +30,6 @@ unconditionally (`ConstructReactionTable` always calls
 `IsOxygenScavengerEnabled()` toggle's remaining scope narrows to introducing an
 *exogenous* dissolved-O2 population — deferred to a future scavenger file — since
 the acid-base network no longer depends on it.
+
+**Superseded in part by [[0002-named-chemistries]]**: the network stays unconditional
+for the default `PureWater` Chemistry, but other named Chemistries may omit it.
