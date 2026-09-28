@@ -25,7 +25,7 @@
 /gun/particle e-
 
 
-# Species and reactions are defined in code (src/DnaChemistryList.cc).
+# Species and reactions are defined in code (src/chemistry/DnaChemistryList.cc).
 # The former "/chem/species" and "/chem/reaction/add" blocks were removed:
 # "/chem/reaction/UI" resets the shared G4DNAMolecularReactionTable and would
 # wipe the class-built reaction set.

@@ -3,7 +3,7 @@
 /// framework, no Geant4 runtime -- exercises pure accumulation/merge logic
 /// only).
 
-#include "PhysicsInteractionCounter.hh"
+#include "scoring/PhysicsInteractionCounter.hh"
 
 #include <cassert>
 #include <iostream>

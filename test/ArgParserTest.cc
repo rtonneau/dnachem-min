@@ -2,7 +2,7 @@
 /// \brief Plain-assert unit tests for ArgParser (no test framework, no
 /// Geant4 runtime -- exercises pure parsing/validation logic only).
 
-#include "ArgParser.hh"
+#include "core/ArgParser.hh"
 
 #include <cassert>
 #include <iostream>

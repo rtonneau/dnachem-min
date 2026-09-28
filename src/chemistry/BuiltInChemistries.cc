@@ -1,0 +1,32 @@
+/// \file BuiltInChemistries.cc
+#include "chemistry/BuiltInChemistries.hh"
+
+#include "chemistry/catalog/BoscoloChemReactions.hh"
+#include "chemistry/ChemistryRegistry.hh"
+#include "chemistry/catalog/PureWaterReactions.hh"
+
+#include "globals.hh"
+
+#include <string>
+
+void BuiltInChemistries::Register()
+{
+  static bool done = false;
+  if (done) {
+    return;
+  }
+  done = true;
+
+  auto add = [](const ChemistryRegistry::Chemistry& chemistry) {
+    std::string err;
+    if (!ChemistryRegistry::Register(chemistry, err)) {
+      G4Exception("BuiltInChemistries::Register", "InvalidChemistry", FatalException,
+                  err.c_str());
+    }
+  };
+
+  add({ChemistryRegistry::kDefaultName, &PureWaterReactions::BuildPureWaterReactions,
+       &PureWaterReactions::BuildPureWaterAcidBase});
+  add({"BoscoloChem", &BoscoloChemReactions::BuildBoscoloChemReactions,
+       &BoscoloChemReactions::BuildBoscoloChemAcidBase});
+}

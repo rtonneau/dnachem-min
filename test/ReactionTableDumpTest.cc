@@ -3,7 +3,7 @@
 /// (no test framework, no Geant4 runtime -- exercises pure string-formatting
 /// logic only).
 
-#include "ReactionTableDump.hh"
+#include "chemistry/ReactionTableDump.hh"
 
 #include <cassert>
 #include <iostream>

@@ -2,15 +2,15 @@
 /// \brief Basic common implementation of water radiolysis for CONV and UHDR
 // Created: 2026-08-19
 
-#include "ActionInitialization.hh"
-#include "DetectorConstruction.hh"
-#include "DnaLogger.hh"
-#include "DnaLoggerMessenger.hh"
-#include "ArgParser.hh"
-#include "OutputDir.hh"
-#include "OutputDirMessenger.hh"
-#include "PhysicsList.hh"
-#include "RunAccumulatorMessenger.hh"
+#include "actions/ActionInitialization.hh"
+#include "geometry/DetectorConstruction.hh"
+#include "core/DnaLogger.hh"
+#include "core/DnaLoggerMessenger.hh"
+#include "core/ArgParser.hh"
+#include "core/OutputDir.hh"
+#include "core/OutputDirMessenger.hh"
+#include "physics/PhysicsList.hh"
+#include "scoring/RunAccumulatorMessenger.hh"
 
 #include "G4ScoringManager.hh"
 #include "G4DNAChemistryManager.hh"

@@ -91,7 +91,7 @@ diagnostic messages, e.g. the reaction-counter write confirmation below.
 ## Chemistry
 
 Species and reactions are defined in code
-(`src/DnaChemistryList.cc`/`src/PureWaterReactions.cc`), not via macro
+(`src/chemistry/DnaChemistryList.cc`/`src/chemistry/catalog/PureWaterReactions.cc`), not via macro
 commands — `/chem/species` and `/chem/reaction/add` are intentionally not
 used (`/chem/reaction/UI` would reset the shared reaction table and wipe the
 class-built one).
@@ -120,9 +120,9 @@ named **Chemistry**. Pick one in the macro, before `/run/initialize`:
 - An unknown name, or two different names in one process, is a fatal error.
   The selection can't change after `/run/initialize`.
 - `BoscoloChem` is currently a copy of `PureWater`, marked work in progress
-  (`src/BoscoloChemReactions.cc`): edit its reactions there.
-- To add a Chemistry, copy `src/PureWaterReactions.cc` and its header, rename
-  them, and register the new builders in `src/BuiltInChemistries.cc`. A
+  (`src/chemistry/catalog/BoscoloChemReactions.cc`): edit its reactions there.
+- To add a Chemistry, copy `src/chemistry/catalog/PureWaterReactions.cc` and its header, rename
+  them, and register the new builders in `src/chemistry/BuiltInChemistries.cc`. A
   Chemistry may leave the acid-base list partial or empty; see
   `docs/adr/0002-named-chemistries.md`.
 
@@ -139,7 +139,7 @@ issued before that point is overwritten.
 
 ## Reaction counter
 
-`ReactionCounter` (`src/ReactionCounter.cc`) counts, per time bin, how many
+`ReactionCounter` (`src/scoring/ReactionCounter.cc`) counts, per time bin, how many
 times each bimolecular reaction fires — live, during the run, via
 `TimeStepAction::UserReactionAction`. Counts are merged across worker
 threads and aggregated over all events in the run. Acid-base/scavenger
@@ -221,11 +221,8 @@ the full procedure, including `NDEBUG` and Debug-CRT-dialog pitfalls.
 
 - `sim.cc` — application entry point, CLI flags (`--threads`, `--dir`) and
   macro-command messengers (`--dir`'s counterpart, `/run/outputDir`, lives
-  in `src/OutputDirMessenger.cc`)
-- `src/`, `header/` — implementation and headers (`DetectorConstruction`,
-  `PhysicsList`, `DnaChemistryList`, `PureWaterReactions`,
-  `BoscoloChemReactions`, `ChemistryRegistry`, `DnaChemistryWorld`, `ReactionCounter`, `ScoreSpecies`, `TimeStepAction`,
-  `DnaLogger`, …)
+  in `src/core/OutputDirMessenger.cc`)
+- `src/`, `header/` — implementation and headers, mirrored in clusters: `core/` (`ArgParser`, `OutputDir`, `DnaLogger`), `actions/` (run, event, tracking, stacking and stepping actions), `geometry/` (`DetectorConstruction`, `DnaChemistryWorld`), `physics/` (`PhysicsList`), `chemistry/` (`DnaChemistryList`, `ChemistryRegistry`, `TimeStepAction`) with `chemistry/catalog/` (`PureWaterReactions`, `BoscoloChemReactions`), and `scoring/` (`ScoreSpecies`, `ReactionCounter`, `RunAccumulator`). Project includes are rooted at `header/`, e.g. `#include "chemistry/DnaChemistryList.hh"`.
 - `macro/` — runtime beam and chemistry configuration macros
 - `test/` — unit tests (CTest, no Geant4 kernel dependency)
 - `docs/adr/` — architecture decision records
