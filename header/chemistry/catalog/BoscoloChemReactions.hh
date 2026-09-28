@@ -14,7 +14,7 @@
 /// Initial content (copied from PureWaterReactions), added directly to the
 /// supplied reaction table:
 ///   - the 9 base pure-water radiolysis reactions
-///   - bulk-O2 scavenging: e_aq/H/O- + O2
+///   - e_aq/H/O- + O2 against *tracked* radiolytic O2
 ///     (UHDR: ChemOxygenWaterBuilder::OxygenScavengerReaction)
 ///   - the O2-/HO2/HO2-/O-/O3- second-order network
 ///     (UHDR: ChemOxygenWaterBuilder::SecondOrderReactionExtended,
@@ -22,7 +22,8 @@
 ///      out of project scope)
 ///
 /// Also supplies the pH-driven acid-base buffer equilibria against the bulk
-/// H3Op(B)/OHm(B)/H2O pseudo-species as plain data, the bulk-reaction list
+/// H3Op(B)/OHm(B)/H2O pseudo-species and the dissolved-O2 scavenger
+/// reactions e_aq/H/O- + O2 (bulk) as plain data, the bulk-reaction list
 /// (BuildBoscoloChemBulkReactions);
 /// the driver turns that list into G4DNAScavengerProcess registrations.
 /// Needs ChemistryTypes.hh -- copy both files to port this unit.
@@ -49,7 +50,9 @@ namespace BoscoloChemReactions
 
   /// The pH-driven acid-base buffer equilibria against the bulk H3Op(B) /
   /// OHm(B) / H2O pseudo-species (UHDR: ChemPureWaterBuilder::
-  /// WaterScavengerReaction), as plain data. Species are named as stored by
+  /// WaterScavengerReaction) plus the dissolved-O2 scavenger reactions
+  /// e_aq/H/O- + O2 (bulk, UHDR rates; inert at 0 concentration), as plain
+  /// data. Species are named as stored by
   /// G4ChemDissociationChannels_option1; the driver resolves them.
   ChemistryTypes::BulkReactionList BuildBoscoloChemBulkReactions();
 }  // namespace BoscoloChemReactions
