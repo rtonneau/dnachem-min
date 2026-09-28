@@ -3,9 +3,11 @@
 ///
 /// Structure mirrors G4EmDNAChemistry_option3 and the UHDR example's
 /// EmDNAChemistry. Molecules + water dissociation channels come from
-/// G4ChemDissociationChannels_option1. The ordinary (non-bulk) reaction
-/// network -- pure-water radiolysis plus the O2-derived second-order
-/// network -- lives in the portable PureWaterReactions.cc.
+/// G4ChemDissociationChannels_option1. The reaction content (ordinary
+/// reaction table + acid-base list) comes from the Chemistry selected with
+/// /chem/select before /run/initialize (default PureWater, the portable
+/// PureWaterReactions.cc: pure-water radiolysis plus the O2-derived
+/// second-order network). See docs/adr/0002-named-chemistries.md.
 ///
 /// The pH-driven acid-base buffer equilibria against the bulk H3Op(B) /
 /// OHm(B) pseudo-species (UHDR: ChemPureWaterBuilder::WaterScavengerReaction)
@@ -17,12 +19,14 @@
 
 #include "DnaChemistryList.hh"
 
+#include "BuiltInChemistries.hh"
+#include "ChemistryRegistry.hh"
+#include "ChemistrySelectMessenger.hh"
 #include "DetectorConstruction.hh"
 #include "DnaChemistryWorld.hh"
 #include "ChemistryTypes.hh"
 #include "DnaLogger.hh"
 #include "OutputDir.hh"
-#include "PureWaterReactions.hh"
 #include "ReactionCounter.hh"
 #include "ReactionTableDump.hh"
 #include "ScavengerReactionAccess.hh"
@@ -95,6 +99,11 @@ DnaChemistryList::DnaChemistryList()
   // that holds it (avoids a double free).
   G4DNAChemistryManager::Instance()->SetChemistryList(this);
 
+  // Chemistries are registered before any macro can /chem/select one. The
+  // manager singleton above already exists, so /chem/ is there for the commands.
+  BuiltInChemistries::Register();
+  fSelectMessenger = std::make_unique<ChemistrySelectMessenger>();
+
   fMessenger = std::make_unique<G4GenericMessenger>(this, "/chem/reaction/",
                                                     "Chemistry reaction-table diagnostics");
   auto& dumpCmd = fMessenger->DeclareProperty(
@@ -117,6 +126,23 @@ DnaChemistryList::DnaChemistryList()
     "'1 10 100 1000 picosecond'). Mutually exclusive with timeBinsFixed (issuing both is a fatal "
     "configuration error).");
   timeBinsListCmd.SetStates(G4State_PreInit);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+DnaChemistryList::~DnaChemistryList() = default;
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+const ChemistryRegistry::Chemistry* DnaChemistryList::SelectedChemistry(
+  const G4String& caller) const
+{
+  const auto* chemistry = ChemistryRegistry::Selected();
+  if (chemistry == nullptr) {
+    G4Exception((G4String("DnaChemistryList::") + caller).c_str(), "NoChemistry", FatalException,
+                "No chemistry is selected and the default is not registered.");
+  }
+  return chemistry;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -204,12 +230,13 @@ void DnaChemistryList::ConstructReactionTable(G4DNAMolecularReactionTable* react
     const_cast<DnaChemistryWorld*>(ChemistryWorld("ConstructReactionTable"));
   chemWorld->ConstructChemistryComponents();
 
-  // Pure water + O2-derived second-order network (portable unit).
-  PureWaterReactions::BuildPureWaterReactions(reactionTable);
+  // Ordinary (non-bulk) reactions of the selected Chemistry (default PureWater).
+  const auto* chemistry = SelectedChemistry("ConstructReactionTable");
+  chemistry->buildReactions(reactionTable);
 
   DnaLogger::Print(DnaLogger::Level::Info,
-                   "[DnaChemistryList] reaction table constructed "
-                   "(pure water + O2 network)");
+                   "[DnaChemistryList] chemistry = " + chemistry->name +
+                     ", reaction table constructed");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -268,7 +295,7 @@ void DnaChemistryList::ConstructProcess()
 
   auto* chemWorld = const_cast<DnaChemistryWorld*>(ChemistryWorld("ConstructProcess"));
   RegisterAcidBaseScavengerProcesses(*chemWorld->GetChemistryBoundary(),
-                                    PureWaterReactions::BuildPureWaterAcidBase());
+                                    SelectedChemistry("ConstructProcess")->buildAcidBase());
 
   // Triggers InitializeMaster() -> ConstructReactionTable() ->
   // DnaChemistryWorld::ConstructChemistryComponents(): the bulk composition is
