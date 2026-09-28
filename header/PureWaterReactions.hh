@@ -1,5 +1,10 @@
 /// \file PureWaterReactions.hh
-/// \brief Portable pure-water radiolysis + O2-derived reaction-table builder
+/// \brief The PureWater Chemistry: portable pure-water radiolysis + O2-derived
+/// reaction-table builder and its acid-base buffer list
+///
+/// PureWater is the default Chemistry (see ChemistryRegistry, /chem/select)
+/// and the reference to copy when adding another one (BoscoloChemReactions.hh
+/// started that way).
 ///
 /// Self-contained, project-agnostic unit: no DnaChemistryWorld, DnaLogger, or
 /// other dnachem-min-specific includes -- only standard Geant4/Geant4-DNA
