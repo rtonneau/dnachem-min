@@ -538,3 +538,26 @@ Skipped at 2026-09-28T15:10:13.3223281+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macr
 Skipped at 2026-09-28T15:14:57.1753998+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__multiple-dna-chemistry\03-implement\04-boscolochem-variant\commit-log.md
 Skipped at 2026-09-28T15:15:53.6678412+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\PureWaterReactions.hh
 Skipped at 2026-09-28T15:17:59.5969600+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__multiple-dna-chemistry\03-implement\05-docs-and-final-verification\commit-log.md
+Skipped at 2026-09-28T15:49:28.6511495+02:00: C:\Users\rtonneau\AppData\Local\Temp\dnachem-architecture-review.html
+Skipped at 2026-09-28T15:49:29.4517142+02:00: C:\Users\rtonneau\AppData\Local\Temp\dnachem-scout-entries.json
+Skipped at 2026-09-28T16:09:40.8988550+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__source-layout-subdirs\.write-payload.md
+Skipped at 2026-09-28T16:20:14.6236371+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__source-layout-subdirs\.write-payload.md
+Skipped at 2026-09-28T16:29:22.8556103+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\tests\2026-09-28__source-layout-subdirs\macros\slsd_water.in
+Skipped at 2026-09-28T16:29:23.4655684+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\tests\2026-09-28__source-layout-subdirs\macros\slsd_boscolo.in
+Skipped at 2026-09-28T16:29:24.0748105+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\tests\2026-09-28__source-layout-subdirs\verify.sh
+Skipped at 2026-09-28T16:32:39.6723622+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__source-layout-subdirs\03-implement\01-move-into-clusters\commit-log.md
+Skipped at 2026-09-28T16:37:42.3321410+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\tests\2026-09-28__source-layout-subdirs\compare.js
+Skipped at 2026-09-28T16:37:43.0991875+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\tests\2026-09-28__source-layout-subdirs\verify.sh
+Skipped at 2026-09-28T16:50:37.4029346+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__source-layout-subdirs\03-implement\01-move-into-clusters\commit-log.md
+Skipped at 2026-09-28T16:50:44.7115898+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\tests\2026-09-28__source-layout-subdirs\rewrite-includes.js
+Skipped at 2026-09-28T16:55:13.3076738+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__source-layout-subdirs\03-implement\02-rooted-includes\commit-log.md
+Skipped at 2026-09-28T16:55:23.7068714+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.scratch\tests\2026-09-28__source-layout-subdirs\rewrite-doc-paths.js
+Skipped at 2026-09-28T16:55:50.3051744+02:00: C:\DEV\GEANT4\SIM\dnachem-min\docs\adr\0003-clustered-source-layout.md
+Triggered at 2026-09-28T16:55:55.7677746+02:00: src/core/OutputDir.cc
+Completed at 2026-09-28T16:55:59.1186578+02:00: copied compile_commands.json
+Skipped at 2026-09-28T16:56:18.4990451+02:00: C:\Users\rtonneau\.claude\projects\C--DEV-GEANT4-SIM-dnachem-min\memory\portable-class-convention.md
+Skipped at 2026-09-28T16:56:28.8609478+02:00: C:\Users\rtonneau\.claude\projects\C--DEV-GEANT4-SIM-dnachem-min\memory\geant4-testing-infrastructure.md
+Skipped at 2026-09-28T16:56:34.1510109+02:00: C:\Users\rtonneau\.claude\projects\C--DEV-GEANT4-SIM-dnachem-min\memory\sim-output-not-reproducible.md
+Skipped at 2026-09-28T16:56:39.1253865+02:00: C:\Users\rtonneau\.claude\projects\C--DEV-GEANT4-SIM-dnachem-min\memory\MEMORY.md
+Skipped at 2026-09-28T16:56:40.1032755+02:00: C:\Users\rtonneau\.claude\projects\C--DEV-GEANT4-SIM-dnachem-min\memory\MEMORY.md
+Skipped at 2026-09-28T16:57:00.4666697+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__source-layout-subdirs\03-implement\03-docs-adr-compile-commands\commit-log.md

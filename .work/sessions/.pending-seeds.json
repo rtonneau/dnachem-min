@@ -34,5 +34,72 @@
     "sourceDirection": "only review sim.cc",
     "sourceReport": "scout-reports/architecture-review-2026-09-17T15-51-54-188Z.html",
     "createdAt": "2026-09-17T15:51:54.188Z"
+  },
+  "rooted-includes": {
+    "strength": "Worth exploring",
+    "severity": null,
+    "files": [
+      "CMakeLists.txt",
+      "src/",
+      "header/",
+      "sim.cc"
+    ],
+    "problem": "The CMake include path adds every header directory, so any file can include any header by bare name; new subdirectories would be cosmetic and nothing would stop scoring/ from reaching into chemistry/. Header placement (mirrored header/ vs co-located .hh) is also undecided.",
+    "solution": "Use cluster-prefixed includes (e.g. \"scoring/ReactionCounter.hh\") with one include root, and drop the per-directory include loop in CMakeLists.txt. Decide header placement first. Open decision: how the copy-paste-portable files (PureWaterReactions, PhysicsInteractionCounter, ...) keep working when copied to another project with different prefixes.",
+    "benefits": "Each include documents dependency direction; cross-cluster edges become greppable. Tension: touches ~100 include lines and may conflict with the portable-class convention.",
+    "sourceDirection": "clean the project code architecture. All files are in src/ and header/ with 30+ files. Let's think about adding subdirectories and also why not rename some files if needed. Idea is to cluster source files for easier maintenance",
+    "sourceReport": "scout-reports/architecture-review-2026-09-28T13-49-34-973Z.html",
+    "sourcePath": null,
+    "createdAt": "2026-09-28T13:49:34.973Z"
+  },
+  "core-library-targets": {
+    "strength": "Worth exploring",
+    "severity": null,
+    "files": [
+      "CMakeLists.txt",
+      "test/"
+    ],
+    "problem": "Each of the 7 unit-test targets re-lists its src/*.cc dependencies by hand (RunAccumulatorTest lists 5 files; ReactionCounterTest pulls OutputDir.cc transitively); adding a dependency to one class means editing several targets, and a miss is a link error.",
+    "solution": "Introduce a static library (e.g. dnachem_core) with the kernel-free modules (OutputDir, ReactionCounter, PhysicsInteractionCounter, RunAccumulator, ChemistryRegistry, ArgParser) that both sim and the tests link; optionally one object library per cluster. Verify in build-ninja/ (Debug CRT pitfalls).",
+    "benefits": "Test wiring shrinks to one line per test; the portable/kernel-free convention is enforced by the build.",
+    "sourceDirection": "clean the project code architecture. All files are in src/ and header/ with 30+ files. Let's think about adding subdirectories and also why not rename some files if needed. Idea is to cluster source files for easier maintenance",
+    "sourceReport": "scout-reports/architecture-review-2026-09-28T13-49-34-973Z.html",
+    "sourcePath": null,
+    "createdAt": "2026-09-28T13:49:34.973Z"
+  },
+  "decouple-cross-cluster-includes": {
+    "strength": "Worth exploring",
+    "severity": null,
+    "files": [
+      "src/StackingAction.cc",
+      "header/StackingAction.hh",
+      "src/DnaChemistryList.cc",
+      "header/PhysicsList.hh",
+      "header/Run.hh"
+    ],
+    "problem": "Four edges cross the natural clusters: StackingAction dynamic_casts the physics list only to call IsChemistryEnabled(); DnaChemistryList dynamic_casts DetectorConstruction to reach the DnaChemistryWorld; PhysicsList.hh includes DnaChemistryList.hh; Run.hh includes DetectorConstruction.hh though it only forward-declares it.",
+    "solution": "Drop the unused include, forward-declare DnaChemistryList in PhysicsList.hh, and pass the chemistry-enabled flag / chemistry world through a small interface instead of downcasting where a move exposes a real cycle. Two of the four are Geant4-idiomatic downcasts; changing them is optional.",
+    "benefits": "Cluster dependency direction becomes acyclic (core <- geometry/chemistry/scoring <- actions), so the directory tree tells the truth.",
+    "sourceDirection": "clean the project code architecture. All files are in src/ and header/ with 30+ files. Let's think about adding subdirectories and also why not rename some files if needed. Idea is to cluster source files for easier maintenance",
+    "sourceReport": "scout-reports/architecture-review-2026-09-28T13-49-34-973Z.html",
+    "sourcePath": null,
+    "createdAt": "2026-09-28T13:49:34.973Z"
+  },
+  "file-renames": {
+    "strength": "Speculative",
+    "severity": null,
+    "files": [
+      "src/ChemUtils.cc",
+      "src/RunAccumulatorMessenger.cc",
+      "src/BuiltInChemistries.cc",
+      "header/PrimaryKiller.hh"
+    ],
+    "problem": "A few names hide their cluster: ChemUtils (only used by StackingAction to print the time-step model), RunAccumulatorMessenger (owns the dump/reset commands rather than accumulation), BuiltInChemistries vs ChemistryRegistry, generic Run, and PrimaryKiller.hh still guarded by CHEM6_PrimaryKiller_h.",
+    "solution": "After the subdirectory move, rename file and class together only where the directory does not already disambiguate; fix the stale header guard; consider folding ChemUtils into chemistry/ or StackingAction. Renames also touch macro docs and CLAUDE.md Key Files.",
+    "benefits": "Marginal on its own; directories remove most of the ambiguity.",
+    "sourceDirection": "clean the project code architecture. All files are in src/ and header/ with 30+ files. Let's think about adding subdirectories and also why not rename some files if needed. Idea is to cluster source files for easier maintenance",
+    "sourceReport": "scout-reports/architecture-review-2026-09-28T13-49-34-973Z.html",
+    "sourcePath": null,
+    "createdAt": "2026-09-28T13:49:34.973Z"
   }
 }
