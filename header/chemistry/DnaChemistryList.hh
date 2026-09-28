@@ -23,7 +23,7 @@
 #ifndef DnaChemistryList_h
 #define DnaChemistryList_h 1
 
-#include "ChemistryTypes.hh"
+#include "chemistry/ChemistryTypes.hh"
 
 #include "G4VPhysicsConstructor.hh"
 #include "G4VUserChemistryList.hh"

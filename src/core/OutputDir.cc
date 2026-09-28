@@ -1,7 +1,7 @@
 /// \file OutputDir.cc
 /// \brief Implementation of OutputDir
 
-#include "OutputDir.hh"
+#include "core/OutputDir.hh"
 
 #include <filesystem>
 

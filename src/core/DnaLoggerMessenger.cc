@@ -1,5 +1,5 @@
-#include "DnaLoggerMessenger.hh"
-#include "DnaLogger.hh"
+#include "core/DnaLoggerMessenger.hh"
+#include "core/DnaLogger.hh"
 
 #include "G4UIcmdWithAString.hh"
 

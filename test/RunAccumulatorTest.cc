@@ -4,7 +4,7 @@
 /// only. DumpAndReset's file-writing/species lookup lives in
 /// RunAccumulatorMessenger and is integration-verified via sim.exe instead.)
 
-#include "RunAccumulator.hh"
+#include "scoring/RunAccumulator.hh"
 
 #include "G4SystemOfUnits.hh"
 

@@ -1,9 +1,9 @@
 #ifndef CHEM4_Run_h
 #define CHEM4_Run_h 1
 
-#include "DetectorConstruction.hh"
-#include "ReactionCounter.hh"
-#include "PhysicsInteractionCounter.hh"
+#include "geometry/DetectorConstruction.hh"
+#include "scoring/ReactionCounter.hh"
+#include "scoring/PhysicsInteractionCounter.hh"
 
 #include "G4Run.hh"
 #include "globals.hh"

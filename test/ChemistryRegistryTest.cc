@@ -1,6 +1,6 @@
 /// \file ChemistryRegistryTest.cc
 /// \brief Plain-assert unit tests for ChemistryRegistry (no Geant4 runtime).
-#include "ChemistryRegistry.hh"
+#include "chemistry/ChemistryRegistry.hh"
 
 #include <cassert>
 #include <iostream>

@@ -1,4 +1,4 @@
-#include "ChemUtils.hh"
+#include "chemistry/ChemUtils.hh"
 #include "G4EmParameters.hh"
 
 namespace ChemUtils

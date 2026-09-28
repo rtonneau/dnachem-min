@@ -2,7 +2,7 @@
 /// \brief Plain-assert unit tests for ReactionCounter (no test framework, no
 /// Geant4 runtime -- exercises pure accumulation/binning/merge logic only).
 
-#include "ReactionCounter.hh"
+#include "scoring/ReactionCounter.hh"
 
 #include "G4SystemOfUnits.hh"
 

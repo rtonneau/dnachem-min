@@ -1,10 +1,10 @@
 /// \file StackingAction.cc
 /// \brief Implementation of the StackingAction class
 
-#include "StackingAction.hh"
-#include "PhysicsList.hh"
-#include "ChemUtils.hh"
-#include "DnaLogger.hh"
+#include "actions/StackingAction.hh"
+#include "physics/PhysicsList.hh"
+#include "chemistry/ChemUtils.hh"
+#include "core/DnaLogger.hh"
 
 #include "G4RunManager.hh"
 #include "G4Event.hh"

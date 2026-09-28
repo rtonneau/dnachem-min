@@ -1,7 +1,7 @@
 /// \file SteppingAction.cc
 /// \brief Implementation of the SteppingAction class
 
-#include "SteppingAction.hh"
+#include "actions/SteppingAction.hh"
 
 #include "G4Step.hh"
 #include "G4StepPoint.hh"

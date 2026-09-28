@@ -7,7 +7,7 @@
 #ifndef ChemistryRegistry_h
 #define ChemistryRegistry_h 1
 
-#include "ChemistryTypes.hh"
+#include "chemistry/ChemistryTypes.hh"
 
 #include <string>
 #include <vector>

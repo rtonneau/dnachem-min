@@ -1,9 +1,9 @@
 /// \file BuiltInChemistries.cc
-#include "BuiltInChemistries.hh"
+#include "chemistry/BuiltInChemistries.hh"
 
-#include "BoscoloChemReactions.hh"
-#include "ChemistryRegistry.hh"
-#include "PureWaterReactions.hh"
+#include "chemistry/catalog/BoscoloChemReactions.hh"
+#include "chemistry/ChemistryRegistry.hh"
+#include "chemistry/catalog/PureWaterReactions.hh"
 
 #include "globals.hh"
 

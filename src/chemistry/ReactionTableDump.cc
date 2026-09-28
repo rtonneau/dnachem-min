@@ -1,10 +1,10 @@
 /// \file ReactionTableDump.cc
 /// \brief Implementation of the ReactionTableDump utility functions
 
-#include "ReactionTableDump.hh"
+#include "chemistry/ReactionTableDump.hh"
 
-#include "DnaLogger.hh"
-#include "ScavengerReactionAccess.hh"
+#include "core/DnaLogger.hh"
+#include "chemistry/ScavengerReactionAccess.hh"
 
 #include "G4DNAMolecularReactionTable.hh"
 #include "G4MoleculeDefinition.hh"

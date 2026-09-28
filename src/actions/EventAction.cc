@@ -1,6 +1,6 @@
 // EventAction.cc
-#include "EventAction.hh"
-#include "DnaLogger.hh"
+#include "actions/EventAction.hh"
+#include "core/DnaLogger.hh"
 
 #include "G4DNAChemistryManager.hh"
 #include "G4RunManager.hh"

@@ -1,7 +1,7 @@
 /// \file PhysicsList.cc
 /// \brief Implementation of the PhysicsList class
 
-#include "PhysicsList.hh"
+#include "physics/PhysicsList.hh"
 
 #include "G4ChemTimeStepModel.hh"
 #include "G4EmDNAPhysics.hh"

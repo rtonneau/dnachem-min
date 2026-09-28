@@ -10,7 +10,7 @@
 #ifndef PhysicsList_h
 #define PhysicsList_h 1
 
-#include "DnaChemistryList.hh"
+#include "chemistry/DnaChemistryList.hh"
 
 #include "G4VModularPhysicsList.hh"
 #include "globals.hh"

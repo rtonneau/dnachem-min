@@ -31,7 +31,7 @@
 #ifndef PureWaterReactions_h
 #define PureWaterReactions_h 1
 
-#include "ChemistryTypes.hh"
+#include "chemistry/ChemistryTypes.hh"
 
 class G4DNAMolecularReactionTable;
 

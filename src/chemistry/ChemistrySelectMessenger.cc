@@ -1,7 +1,7 @@
 /// \file ChemistrySelectMessenger.cc
-#include "ChemistrySelectMessenger.hh"
+#include "chemistry/ChemistrySelectMessenger.hh"
 
-#include "ChemistryRegistry.hh"
+#include "chemistry/ChemistryRegistry.hh"
 
 #include "G4ApplicationState.hh"
 #include "G4UIcmdWithAString.hh"

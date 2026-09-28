@@ -1,9 +1,9 @@
 /// \file DnaChemistryWorld.cc
 /// \brief Implementation of the DnaChemistryWorld class
 
-#include "DnaChemistryWorld.hh"
+#include "geometry/DnaChemistryWorld.hh"
 
-#include "DnaLogger.hh"
+#include "core/DnaLogger.hh"
 
 #include "G4ApplicationState.hh"
 #include "G4DNABoundingBox.hh"

@@ -17,8 +17,8 @@
 #ifndef RunAccumulator_h
 #define RunAccumulator_h 1
 
-#include "ReactionCounter.hh"
-#include "PhysicsInteractionCounter.hh"
+#include "scoring/ReactionCounter.hh"
+#include "scoring/PhysicsInteractionCounter.hh"
 
 #include "globals.hh"
 

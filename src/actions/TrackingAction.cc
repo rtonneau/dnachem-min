@@ -1,6 +1,6 @@
 #include <G4Track.hh>
 #include <G4UnitsTable.hh>
-#include <TrackingAction.hh>
+#include <actions/TrackingAction.hh>
 
 TrackingAction::TrackingAction() : G4UserTrackingAction() {}
 

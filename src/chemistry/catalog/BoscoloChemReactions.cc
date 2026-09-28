@@ -7,7 +7,7 @@
 /// buffer (return an empty list from BuildBoscoloChemAcidBase), say so here:
 /// the buffer is then absent by design, see docs/adr/0002-named-chemistries.md.
 
-#include "BoscoloChemReactions.hh"
+#include "chemistry/catalog/BoscoloChemReactions.hh"
 
 #include "G4DNAMolecularReactionTable.hh"
 #include "G4MolecularConfiguration.hh"

@@ -2,11 +2,11 @@
 /// \brief Implementation of the DetectorConstruction class for a homogeneous
 /// water-box geometry
 
-#include "DetectorConstruction.hh"
+#include "geometry/DetectorConstruction.hh"
 
-#include "DnaChemistryWorld.hh"
-#include "PrimaryKiller.hh"
-#include "ScoreSpecies.hh"
+#include "geometry/DnaChemistryWorld.hh"
+#include "scoring/PrimaryKiller.hh"
+#include "scoring/ScoreSpecies.hh"
 
 #include "G4DNABoundingBox.hh"
 #include "G4Box.hh"

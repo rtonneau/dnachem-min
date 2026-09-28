@@ -1,8 +1,8 @@
-#include "TimeStepAction.hh"
+#include "chemistry/TimeStepAction.hh"
 
-#include "DnaLogger.hh"
-#include "OutputDir.hh"
-#include "ReactionTableDump.hh"
+#include "core/DnaLogger.hh"
+#include "core/OutputDir.hh"
+#include "chemistry/ReactionTableDump.hh"
 
 #include "G4DNAChemistryManager.hh"
 #include "G4DNAMolecularReactionTable.hh"

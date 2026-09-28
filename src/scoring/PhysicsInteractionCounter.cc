@@ -1,7 +1,7 @@
 /// \file PhysicsInteractionCounter.cc
 /// \brief Implementation of the PhysicsInteractionCounter class
 
-#include "PhysicsInteractionCounter.hh"
+#include "scoring/PhysicsInteractionCounter.hh"
 
 #include <ostream>
 

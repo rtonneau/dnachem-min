@@ -7,7 +7,7 @@
 #include "G4UserStackingAction.hh"
 #include "globals.hh"
 
-#include "PhysicsList.hh"
+#include "physics/PhysicsList.hh"
 
 class StackingAction : public G4UserStackingAction
 {

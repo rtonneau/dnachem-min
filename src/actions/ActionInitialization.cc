@@ -1,14 +1,14 @@
 /// \file ActionInitialization.cc
 /// \brief Implementation of the ActionInitialization class
 
-#include "ActionInitialization.hh"
-#include "PrimaryGeneratorAction.hh"
-#include "StackingAction.hh"
-#include "TimeStepAction.hh"
-#include "RunAction.hh"
-#include "EventAction.hh"
-#include "TrackingAction.hh"
-#include "SteppingAction.hh"
+#include "actions/ActionInitialization.hh"
+#include "actions/PrimaryGeneratorAction.hh"
+#include "actions/StackingAction.hh"
+#include "chemistry/TimeStepAction.hh"
+#include "actions/RunAction.hh"
+#include "actions/EventAction.hh"
+#include "actions/TrackingAction.hh"
+#include "actions/SteppingAction.hh"
 
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"

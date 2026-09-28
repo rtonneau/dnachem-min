@@ -19,14 +19,9 @@ include(${Geant4_USE_FILE})
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB_RECURSE headers CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/header/*.hh)
 
-# Build include path list from every header directory so existing short includes
-# (e.g. "RunAction.hh") keep working while files are moved into subfolders.
+# Project headers are included by their path under header/,
+# e.g. #include "chemistry/DnaChemistryList.hh".
 set(project_include_dirs ${PROJECT_SOURCE_DIR}/header)
-foreach(header_file IN LISTS headers)
-    get_filename_component(header_dir ${header_file} DIRECTORY)
-    list(APPEND project_include_dirs ${header_dir})
-endforeach()
-list(REMOVE_DUPLICATES project_include_dirs)
 
 # Tell CMake the name of the executable to produce.
 # sim.cc will be the main source code.

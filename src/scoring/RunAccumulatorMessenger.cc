@@ -1,7 +1,7 @@
-#include "RunAccumulatorMessenger.hh"
-#include "RunAccumulator.hh"
-#include "OutputDir.hh"
-#include "ScoreSpecies.hh"
+#include "scoring/RunAccumulatorMessenger.hh"
+#include "scoring/RunAccumulator.hh"
+#include "core/OutputDir.hh"
+#include "scoring/ScoreSpecies.hh"
 
 #include "G4UIcmdWithAString.hh"
 #include "G4SDManager.hh"

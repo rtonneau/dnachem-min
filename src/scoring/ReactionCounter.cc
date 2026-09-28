@@ -1,9 +1,9 @@
 /// \file ReactionCounter.cc
 /// \brief Implementation of the ReactionCounter class
 
-#include "ReactionCounter.hh"
+#include "scoring/ReactionCounter.hh"
 
-#include "OutputDir.hh"
+#include "core/OutputDir.hh"
 
 #include "G4AnalysisManager.hh"
 #include "G4SystemOfUnits.hh"

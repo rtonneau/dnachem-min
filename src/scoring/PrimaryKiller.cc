@@ -1,4 +1,4 @@
-#include "PrimaryKiller.hh"
+#include "scoring/PrimaryKiller.hh"
 
 #include <G4Event.hh>
 #include <G4RunManager.hh>

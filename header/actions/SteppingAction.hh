@@ -16,7 +16,7 @@
 #define SteppingAction_h 1
 
 #include "G4UserSteppingAction.hh"
-#include "PhysicsInteractionCounter.hh"
+#include "scoring/PhysicsInteractionCounter.hh"
 
 class G4Step;
 

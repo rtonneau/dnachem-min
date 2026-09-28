@@ -1,15 +1,15 @@
 /// \file RunAction.cc
 /// \brief Implementation of the RunAction class
 
-#include "RunAction.hh"
+#include "actions/RunAction.hh"
 
-#include "DetectorConstruction.hh"
-#include "DnaChemistryList.hh"
-#include "DnaLogger.hh"
-#include "PhysicsList.hh"
-#include "PrimaryGeneratorAction.hh"
-#include "Run.hh"
-#include "RunAccumulator.hh"
+#include "geometry/DetectorConstruction.hh"
+#include "chemistry/DnaChemistryList.hh"
+#include "core/DnaLogger.hh"
+#include "physics/PhysicsList.hh"
+#include "actions/PrimaryGeneratorAction.hh"
+#include "actions/Run.hh"
+#include "scoring/RunAccumulator.hh"
 
 #include "G4DNAChemistryManager.hh"
 

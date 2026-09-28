@@ -1,5 +1,5 @@
-#include "OutputDirMessenger.hh"
-#include "OutputDir.hh"
+#include "core/OutputDirMessenger.hh"
+#include "core/OutputDir.hh"
 
 #include "G4UIcmdWithAString.hh"
 

@@ -1,7 +1,7 @@
 /// \file PrimaryGeneratorAction.cc
 /// \brief Implementation of the PrimaryGeneratorAction class
 
-#include "PrimaryGeneratorAction.hh"
+#include "actions/PrimaryGeneratorAction.hh"
 
 #include "G4ParticleGun.hh"
 #include "G4ParticleTable.hh"

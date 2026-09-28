@@ -1,5 +1,5 @@
 /// \file ChemistryRegistry.cc
-#include "ChemistryRegistry.hh"
+#include "chemistry/ChemistryRegistry.hh"
 
 #include <algorithm>
 #include <cctype>

@@ -1,7 +1,7 @@
 /// \file RunAccumulator.cc
 /// \brief Implementation of RunAccumulator
 
-#include "RunAccumulator.hh"
+#include "scoring/RunAccumulator.hh"
 
 #include <set>
 

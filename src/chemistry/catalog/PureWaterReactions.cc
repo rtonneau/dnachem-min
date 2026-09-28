@@ -1,7 +1,7 @@
 /// \file PureWaterReactions.cc
 /// \brief Implementation of the PureWaterReactions reaction-table builder
 
-#include "PureWaterReactions.hh"
+#include "chemistry/catalog/PureWaterReactions.hh"
 
 #include "G4DNAMolecularReactionTable.hh"
 #include "G4MolecularConfiguration.hh"

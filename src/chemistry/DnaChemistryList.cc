@@ -17,19 +17,19 @@
 /// (it can produce O2 from pure water radiolysis on its own), not gated by
 /// whether O2 is enabled. See docs/adr/0001-baseline-acid-base-buffer.md.
 
-#include "DnaChemistryList.hh"
+#include "chemistry/DnaChemistryList.hh"
 
-#include "BuiltInChemistries.hh"
-#include "ChemistryRegistry.hh"
-#include "ChemistrySelectMessenger.hh"
-#include "DetectorConstruction.hh"
-#include "DnaChemistryWorld.hh"
-#include "ChemistryTypes.hh"
-#include "DnaLogger.hh"
-#include "OutputDir.hh"
-#include "ReactionCounter.hh"
-#include "ReactionTableDump.hh"
-#include "ScavengerReactionAccess.hh"
+#include "chemistry/BuiltInChemistries.hh"
+#include "chemistry/ChemistryRegistry.hh"
+#include "chemistry/ChemistrySelectMessenger.hh"
+#include "geometry/DetectorConstruction.hh"
+#include "geometry/DnaChemistryWorld.hh"
+#include "chemistry/ChemistryTypes.hh"
+#include "core/DnaLogger.hh"
+#include "core/OutputDir.hh"
+#include "scoring/ReactionCounter.hh"
+#include "chemistry/ReactionTableDump.hh"
+#include "chemistry/ScavengerReactionAccess.hh"
 
 #include "G4ApplicationState.hh"
 #include "G4ChemDissociationChannels_option1.hh"

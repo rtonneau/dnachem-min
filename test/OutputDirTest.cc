@@ -3,7 +3,7 @@
 /// Geant4 runtime -- exercises pure directory-configuration/path-join logic
 /// only).
 
-#include "OutputDir.hh"
+#include "core/OutputDir.hh"
 
 #include <cassert>
 #include <filesystem>

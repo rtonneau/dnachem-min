@@ -11,9 +11,9 @@
 //
 // ScoreSpecies.cc
 //
-#include "ScoreSpecies.hh"
+#include "scoring/ScoreSpecies.hh"
 
-#include "OutputDir.hh"
+#include "core/OutputDir.hh"
 
 #include "G4Event.hh"
 #include "G4UnitsTable.hh"

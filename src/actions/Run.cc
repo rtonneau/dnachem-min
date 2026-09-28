@@ -1,9 +1,9 @@
-#include "Run.hh"
+#include "actions/Run.hh"
 
-#include "RunAction.hh"
-#include "ScoreSpecies.hh"
-#include "TimeStepAction.hh"
-#include "SteppingAction.hh"
+#include "actions/RunAction.hh"
+#include "scoring/ScoreSpecies.hh"
+#include "chemistry/TimeStepAction.hh"
+#include "actions/SteppingAction.hh"
 
 #include "G4Event.hh"
 #include "G4HCofThisEvent.hh"

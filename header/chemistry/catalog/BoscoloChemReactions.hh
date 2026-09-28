@@ -33,7 +33,7 @@
 #ifndef BoscoloChemReactions_h
 #define BoscoloChemReactions_h 1
 
-#include "ChemistryTypes.hh"
+#include "chemistry/ChemistryTypes.hh"
 
 class G4DNAMolecularReactionTable;
 

@@ -1,7 +1,7 @@
 /// \file ArgParser.cc
 /// \brief Implementation of ArgParser
 
-#include "ArgParser.hh"
+#include "core/ArgParser.hh"
 
 #include <cstdlib>
 

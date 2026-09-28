@@ -2,7 +2,7 @@
 #define ITACTION_H
 
 #include "G4UserTimeStepAction.hh"
-#include "ReactionCounter.hh"
+#include "scoring/ReactionCounter.hh"
 
 class TimeStepAction : public G4UserTimeStepAction
 {
