@@ -20,7 +20,7 @@ namespace ChemistryRegistry
   {
     std::string name;
     void (*buildReactions)(G4DNAMolecularReactionTable*);
-    ChemistryTypes::AcidBaseList (*buildAcidBase)();
+    ChemistryTypes::BulkReactionList (*buildBulkReactions)();
   };
 
   /// Chemistry used when no /chem/select was issued.

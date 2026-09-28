@@ -70,7 +70,7 @@ void WriteBimolecular(std::ostream& out)
   }
 }
 
-void WriteAcidBase(std::ostream& out)
+void WriteBulkReactions(std::ostream& out)
 {
   auto* processTable = G4ProcessTable::GetProcessTable();
   auto* moleculeTable = G4MoleculeTable::Instance();
@@ -111,8 +111,8 @@ void DumpReactionTable(const G4String& filename)
 
   out << "# Bimolecular reactions (pure water + O2 network)\n";
   WriteBimolecular(out);
-  out << "\n# Acid-base reactions (bulk scavenger network)\n";
-  WriteAcidBase(out);
+  out << "\n# Bulk reactions (acid-base buffer + scavengers)\n";
+  WriteBulkReactions(out);
 
   DnaLogger::Print(DnaLogger::Level::Info,
                    "[ReactionTableDump] reaction table written to " + filename);

@@ -4,16 +4,16 @@
 /// Structure mirrors G4EmDNAChemistry_option3 and the UHDR example's
 /// EmDNAChemistry. Molecules + water dissociation channels come from
 /// G4ChemDissociationChannels_option1. The reaction content (ordinary
-/// reaction table + acid-base list) comes from the Chemistry selected with
+/// reaction table + bulk-reaction list) comes from the Chemistry selected with
 /// /chem/select before /run/initialize (default PureWater, the portable
 /// PureWaterReactions.cc: pure-water radiolysis plus the O2-derived
 /// second-order network). See docs/adr/0002-named-chemistries.md.
 ///
 /// The pH-driven acid-base buffer equilibria against the bulk H3Op(B) /
 /// OHm(B) pseudo-species (UHDR: ChemPureWaterBuilder::WaterScavengerReaction)
-/// are registered as per-molecule G4DNAScavengerProcess from the acid-base
-/// data list (PureWaterReactions::BuildPureWaterAcidBase). The PureWater
-/// chemistry always carries the full network -- baseline aqueous chemistry
+/// are registered as per-molecule G4DNAScavengerProcess from the
+/// bulk-reaction data list (PureWaterReactions::BuildPureWaterBulkReactions).
+/// The PureWater chemistry always carries the full network -- baseline aqueous chemistry
 /// (it can produce O2 from pure water radiolysis on its own), not gated by
 /// whether O2 is enabled. See docs/adr/0001-baseline-acid-base-buffer.md.
 
@@ -108,7 +108,7 @@ DnaChemistryList::DnaChemistryList()
                                                     "Chemistry reaction-table diagnostics");
   auto& dumpCmd = fMessenger->DeclareProperty(
     "dump", fReactionDumpFile,
-    "Write the full reaction table (bimolecular + acid-base networks) to <filename>.");
+    "Write the full reaction table (bimolecular + bulk networks) to <filename>.");
   dumpCmd.SetStates(G4State_PreInit);
 
   auto& timeBinsFixedCmd = fMessenger->DeclareMethodWithUnit(
@@ -294,8 +294,8 @@ void DnaChemistryList::ConstructProcess()
   }
 
   auto* chemWorld = const_cast<DnaChemistryWorld*>(ChemistryWorld("ConstructProcess"));
-  RegisterAcidBaseScavengerProcesses(*chemWorld->GetChemistryBoundary(),
-                                    SelectedChemistry("ConstructProcess")->buildAcidBase());
+  RegisterBulkReactionProcesses(*chemWorld->GetChemistryBoundary(),
+                                SelectedChemistry("ConstructProcess")->buildBulkReactions());
 
   // Triggers InitializeMaster() -> ConstructReactionTable() ->
   // DnaChemistryWorld::ConstructChemistryComponents(): the bulk composition is
@@ -305,7 +305,7 @@ void DnaChemistryList::ConstructProcess()
   // Install the bulk-scavenger material now that the composition is known, and
   // before G4DNAScavengerProcess::BuildPhysicsTable() queries the scheduler.
   // Runs once (serial) or per worker thread (MT); the scheduler is thread-local.
-  // Unconditional: the acid-base buffer scavenger processes registered above
+  // Unconditional: the bulk-reaction scavenger processes registered above
   // are always active, so this material must always be installed -- without
   // it, G4DNAScavengerProcess::PostStepGetPhysicalInteractionLength would
   // dereference a null fpScavengerMaterial on the first step of any species
@@ -316,7 +316,7 @@ void DnaChemistryList::ConstructProcess()
     G4Scheduler::Instance()->SetScavengerMaterial(std::move(scavenger));
   }
 
-  // Both networks (bimolecular + acid-base) are fully constructed by this
+  // Both networks (bimolecular + bulk) are fully constructed by this
   // point; opt-in dump for external checks (see /chem/reaction/dump).
   if (!fReactionDumpFile.empty()) {
     ReactionTableDump::DumpReactionTable(OutputDir::Resolve(fReactionDumpFile));
@@ -325,11 +325,11 @@ void DnaChemistryList::ConstructProcess()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void DnaChemistryList::RegisterAcidBaseScavengerProcesses(
-  const G4DNABoundingBox& boundary, const ChemistryTypes::AcidBaseList& list) const
+void DnaChemistryList::RegisterBulkReactionProcesses(
+  const G4DNABoundingBox& boundary, const ChemistryTypes::BulkReactionList& list) const
 {
   auto* ph = G4PhysicsListHelper::GetPhysicsListHelper();
-  const G4String caller = "RegisterAcidBaseScavengerProcesses";
+  const G4String caller = "RegisterBulkReactionProcesses";
 
   // Registers against mol->GetDefinition() rather than a caller-supplied
   // class pointer: several species here (OHm, H3Op) have no dedicated

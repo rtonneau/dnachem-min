@@ -12,11 +12,11 @@
 namespace
 {
 void DummyReactions(G4DNAMolecularReactionTable*) {}
-ChemistryTypes::AcidBaseList DummyAcidBase() { return {}; }
+ChemistryTypes::BulkReactionList DummyBulkReactions() { return {}; }
 
 ChemistryRegistry::Chemistry Make(const std::string& name)
 {
-  return {name, &DummyReactions, &DummyAcidBase};
+  return {name, &DummyReactions, &DummyBulkReactions};
 }
 
 void MustRegister(const std::string& name)

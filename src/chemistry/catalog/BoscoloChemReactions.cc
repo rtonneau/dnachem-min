@@ -1,10 +1,10 @@
 /// \file BoscoloChemReactions.cc
 /// \brief Implementation of the BoscoloChemReactions reaction-table builder
 ///
-/// WORK IN PROGRESS: the reaction rates, products and acid-base list in this
+/// WORK IN PROGRESS: the reaction rates, products and bulk-reaction list in this
 /// Chemistry are a verbatim copy of the PureWater Chemistry. Edit them here to
 /// reproduce the BoscoloChem network. If this Chemistry omits the acid-base
-/// buffer (return an empty list from BuildBoscoloChemAcidBase), say so here:
+/// buffer (return an empty list from BuildBoscoloChemBulkReactions), say so here:
 /// the buffer is then absent by design, see docs/adr/0002-named-chemistries.md.
 
 #include "chemistry/catalog/BoscoloChemReactions.hh"
@@ -125,7 +125,7 @@ void BoscoloChemReactions::BuildBoscoloChemReactions(G4DNAMolecularReactionTable
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ChemistryTypes::AcidBaseList BoscoloChemReactions::BuildBoscoloChemAcidBase()
+ChemistryTypes::BulkReactionList BoscoloChemReactions::BuildBoscoloChemBulkReactions()
 {
   const G4double M = 1e-3 * m3 / (mole * s);  // bimolecular unit (M^-1 s^-1)
   const G4double cW = 55.3;                   // bulk water molarity factor

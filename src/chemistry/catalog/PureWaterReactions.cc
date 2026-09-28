@@ -119,7 +119,7 @@ void PureWaterReactions::BuildPureWaterReactions(G4DNAMolecularReactionTable* re
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ChemistryTypes::AcidBaseList PureWaterReactions::BuildPureWaterAcidBase()
+ChemistryTypes::BulkReactionList PureWaterReactions::BuildPureWaterBulkReactions()
 {
   const G4double M = 1e-3 * m3 / (mole * s);  // bimolecular unit (M^-1 s^-1)
   const G4double cW = 55.3;                   // bulk water molarity factor

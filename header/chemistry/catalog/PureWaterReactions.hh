@@ -1,6 +1,6 @@
 /// \file PureWaterReactions.hh
 /// \brief The PureWater Chemistry: portable pure-water radiolysis + O2-derived
-/// reaction-table builder and its acid-base buffer list
+/// reaction-table builder and its bulk-reaction list
 ///
 /// PureWater is the default Chemistry (see ChemistryRegistry, /chem/select)
 /// and the reference to copy when adding another one (BoscoloChemReactions.hh
@@ -20,7 +20,8 @@
 ///      out of project scope)
 ///
 /// Also supplies the pH-driven acid-base buffer equilibria against the bulk
-/// H3Op(B)/OHm(B)/H2O pseudo-species as plain data (BuildPureWaterAcidBase);
+/// H3Op(B)/OHm(B)/H2O pseudo-species as plain data, the bulk-reaction list
+/// (BuildPureWaterBulkReactions);
 /// the driver turns that list into G4DNAScavengerProcess registrations.
 /// Needs ChemistryTypes.hh -- copy both files to port this unit.
 ///
@@ -48,7 +49,7 @@ namespace PureWaterReactions
   /// OHm(B) / H2O pseudo-species (UHDR: ChemPureWaterBuilder::
   /// WaterScavengerReaction), as plain data. Species are named as stored by
   /// G4ChemDissociationChannels_option1; the driver resolves them.
-  ChemistryTypes::AcidBaseList BuildPureWaterAcidBase();
+  ChemistryTypes::BulkReactionList BuildPureWaterBulkReactions();
 }  // namespace PureWaterReactions
 
 #endif  // PureWaterReactions_h
