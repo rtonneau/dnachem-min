@@ -41,34 +41,34 @@ add_custom_target(Simulation DEPENDS sim)
 
 # Standalone unit test for ArgParser (no Geant4 runtime init required).
 enable_testing()
-add_executable(ArgParserTest test/ArgParserTest.cc src/ArgParser.cc)
+add_executable(ArgParserTest test/ArgParserTest.cc src/core/ArgParser.cc)
 target_link_libraries(ArgParserTest ${Geant4_LIBRARIES})
 target_include_directories(ArgParserTest PRIVATE ${project_include_dirs})
 add_test(NAME ArgParserTest COMMAND ArgParserTest)
 
 # Standalone unit test for OutputDir (no Geant4 runtime init required).
-add_executable(OutputDirTest test/OutputDirTest.cc src/OutputDir.cc)
+add_executable(OutputDirTest test/OutputDirTest.cc src/core/OutputDir.cc)
 target_link_libraries(OutputDirTest ${Geant4_LIBRARIES})
 target_include_directories(OutputDirTest PRIVATE ${project_include_dirs})
 add_test(NAME OutputDirTest COMMAND OutputDirTest)
 
 # Standalone unit test for ReactionTableDump::FormatReactionLabel (pure string
 # logic, no Geant4 runtime init required).
-add_executable(ReactionTableDumpTest test/ReactionTableDumpTest.cc src/ReactionTableDump.cc src/DnaLogger.cc)
+add_executable(ReactionTableDumpTest test/ReactionTableDumpTest.cc src/chemistry/ReactionTableDump.cc src/core/DnaLogger.cc)
 target_link_libraries(ReactionTableDumpTest ${Geant4_LIBRARIES})
 target_include_directories(ReactionTableDumpTest PRIVATE ${project_include_dirs})
 add_test(NAME ReactionTableDumpTest COMMAND ReactionTableDumpTest)
 
 # Standalone unit test for ReactionCounter (pure accumulation/binning logic,
 # no Geant4 runtime init required).
-add_executable(ReactionCounterTest test/ReactionCounterTest.cc src/ReactionCounter.cc src/OutputDir.cc)
+add_executable(ReactionCounterTest test/ReactionCounterTest.cc src/scoring/ReactionCounter.cc src/core/OutputDir.cc)
 target_link_libraries(ReactionCounterTest ${Geant4_LIBRARIES})
 target_include_directories(ReactionCounterTest PRIVATE ${project_include_dirs})
 add_test(NAME ReactionCounterTest COMMAND ReactionCounterTest)
 
 # Standalone unit test for PhysicsInteractionCounter (fully generic,
 # portable, no dnachem-min-specific dependency -- no OutputDir.cc needed).
-add_executable(PhysicsInteractionCounterTest test/PhysicsInteractionCounterTest.cc src/PhysicsInteractionCounter.cc)
+add_executable(PhysicsInteractionCounterTest test/PhysicsInteractionCounterTest.cc src/scoring/PhysicsInteractionCounter.cc)
 target_link_libraries(PhysicsInteractionCounterTest ${Geant4_LIBRARIES})
 target_include_directories(PhysicsInteractionCounterTest PRIVATE ${project_include_dirs})
 add_test(NAME PhysicsInteractionCounterTest COMMAND PhysicsInteractionCounterTest)
@@ -77,14 +77,14 @@ add_test(NAME PhysicsInteractionCounterTest COMMAND PhysicsInteractionCounterTes
 # bookkeeping logic, no Geant4 kernel dependency -- DumpAndReset's
 # file-writing/species lookup lives in RunAccumulatorMessenger instead,
 # which is not unit-tested, matching this project's existing convention).
-add_executable(RunAccumulatorTest test/RunAccumulatorTest.cc src/RunAccumulator.cc src/ReactionCounter.cc src/PhysicsInteractionCounter.cc src/OutputDir.cc)
+add_executable(RunAccumulatorTest test/RunAccumulatorTest.cc src/scoring/RunAccumulator.cc src/scoring/ReactionCounter.cc src/scoring/PhysicsInteractionCounter.cc src/core/OutputDir.cc)
 target_link_libraries(RunAccumulatorTest ${Geant4_LIBRARIES})
 target_include_directories(RunAccumulatorTest PRIVATE ${project_include_dirs})
 add_test(NAME RunAccumulatorTest COMMAND RunAccumulatorTest)
 
 # Standalone unit test for ChemistryRegistry (pure name lookup/selection logic,
 # no Geant4 kernel dependency -- it only stores builder function pointers).
-add_executable(ChemistryRegistryTest test/ChemistryRegistryTest.cc src/ChemistryRegistry.cc)
+add_executable(ChemistryRegistryTest test/ChemistryRegistryTest.cc src/chemistry/ChemistryRegistry.cc)
 target_link_libraries(ChemistryRegistryTest ${Geant4_LIBRARIES})
 target_include_directories(ChemistryRegistryTest PRIVATE ${project_include_dirs})
 add_test(NAME ChemistryRegistryTest COMMAND ChemistryRegistryTest)
