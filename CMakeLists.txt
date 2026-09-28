@@ -82,6 +82,13 @@ target_link_libraries(RunAccumulatorTest ${Geant4_LIBRARIES})
 target_include_directories(RunAccumulatorTest PRIVATE ${project_include_dirs})
 add_test(NAME RunAccumulatorTest COMMAND RunAccumulatorTest)
 
+# Standalone unit test for ChemistryRegistry (pure name lookup/selection logic,
+# no Geant4 kernel dependency -- it only stores builder function pointers).
+add_executable(ChemistryRegistryTest test/ChemistryRegistryTest.cc src/ChemistryRegistry.cc)
+target_link_libraries(ChemistryRegistryTest ${Geant4_LIBRARIES})
+target_include_directories(ChemistryRegistryTest PRIVATE ${project_include_dirs})
+add_test(NAME ChemistryRegistryTest COMMAND ChemistryRegistryTest)
+
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but
 # CMAKE_BUILD_TYPE is known at build time with MSVC.
