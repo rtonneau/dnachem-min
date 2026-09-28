@@ -506,3 +506,35 @@ Skipped at 2026-09-24T17:45:32.8587385+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAU
 Skipped at 2026-09-24T18:09:00.9139240+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-24__mt-dump-clear-worker-scorers\.write-payload.md
 Triggered at 2026-09-24T18:09:39.6795253+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ScoreSpecies.cc
 Completed at 2026-09-24T18:09:43.3751826+02:00: copied compile_commands.json
+Skipped at 2026-09-28T14:32:24.5013930+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CONTEXT.md
+Skipped at 2026-09-28T14:36:32.4271938+02:00: C:\DEV\GEANT4\SIM\dnachem-min\docs\adr\0002-named-chemistries.md
+Skipped at 2026-09-28T14:36:33.2985175+02:00: C:\DEV\GEANT4\SIM\dnachem-min\docs\adr\0001-baseline-acid-base-buffer.md
+Skipped at 2026-09-28T14:38:23.0303987+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__multiple-dna-chemistry\.write-payload.md
+Skipped at 2026-09-28T14:46:11.5165002+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__multiple-dna-chemistry\.write-payload.md
+Skipped at 2026-09-28T14:56:00.4589059+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\ChemistryTypes.hh
+Skipped at 2026-09-28T14:56:01.1919346+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\ChemistryRegistry.hh
+Triggered at 2026-09-28T14:56:02.0591747+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\ChemistryRegistryTest.cc
+Completed at 2026-09-28T14:56:06.3922029+02:00: copied compile_commands.json
+Triggered at 2026-09-28T14:56:07.0297253+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ChemistryRegistry.cc
+Completed at 2026-09-28T14:56:11.8248426+02:00: copied compile_commands.json
+Skipped at 2026-09-28T14:56:16.4839907+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CMakeLists.txt
+Triggered at 2026-09-28T14:56:38.2432874+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ChemistryRegistry.cc
+Completed at 2026-09-28T14:56:43.3211514+02:00: copied compile_commands.json
+Skipped at 2026-09-28T15:00:35.7263978+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__multiple-dna-chemistry\03-implement\01-chemistry-registry-core\commit-log.md
+Skipped at 2026-09-28T15:00:55.7850012+02:00: C:\DEV\GEANT4\SIM\dnachem-min\build\macro\gps_dump.in
+Skipped at 2026-09-28T15:02:27.7087336+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\PureWaterReactions.hh
+Skipped at 2026-09-28T15:02:28.5859929+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\PureWaterReactions.hh
+Triggered at 2026-09-28T15:03:20.1344863+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\DnaChemistryList.cc
+Completed at 2026-09-28T15:03:25.2213952+02:00: copied compile_commands.json
+Skipped at 2026-09-28T15:06:11.4306843+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__multiple-dna-chemistry\03-implement\02-purewater-acid-base-as-data\commit-log.md
+Skipped at 2026-09-28T15:06:29.2358679+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\BuiltInChemistries.hh
+Triggered at 2026-09-28T15:06:29.8457920+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\BuiltInChemistries.cc
+Completed at 2026-09-28T15:06:35.1351114+02:00: copied compile_commands.json
+Skipped at 2026-09-28T15:06:36.0032940+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\ChemistrySelectMessenger.hh
+Triggered at 2026-09-28T15:06:36.6469439+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\ChemistrySelectMessenger.cc
+Completed at 2026-09-28T15:06:41.0268654+02:00: copied compile_commands.json
+Skipped at 2026-09-28T15:09:52.8966673+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__multiple-dna-chemistry\03-implement\03-select-chemistry-command\commit-log.md
+Skipped at 2026-09-28T15:10:13.3223281+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_boscolo.in
+Skipped at 2026-09-28T15:14:57.1753998+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__multiple-dna-chemistry\03-implement\04-boscolochem-variant\commit-log.md
+Skipped at 2026-09-28T15:15:53.6678412+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\PureWaterReactions.hh
+Skipped at 2026-09-28T15:17:59.5969600+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-28__multiple-dna-chemistry\03-implement\05-docs-and-final-verification\commit-log.md
