@@ -68,6 +68,12 @@ target_link_libraries(PhysicsInteractionCounterTest ${Geant4_LIBRARIES})
 target_include_directories(PhysicsInteractionCounterTest PRIVATE ${project_include_dirs})
 add_test(NAME PhysicsInteractionCounterTest COMMAND PhysicsInteractionCounterTest)
 
+# Standalone unit test for ManifestWriter (portable JSON serialiser, std only
+# -- no Geant4 kernel or libraries needed).
+add_executable(ManifestWriterTest test/ManifestWriterTest.cc src/scoring/ManifestWriter.cc)
+target_include_directories(ManifestWriterTest PRIVATE ${project_include_dirs})
+add_test(NAME ManifestWriterTest COMMAND ManifestWriterTest)
+
 # Standalone unit test for RunAccumulator (pure accumulation/prefix
 # bookkeeping logic, no Geant4 kernel dependency -- DumpAndReset's
 # file-writing/species lookup lives in RunAccumulatorMessenger instead,

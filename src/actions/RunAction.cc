@@ -16,6 +16,7 @@
 #include "G4AccumulableManager.hh"
 #include "G4Run.hh"
 #include "G4RunManager.hh"
+#include "G4SystemOfUnits.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -87,6 +88,17 @@ void RunAction::EndOfRunAction(const G4Run *run)
         // in sim.cc fire) to flush everything.
         RunAccumulator::Accumulate(masterRun->GetSumDose(), *masterRun->GetReactionCounter(),
                                     *masterRun->GetInteractionCounter());
+
+        // One record per run for the dump's manifest (beam, events, seed,
+        // this run's energy deposit).
+        ManifestData::RunRecord record;
+        record.runId = run->GetRunID();
+        record.events = nofEvents;
+        record.hasBeam = masterRun->HasBeam();
+        record.beam = masterRun->GetBeam();
+        record.seed = masterRun->GetSeed();
+        record.energyDeposit_eV = masterRun->GetSumDose() / eV;
+        RunAccumulator::AddRunRecord(record);
 
         DnaLogger::Print(DnaLogger::Level::Info,
                           "[RunAction] accumulated this run's energy/reaction/interaction data -- "

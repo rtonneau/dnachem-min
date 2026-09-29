@@ -15,9 +15,11 @@ SD-registered object), while energy deposit and the two counters accumulate via
 which writes everything accumulated since the last dump (or program start) and
 resets all counters to empty/zero:
 
-- `Species.Txt` (human-readable species yields vs. time) and two CSV ntuples,
-  `Species_nt_species.csv` (aggregate sumG/sumG2 per species/time) and
-  `Species_nt_species_all.csv` (same, per event); in MT mode the per-event
+- `Species.Txt` (human-readable species yields vs. time) and the CSV ntuple
+  `Species_nt_species.csv` (aggregate sumG/sumG2 per species/time); a second
+  ntuple, `Species_nt_species_all.csv` (same, per event), is only written when
+  `ScoreSpecies` is compiled with `_ScoreSpecies_FOR_ALL_EVENTS` (off by
+  default; see `header/scoring/ScoreSpecies.hh`). In MT mode the per-event
   pre-chemical dumps are still written continuously as
   `output_event_t<thread>_e<event>.txt` (unaffected by dump/reset).
 - `Reactions.Txt`, `Reactions_nt_reactions.csv`, and `ReactionsMetadata.csv`:
@@ -33,8 +35,25 @@ resets all counters to empty/zero:
   the chemistry scheduler's end time) or `/chem/reaction/timeBinsList <e1>
   <e2> ... <eN> <unit>` (explicit edges) — both `PreInit`, mutually exclusive
   (last one issued wins).
-- `EnergyDeposit.Txt` (total energy deposited in the simulation volume,
-  human-readable).
+- `Manifest.json`: one per dump, describing what produced the data beside it
+  (`ManifestWriter` serialises, `RunManifest` collects; `schemaVersion: 1`,
+  units in the keys). Top level: `timestamp`, `geant4Version`, `macro`,
+  `chemistry`, `scavengers` (`species`, `molarity_M`), `pH`,
+  `chemistryEndTime_ns`, `runMode` (`Serial`/`MT`), `threads`,
+  `outputDirAsConfigured`/`outputDirAbsolute`, `prefix`, `subdir`,
+  `totalEvents`, `totalEnergyDeposit_eV` (sums over `runs`; this replaces the
+  old `EnergyDeposit.Txt`), `files` (the data files this dump wrote, relative
+  to the manifest's folder, manifest excluded) and `runs[]`: one entry per
+  `/run/beamOn` folded into the dump with `run`, `events`, `particle`,
+  `beamEnergy_keV`, `position_um`, `direction`, `energyDeposit_eV` and `seed`.
+  The beam is what the gun actually had on the first event of that run, so
+  several `/gun/energy` values between dumps show up as separate `runs[]`
+  entries. `seed` is the random engine's seed as configured when the run
+  started (it follows `/random/setSeeds`); output is still not bit-reproducible
+  from it. It is written on every dump, including the `EndOfRun_` flush, and
+  carries the same prefix or subfolder as the data files
+  (`EndOfRun_Manifest.json`, `run01/Manifest.json`). Read totals from here;
+  there is no `EnergyDeposit.Txt` any more.
 - `PhysicsInteractions.Txt`/`PhysicsInteractions.csv` (per-process physical-
   interaction firing counts — totals only, no time binning; only discrete
   G4DNA physics processes are counted, e.g. `e-_G4DNAIonisation`,

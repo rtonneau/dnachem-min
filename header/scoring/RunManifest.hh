@@ -1,0 +1,32 @@
+/// \file RunManifest.hh
+/// \brief Geant4-facing collector that writes a dump's Manifest.json.
+///
+/// Fills a ManifestData::Manifest from the live process (selected Chemistry,
+/// environment, run manager, output directory, RunAccumulator's run records)
+/// and hands it to the portable ManifestWriter. Called once per dump from
+/// RunAccumulatorMessenger::WriteAllAndReset, after the data files are
+/// written and before the accumulators are cleared.
+
+#ifndef RunManifest_h
+#define RunManifest_h 1
+
+#include "globals.hh"
+
+#include <string>
+#include <vector>
+
+namespace RunManifest
+{
+  /// Records the macro file the process was started with, for the manifest
+  /// (called once from sim.cc; empty if never set, e.g. GUI mode).
+  void SetMacroName(const G4String &macro);
+
+  /// Writes Manifest.json (through OutputDir::Resolve, so the dump's prefix
+  /// or subfolder applies). `files` are the data files this dump wrote, as
+  /// names relative to the manifest's folder. A file that cannot be opened
+  /// raises a JustWarning G4Exception; the data files are already on disk.
+  void Write(const G4String &prefix, const G4String &subdir,
+             const std::vector<std::string> &files);
+} // namespace RunManifest
+
+#endif // RunManifest_h
