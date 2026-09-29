@@ -326,6 +326,25 @@ static void TestClearingSubdirRestoresPlainResolve()
   OutputDir::Configure("", err);
 }
 
+// --- GetDirectory ------------------------------------------------------
+
+static void TestGetDirectoryReturnsConfiguredDirAsGiven()
+{
+  ResetTestRoot();
+  fs::path target = TestRoot() / "reported";
+
+  G4String err;
+  assert(OutputDir::Configure(target.string().c_str(), err));
+  assert(OutputDir::GetDirectory() == G4String(target.string().c_str()));
+}
+
+static void TestGetDirectoryIsEmptyWhenNoneConfigured()
+{
+  G4String err;
+  assert(OutputDir::Configure("", err));
+  assert(OutputDir::GetDirectory().empty());
+}
+
 int main()
 {
   TestConfigureEmptyDirIsNoOp();
@@ -350,6 +369,8 @@ int main()
   TestConfigureSubdirRejectsPathThatIsAFile();
   TestResolveCombinesSubdirAndPrefix();
   TestClearingSubdirRestoresPlainResolve();
+  TestGetDirectoryReturnsConfiguredDirAsGiven();
+  TestGetDirectoryIsEmptyWhenNoneConfigured();
 
   std::error_code ec;
   fs::remove_all(TestRoot(), ec);

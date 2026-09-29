@@ -74,6 +74,11 @@ G4String OutputDir::Resolve(const G4String &filename)
   return G4String(joined.string().c_str());
 }
 
+G4String OutputDir::GetDirectory()
+{
+  return gConfiguredDir;
+}
+
 void OutputDir::SetPrefix(const G4String &prefix)
 {
   gPrefix = prefix;

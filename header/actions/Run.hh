@@ -2,6 +2,7 @@
 #define CHEM4_Run_h 1
 
 #include "geometry/DetectorConstruction.hh"
+#include "scoring/ManifestData.hh"
 #include "scoring/ReactionCounter.hh"
 #include "scoring/PhysicsInteractionCounter.hh"
 
@@ -28,6 +29,23 @@ public:
     ReactionCounter *GetReactionCounter() const { return fReactionCounter; }
     PhysicsInteractionCounter *GetInteractionCounter() const { return fInteractionCounter; }
 
+    // Beam sampled by PrimaryGeneratorAction from its gun on the first event of
+    // this run (on a worker thread in MT mode); Merge() carries it to the
+    // master run. Only the first call per run has an effect.
+    void SetBeamIfUnset(const ManifestData::Beam &beam)
+    {
+        if (!fHasBeam)
+        {
+            fBeam = beam;
+            fHasBeam = true;
+        }
+    }
+    G4bool HasBeam() const { return fHasBeam; }
+    const ManifestData::Beam &GetBeam() const { return fBeam; }
+    // Seed of the random engine when this Run was created (on the master:
+    // at /run/beamOn, before the run's events consume random numbers).
+    long GetSeed() const { return fSeed; }
+
 private:
     G4double fSumEne;
     G4VPrimitiveScorer *fScorerRun;
@@ -41,6 +59,10 @@ private:
     // SteppingAction's live PhysicsInteractionCounter.
     PhysicsInteractionCounter *fInteractionCounter;
     PhysicsInteractionCounter fOwnedInteractionCounter;
+
+    G4bool fHasBeam = false;
+    ManifestData::Beam fBeam;
+    long fSeed = 0;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

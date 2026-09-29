@@ -53,3 +53,17 @@ water) and the scavenger reactions (e.g. e_aq + O2(bulk) → O2⁻). Distinct fr
 bimolecular reactions between two tracked molecules.
 _Avoid_: "acid-base reaction" as the umbrella term — acid-base is only one kind of
 bulk reaction.
+
+**Dump**:
+One flush of everything accumulated since the previous flush (or program start) into
+output files, then a reset — issued by `/run/dumpDataAndReset` or
+`/run/dumpDataAndResetToDir`, or by the automatic exit-time flush. A dump is the unit
+of "one simulation" for output purposes: it may cover several `/run/beamOn` calls.
+_Avoid_: "run" or "simulation" for this unit — a Geant4 run is a single `/run/beamOn`.
+
+**Manifest**:
+The structured description of one **Dump**, written next to the data files it
+describes: what was simulated (beam per run, Chemistry, environment), how (seed,
+threads), the totals (events, energy deposit) and which files the dump produced.
+Every dump has exactly one.
+_Avoid_: "metadata" (already names `ReactionsMetadata.csv`, the reaction-id → label map).
