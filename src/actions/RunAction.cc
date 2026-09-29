@@ -10,6 +10,7 @@
 #include "actions/PrimaryGeneratorAction.hh"
 #include "actions/Run.hh"
 #include "scoring/RunAccumulator.hh"
+#include "scoring/RunManifest.hh"
 
 #include "G4DNAChemistryManager.hh"
 
@@ -86,19 +87,13 @@ void RunAction::EndOfRunAction(const G4Run *run)
         // persistent, cross-run storage instead. Nothing is written to disk
         // here: issue /run/dumpDataAndReset (or let the exit-time safety net
         // in sim.cc fire) to flush everything.
-        RunAccumulator::Accumulate(masterRun->GetSumDose(), *masterRun->GetReactionCounter(),
+        RunAccumulator::Accumulate(masterRun->GetSumDose(), nofEvents,
+                                    *masterRun->GetReactionCounter(),
                                     *masterRun->GetInteractionCounter());
 
-        // One record per run for the dump's manifest (beam, events, seed,
+        // One entry per run for the dump's manifest (beam, events, seed,
         // this run's energy deposit).
-        ManifestData::RunRecord record;
-        record.runId = run->GetRunID();
-        record.events = nofEvents;
-        record.hasBeam = masterRun->HasBeam();
-        record.beam = masterRun->GetBeam();
-        record.seed = masterRun->GetSeed();
-        record.energyDeposit_eV = masterRun->GetSumDose() / eV;
-        RunAccumulator::AddRunRecord(record);
+        RunManifest::RecordRun(*masterRun);
 
         DnaLogger::Print(DnaLogger::Level::Info,
                           "[RunAction] accumulated this run's energy/reaction/interaction data -- "

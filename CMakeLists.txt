@@ -68,12 +68,6 @@ target_link_libraries(PhysicsInteractionCounterTest ${Geant4_LIBRARIES})
 target_include_directories(PhysicsInteractionCounterTest PRIVATE ${project_include_dirs})
 add_test(NAME PhysicsInteractionCounterTest COMMAND PhysicsInteractionCounterTest)
 
-# Standalone unit test for ManifestWriter (portable JSON serialiser, std only
-# -- no Geant4 kernel or libraries needed).
-add_executable(ManifestWriterTest test/ManifestWriterTest.cc src/scoring/ManifestWriter.cc)
-target_include_directories(ManifestWriterTest PRIVATE ${project_include_dirs})
-add_test(NAME ManifestWriterTest COMMAND ManifestWriterTest)
-
 # Standalone unit test for DataNode + JsonWriter (portable ordered tree and
 # its generic JSON serialiser, std only -- no Geant4 link needed).
 add_executable(JsonWriterTest test/JsonWriterTest.cc src/scoring/DataNode.cc src/scoring/JsonWriter.cc)
@@ -84,7 +78,7 @@ add_test(NAME JsonWriterTest COMMAND JsonWriterTest)
 # bookkeeping logic, no Geant4 kernel dependency -- DumpAndReset's
 # file-writing/species lookup lives in RunAccumulatorMessenger instead,
 # which is not unit-tested, matching this project's existing convention).
-add_executable(RunAccumulatorTest test/RunAccumulatorTest.cc src/scoring/RunAccumulator.cc src/scoring/ReactionCounter.cc src/scoring/PhysicsInteractionCounter.cc src/core/OutputDir.cc)
+add_executable(RunAccumulatorTest test/RunAccumulatorTest.cc src/scoring/RunAccumulator.cc src/scoring/ReactionCounter.cc src/scoring/PhysicsInteractionCounter.cc src/scoring/DataNode.cc src/core/OutputDir.cc)
 target_link_libraries(RunAccumulatorTest ${Geant4_LIBRARIES})
 target_include_directories(RunAccumulatorTest PRIVATE ${project_include_dirs})
 add_test(NAME RunAccumulatorTest COMMAND RunAccumulatorTest)

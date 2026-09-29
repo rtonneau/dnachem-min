@@ -20,7 +20,7 @@ static void TestAccumulateSetsPendingFlag()
 
   ReactionCounter reactions;
   PhysicsInteractionCounter interactions;
-  RunAccumulator::Accumulate(1 * CLHEP::keV, reactions, interactions);
+  RunAccumulator::Accumulate(1 * CLHEP::keV, 0, reactions, interactions);
 
   assert(RunAccumulator::HasPendingData());
 
@@ -33,10 +33,24 @@ static void TestAccumulateSumsEnergyAcrossCalls()
 
   ReactionCounter reactions;
   PhysicsInteractionCounter interactions;
-  RunAccumulator::Accumulate(1 * CLHEP::keV, reactions, interactions);
-  RunAccumulator::Accumulate(2 * CLHEP::keV, reactions, interactions);
+  RunAccumulator::Accumulate(1 * CLHEP::keV, 0, reactions, interactions);
+  RunAccumulator::Accumulate(2 * CLHEP::keV, 0, reactions, interactions);
 
   assert(RunAccumulator::GetAccumulatedEnergy() == 3 * CLHEP::keV);
+
+  RunAccumulator::ClearAccumulated();
+}
+
+static void TestAccumulateSumsEventsAcrossCalls()
+{
+  RunAccumulator::ClearAccumulated();
+
+  ReactionCounter reactions;
+  PhysicsInteractionCounter interactions;
+  RunAccumulator::Accumulate(0., 2, reactions, interactions);
+  RunAccumulator::Accumulate(0., 3, reactions, interactions);
+
+  assert(RunAccumulator::GetAccumulatedEvents() == 5);
 
   RunAccumulator::ClearAccumulated();
 }
@@ -49,8 +63,8 @@ static void TestAccumulateMergesReactionCounts()
   reactions.Record("H + H -> H2", 1 * CLHEP::picosecond);
   PhysicsInteractionCounter interactions;
 
-  RunAccumulator::Accumulate(0., reactions, interactions);
-  RunAccumulator::Accumulate(0., reactions, interactions);
+  RunAccumulator::Accumulate(0., 0, reactions, interactions);
+  RunAccumulator::Accumulate(0., 0, reactions, interactions);
 
   assert(RunAccumulator::GetAccumulatedReactionCounter()
              .GetCounts().at(1 * CLHEP::picosecond).at("H + H -> H2") == 2);
@@ -66,8 +80,8 @@ static void TestAccumulateMergesInteractionCounts()
   PhysicsInteractionCounter interactions;
   interactions.Record("e-_G4DNAIonisation");
 
-  RunAccumulator::Accumulate(0., reactions, interactions);
-  RunAccumulator::Accumulate(0., reactions, interactions);
+  RunAccumulator::Accumulate(0., 0, reactions, interactions);
+  RunAccumulator::Accumulate(0., 0, reactions, interactions);
 
   assert(RunAccumulator::GetAccumulatedInteractionCounter()
              .GetCounts().at("e-_G4DNAIonisation") == 2);
@@ -84,7 +98,7 @@ static void TestAccumulateDoesNotModifyItsInputs()
   PhysicsInteractionCounter interactions;
   interactions.Record("e-_G4DNAIonisation");
 
-  RunAccumulator::Accumulate(0., reactions, interactions);
+  RunAccumulator::Accumulate(0., 0, reactions, interactions);
 
   assert(reactions.GetCounts().at(1 * CLHEP::picosecond).at("H + H -> H2") == 1);
   assert(interactions.GetCounts().at("e-_G4DNAIonisation") == 1);
@@ -100,12 +114,13 @@ static void TestClearAccumulatedResetsEverything()
   reactions.Record("H + H -> H2", 1 * CLHEP::picosecond);
   PhysicsInteractionCounter interactions;
   interactions.Record("e-_G4DNAIonisation");
-  RunAccumulator::Accumulate(5 * CLHEP::keV, reactions, interactions);
+  RunAccumulator::Accumulate(5 * CLHEP::keV, 4, reactions, interactions);
 
   RunAccumulator::ClearAccumulated();
 
   assert(!RunAccumulator::HasPendingData());
   assert(RunAccumulator::GetAccumulatedEnergy() == 0.);
+  assert(RunAccumulator::GetAccumulatedEvents() == 0);
   assert(RunAccumulator::GetAccumulatedReactionCounter().GetCounts().empty());
   assert(RunAccumulator::GetAccumulatedInteractionCounter().GetCounts().empty());
 }
@@ -184,32 +199,29 @@ static void TestSubdirAndPrefixReservationsAreIndependent()
   assert(RunAccumulator::TryReserveSubdir("shared_name", true, err));
 }
 
-// --- AddRunRecord / GetRunRecords ------------------------------------------
+// --- AddRunEntry / GetRunEntries -------------------------------------------
 
-static void TestRunRecordsAccumulateAndClear()
+static void TestRunEntriesAccumulateAndClear()
 {
   RunAccumulator::ClearAccumulated();
 
-  ManifestData::RunRecord record;
-  record.runId = 3;
-  record.events = 2;
-  RunAccumulator::AddRunRecord(record);
-  record.runId = 4;
-  RunAccumulator::AddRunRecord(record);
+  RunAccumulator::AddRunEntry(DataNode::MakeObject().Add("run", 3));
+  RunAccumulator::AddRunEntry(DataNode::MakeObject().Add("run", 4));
 
-  assert(RunAccumulator::GetRunRecords().size() == 2);
-  assert(RunAccumulator::GetRunRecords()[0].runId == 3);
-  assert(RunAccumulator::GetRunRecords()[1].runId == 4);
+  const std::vector<DataNode> &entries = RunAccumulator::GetRunEntries();
+  assert(entries.size() == 2);
+  assert(entries[0].GetMembers()[0].second.GetInteger() == 3);
+  assert(entries[1].GetMembers()[0].second.GetInteger() == 4);
 
   RunAccumulator::ClearAccumulated();
-  assert(RunAccumulator::GetRunRecords().empty());
+  assert(RunAccumulator::GetRunEntries().empty());
 }
 
-static void TestAddRunRecordDoesNotSetPendingFlag()
+static void TestAddRunEntryDoesNotSetPendingFlag()
 {
   RunAccumulator::ClearAccumulated();
 
-  RunAccumulator::AddRunRecord(ManifestData::RunRecord());
+  RunAccumulator::AddRunEntry(DataNode::MakeObject());
   assert(!RunAccumulator::HasPendingData());
 
   RunAccumulator::ClearAccumulated();
@@ -219,14 +231,15 @@ int main()
 {
   TestAccumulateSetsPendingFlag();
   TestAccumulateSumsEnergyAcrossCalls();
+  TestAccumulateSumsEventsAcrossCalls();
   TestAccumulateMergesReactionCounts();
   TestAccumulateMergesInteractionCounts();
   TestAccumulateDoesNotModifyItsInputs();
 
   TestClearAccumulatedResetsEverything();
 
-  TestRunRecordsAccumulateAndClear();
-  TestAddRunRecordDoesNotSetPendingFlag();
+  TestRunEntriesAccumulateAndClear();
+  TestAddRunEntryDoesNotSetPendingFlag();
 
   TestTryReservePrefixAcceptsFirstUse();
   TestTryReservePrefixRefusesRepeatWhenEnforced();
