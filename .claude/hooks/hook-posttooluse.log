@@ -625,3 +625,72 @@ Triggered at 2026-09-29T11:31:17.3478497+02:00: C:\DEV\GEANT4\SIM\dnachem-min\sr
 Completed at 2026-09-29T11:31:21.0843014+02:00: copied compile_commands.json
 Skipped at 2026-09-29T11:35:58.2757885+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.claude\skills\sim-output\SKILL.md
 Skipped at 2026-09-29T11:35:58.8993628+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.claude\skills\sim-output\SKILL.md
+Skipped at 2026-09-29T12:10:30.4926899+02:00: C:\Users\rtonneau\gen_manifest_svg.py
+Skipped at 2026-09-29T13:03:54.6845748+02:00: C:\Users\rtonneau\gen_workflow_svg.py
+Skipped at 2026-09-29T13:35:10.5076312+02:00: C:\Users\rtonneau\gen_g4_svg.py
+Skipped at 2026-09-29T14:04:40.7214382+02:00: C:\Users\rtonneau\gen_wf_files.py
+Skipped at 2026-09-29T15:55:45.7566577+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-29__manifest-implementation-refactor\.write-payload.md
+Skipped at 2026-09-29T16:01:20.6560063+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-29__manifest-implementation-refactor\.write-payload.md
+Triggered at 2026-09-29T16:05:25.8523112+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\JsonWriterTest.cc
+Completed at 2026-09-29T16:05:35.6645730+02:00: copied compile_commands.json
+Skipped at 2026-09-29T16:05:36.1803221+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CMakeLists.txt
+Skipped at 2026-09-29T16:06:11.2293042+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\scoring\DataNode.hh
+Triggered at 2026-09-29T16:06:11.7904151+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\scoring\DataNode.cc
+Skipped at 2026-09-29T16:06:16.9771222+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\scoring\JsonWriter.hh
+Triggered at 2026-09-29T16:06:17.4787704+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\scoring\JsonWriter.cc
+Completed at 2026-09-29T16:06:22.6076832+02:00: copied compile_commands.json
+Skipped at 2026-09-29T16:06:51.7502996+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-29__manifest-implementation-refactor\03-implement\01-datanode-jsonwriter\commit-log.md
+Triggered at 2026-09-29T16:07:22.1542298+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\RunAccumulatorTest.cc
+Completed at 2026-09-29T16:07:26.8528132+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:07:27.4483201+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\RunAccumulatorTest.cc
+Completed at 2026-09-29T16:07:32.1419497+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:07:32.7532024+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\RunAccumulatorTest.cc
+Completed at 2026-09-29T16:07:37.8407296+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:07:38.4560872+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\RunAccumulatorTest.cc
+Completed at 2026-09-29T16:07:43.6274787+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:07:44.0729392+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\RunAccumulatorTest.cc
+Completed at 2026-09-29T16:07:49.0168769+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:07:49.5886162+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\RunAccumulatorTest.cc
+Completed at 2026-09-29T16:07:54.5360456+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:07:55.1570974+02:00: C:\DEV\GEANT4\SIM\dnachem-min\test\RunAccumulatorTest.cc
+Completed at 2026-09-29T16:08:00.1862199+02:00: copied compile_commands.json
+Skipped at 2026-09-29T16:08:20.8195149+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\scoring\RunAccumulator.hh
+Skipped at 2026-09-29T16:08:21.4184173+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\scoring\RunAccumulator.hh
+Triggered at 2026-09-29T16:08:21.9186977+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\scoring\RunAccumulator.cc
+Completed at 2026-09-29T16:08:26.9815365+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:08:27.5515237+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\scoring\RunAccumulator.cc
+Completed at 2026-09-29T16:08:32.5852462+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:08:33.2287880+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\scoring\RunAccumulator.cc
+Completed at 2026-09-29T16:08:38.4101220+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:08:38.9415591+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\scoring\RunAccumulator.cc
+Completed at 2026-09-29T16:08:43.9067869+02:00: copied compile_commands.json
+Skipped at 2026-09-29T16:08:58.3129082+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\actions\Run.hh
+Skipped at 2026-09-29T16:08:58.9234226+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\actions\Run.hh
+Skipped at 2026-09-29T16:08:59.4994505+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\actions\Run.hh
+Skipped at 2026-09-29T16:09:00.1065576+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\actions\Run.hh
+Skipped at 2026-09-29T16:09:00.7276821+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\actions\Run.hh
+Triggered at 2026-09-29T16:09:01.2561147+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\actions\PrimaryGeneratorAction.cc
+Completed at 2026-09-29T16:09:06.0965977+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:09:06.6242997+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\actions\RunAction.cc
+Completed at 2026-09-29T16:09:11.3843254+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:09:11.9238122+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\actions\RunAction.cc
+Completed at 2026-09-29T16:09:16.7668786+02:00: copied compile_commands.json
+Skipped at 2026-09-29T16:09:26.0517712+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\actions\Run.hh
+Skipped at 2026-09-29T16:09:26.6907034+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\scoring\RunManifest.hh
+Triggered at 2026-09-29T16:09:56.7850805+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\scoring\RunManifest.cc
+Completed at 2026-09-29T16:10:01.6191685+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:10:02.2087787+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\scoring\RunManifest.cc
+Completed at 2026-09-29T16:10:07.0153204+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:10:07.5287132+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\scoring\RunManifest.cc
+Completed at 2026-09-29T16:10:12.5741570+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:10:13.1677733+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\scoring\RunManifest.cc
+Completed at 2026-09-29T16:10:18.3521948+02:00: copied compile_commands.json
+Skipped at 2026-09-29T16:10:34.6847678+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CMakeLists.txt
+Skipped at 2026-09-29T16:10:35.2550393+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CMakeLists.txt
+Skipped at 2026-09-29T16:11:56.4481772+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-29__manifest-implementation-refactor\03-implement\02-manifest-from-tree\commit-log.md
+Skipped at 2026-09-29T16:12:12.5984179+02:00: C:\DEV\GEANT4\SIM\dnachem-min\build\macro\gps-manifest.in
+Skipped at 2026-09-29T16:12:23.3212448+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.claude\skills\sim-output\SKILL.md
+Skipped at 2026-09-29T16:12:39.3075101+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-09-29T16:12:39.8642393+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-09-29T16:12:40.4464872+02:00: C:\DEV\GEANT4\SIM\dnachem-min\docs\adr\0005-manifest-per-dump.md
+Skipped at 2026-09-29T16:14:01.2726468+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-29__manifest-implementation-refactor\03-implement\03-e2e-and-docs\commit-log.md
