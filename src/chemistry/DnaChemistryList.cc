@@ -50,6 +50,7 @@
 #include "G4ProcessTable.hh"
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4Threading.hh"
 
 // Chemical-stage processes
 #include "G4DNABrownianTransportation.hh"
@@ -332,7 +333,8 @@ void DnaChemistryList::ConstructProcess()
 
   // Both networks (bimolecular + bulk) are fully constructed by this
   // point; opt-in dump for external checks (see /chem/reaction/dump).
-  if (!fReactionDumpFile.empty()) {
+  // Dump is written once, from the master (MT) or the only thread (Serial).
+  if (!fReactionDumpFile.empty() && !G4Threading::IsWorkerThread()) {
     ReactionTableDump::DumpReactionTable(OutputDir::Resolve(fReactionDumpFile));
   }
 }

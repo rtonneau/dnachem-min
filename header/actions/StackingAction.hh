@@ -17,7 +17,6 @@ public:
   virtual void NewStage();
 
 private:
-  void DumpPreChemical(G4int eventID);
   const PhysicsList *physList;
 };
 

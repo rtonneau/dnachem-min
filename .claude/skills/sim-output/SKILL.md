@@ -19,9 +19,14 @@ resets all counters to empty/zero:
   `Species_nt_species.csv` (aggregate sumG/sumG2 per species/time); a second
   ntuple, `Species_nt_species_all.csv` (same, per event), is only written when
   `ScoreSpecies` is compiled with `_ScoreSpecies_FOR_ALL_EVENTS` (off by
-  default; see `header/scoring/ScoreSpecies.hh`). In MT mode the per-event
-  pre-chemical dumps are still written continuously as
-  `output_event_t<thread>_e<event>.txt` (unaffected by dump/reset).
+  default; see `header/scoring/ScoreSpecies.hh`).
+- `PreChemical_run<R>_event<E>.txt`: one pre-chemical file per event (Serial
+  and MT alike). Each event writes it into the staging folder
+  `<outdir>/.pending_prechem/`; every dump then moves all staged files into
+  the dump (prefixed, or inside the subfolder), in numeric (run, event)
+  order, and lists them in that dump's `Manifest.json` `files`. A failed move
+  is a `PreChemicalMoveFailed` warning and the file stays staged for the next
+  dump.
 - `Reactions.Txt`, `Reactions_nt_reactions.csv`, and `ReactionsMetadata.csv`:
   per-time-bin firing counts of each bimolecular reaction (counted live in
   `TimeStepAction::UserReactionAction` via `ReactionCounter`, merged across
@@ -87,8 +92,8 @@ absolute paths and `..` components are a fatal `G4Exception`
 `G4Exception` (`DuplicateDumpSubdir`, `RunAccumulator::TryReserveSubdir` — a
 set separate from the prefix one); a folder already on disk from an earlier
 process is reused and its files overwritten. It does not combine with a
-prefix. The MT per-event `output_event_t*_e*.txt` files stay in the top output
-directory (they are written continuously, outside any dump).
+prefix. The per-event `PreChemical_run*_event*.txt` files are moved into the
+subfolder like the other data files.
 
 If a macro never issues `/run/dumpDataAndReset` and there is still accumulated
 data pending when the program is about to exit, a safety-net flush fires
