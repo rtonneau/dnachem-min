@@ -53,7 +53,7 @@
       "Manifest.json",
       "PhysicsInteractions.Txt",
       "PhysicsInteractions.csv",
-      "output_event_<n>.txt (Serial) or output_event_t<thread>_e<event>.txt (MT)"
+      "PreChemical_run<R>_event<E>.txt (one per event, moved into the Dump)"
     ],
     "successMarkers": [
       "[RunAccumulatorMessenger] dumped and reset",
