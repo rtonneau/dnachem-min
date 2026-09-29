@@ -1,7 +1,7 @@
 ---
-description: Read-only review of a Geant4-DNA project; writes a findings report that /gps scout --from can turn into sessions
+description: Use when auditing a Geant4-DNA project for physics, chemistry, MT or lifetime problems before planning fixes; writes a report for /gps scout --from
 argument-hint: [branch | PR number | path]
-allowed-tools: Read, Grep, Glob, Agent, Write(docs/reviews/**), Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git rev-parse:*), Bash(git show:*)
+allowed-tools: Read Grep Glob Agent Edit(docs/reviews/**) Bash(git status *) Bash(git diff *) Bash(git log *) Bash(git rev-parse *) Bash(git show *) PowerShell(git status *) PowerShell(git diff *) PowerShell(git log *) PowerShell(git rev-parse *) PowerShell(git show *)
 ---
 
 Review this Geant4-DNA project and write the findings to a Markdown file that
