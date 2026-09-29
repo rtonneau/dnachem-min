@@ -84,6 +84,13 @@ target_link_libraries(ChemistryRegistryTest ${Geant4_LIBRARIES})
 target_include_directories(ChemistryRegistryTest PRIVATE ${project_include_dirs})
 add_test(NAME ChemistryRegistryTest COMMAND ChemistryRegistryTest)
 
+# Standalone unit test for ScavengerSpec (parsing /chem/env/scavenger values,
+# unit conversion and checks -- pure logic, no Geant4 kernel dependency).
+add_executable(ScavengerSpecTest test/ScavengerSpecTest.cc src/geometry/ScavengerSpec.cc)
+target_link_libraries(ScavengerSpecTest ${Geant4_LIBRARIES})
+target_include_directories(ScavengerSpecTest PRIVATE ${project_include_dirs})
+add_test(NAME ScavengerSpecTest COMMAND ScavengerSpecTest)
+
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but
 # CMAKE_BUILD_TYPE is known at build time with MSVC.

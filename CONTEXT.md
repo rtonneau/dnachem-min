@@ -7,8 +7,8 @@ discussions; it is not a spec or implementation log.
 ## Language
 
 **Chemistry**:
-A named, selectable definition of the reaction network (including its acid-base
-buffer rates), chosen once per process before initialization. Names are PascalCase
+A named, selectable definition of the reaction network (including its bulk
+reactions: acid-base buffer and scavenger rates), chosen once per process before initialization. Names are PascalCase
 and matched case-insensitively (`PureWater`, `BoscoloChem`, ...). All Chemistries
 share the same molecule set and dissociation channels. `PureWater` is the default.
 A Chemistry reproduces the network of a given paper or library; it is a variant of
@@ -26,17 +26,30 @@ produce O2 purely from water radiolysis (e.g. H2O2 + °OH → HO2° → [pH equi
 _Avoid_: "water chemistry" alone (ambiguous with the O2-scavenger addition below).
 
 **Scavenger**:
-A mechanism for introducing an *exogenous* dissolved species (e.g. atmospheric O2
-dissolved in the sample, set via `/chem/env/O2`) as an additional reactant/sink,
-layered on top of pure-water chemistry. Not required for pure-water chemistry to
+An *exogenous* dissolved species present in the sample as a bulk component (e.g.
+atmospheric O2, set via `/chem/env/scavenger O2 21 %`), acting as an additional
+reactant/sink for tracked molecules. Its concentration is part of the environment
+(shared by all Chemistries); the reactions it takes part in, and their rates, are
+**Bulk reactions** of the selected Chemistry. A concentration of 0 means the
+scavenger is absent. Consumed as it reacts, restored to its initial concentration at
+the start of each event's chemistry. Not required for pure-water chemistry to
 function or to produce O2 — see [[0001-baseline-acid-base-buffer]].
 _Avoid_: using "scavenger" for the pH acid-base buffer network itself — that is
 baseline pure-water chemistry, not a scavenger.
 
-**Bulk species**:
-A pseudo-species (name suffix `(B)`, e.g. `H3Op(B)`, `OHm(B)`) representing a
-homogeneous background concentration (e.g. the solution's pH-buffered H3O+/OH-
-pool) rather than an individually tracked, diffusing molecule. Reactions against a
-bulk species only fire when a `G4DNAScavengerProcess` is registered for the real
-molecule on the other side — an ordinary reaction-table entry naming a bulk species
-is otherwise inert (no tracks exist to encounter it).
+**Bulk species** (bulk component):
+A homogeneous background concentration rather than an individually tracked,
+diffusing molecule: the pH-owned pseudo-species (name suffix `(B)`, e.g. `H3Op(B)`,
+`OHm(B)`), bulk water, and any **Scavenger** (which, unlike the pH pool, is keyed on
+the ordinary species name, e.g. `O2` — the same species can exist both as tracked
+radiolytic molecules and as a bulk background). Reactions against a bulk species
+only fire as **Bulk reactions** — an ordinary reaction-table entry naming a bulk
+species reacts only with tracked molecules of that name, never with the background.
+
+**Bulk reaction**:
+A reaction of a tracked molecule with a bulk species, defined per molecule by the
+selected Chemistry: the acid-base buffer equilibria (against `H3Op(B)`/`OHm(B)`/
+water) and the scavenger reactions (e.g. e_aq + O2(bulk) → O2⁻). Distinct from the
+bimolecular reactions between two tracked molecules.
+_Avoid_: "acid-base reaction" as the umbrella term — acid-base is only one kind of
+bulk reaction.

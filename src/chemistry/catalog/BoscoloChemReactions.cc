@@ -1,10 +1,10 @@
 /// \file BoscoloChemReactions.cc
 /// \brief Implementation of the BoscoloChemReactions reaction-table builder
 ///
-/// WORK IN PROGRESS: the reaction rates, products and acid-base list in this
+/// WORK IN PROGRESS: the reaction rates, products and bulk-reaction list in this
 /// Chemistry are a verbatim copy of the PureWater Chemistry. Edit them here to
 /// reproduce the BoscoloChem network. If this Chemistry omits the acid-base
-/// buffer (return an empty list from BuildBoscoloChemAcidBase), say so here:
+/// buffer (return an empty list from BuildBoscoloChemBulkReactions), say so here:
 /// the buffer is then absent by design, see docs/adr/0002-named-chemistries.md.
 
 #include "chemistry/catalog/BoscoloChemReactions.hh"
@@ -80,8 +80,10 @@ void BoscoloChemReactions::BuildBoscoloChemReactions(G4DNAMolecularReactionTable
   add(e_aq, H3Op, 2.11e10, {H});
   add(OH, H, 1.44e10, {});
 
-  // Bulk-O2 scavenging, against the real diffusing O2 species, not O2(B)
-  // (UHDR: ChemOxygenWaterBuilder::OxygenScavengerReaction).
+  // O2 scavenging against *tracked* radiolytic O2 molecules (UHDR:
+  // ChemOxygenWaterBuilder::OxygenScavengerReaction). The same reactions
+  // against the dissolved-O2 background are bulk reactions, see the
+  // bulk-reaction list below.
   add(e_aq, O2, 1.74e10, {O2m});
   add(H, O2, 2.1e10, {HO2});
   add(Om, O2, 3.7e9, {O3m});
@@ -125,21 +127,32 @@ void BoscoloChemReactions::BuildBoscoloChemReactions(G4DNAMolecularReactionTable
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ChemistryTypes::AcidBaseList BoscoloChemReactions::BuildBoscoloChemAcidBase()
+ChemistryTypes::BulkReactionList BoscoloChemReactions::BuildBoscoloChemBulkReactions()
 {
   const G4double M = 1e-3 * m3 / (mole * s);  // bimolecular unit (M^-1 s^-1)
   const G4double cW = 55.3;                   // bulk water molarity factor
 
-  // Same values and order as the former hard-coded list in DnaChemistryList.
+  // Acid-base buffer equilibria against H3Op(B)/OHm(B)/H2O, plus the
+  // dissolved-O2 scavenger reactions: the "O2" partner is the bulk O2 set by
+  // /chem/env/scavenger (UHDR: EmDNAChemistry scavenger processes); inert
+  // while its concentration is 0.
   return {
-    {"H", {{"H2O", 6.32 / s, {"e_aq", "H3Op(B)"}, 0}, {"OHm(B)", 2.49e7 * M, {"e_aq"}, 0}}},
+    {"H",
+     {{"H2O", 6.32 / s, {"e_aq", "H3Op(B)"}, 0},
+      {"OHm(B)", 2.49e7 * M, {"e_aq"}, 0},
+      {"O2", 2.1e10 * M, {kHO2}, 0}}},
     {"e_aq",
-     {{"H3Op(B)", 2.25e10 * M, {"H"}, 0}, {"H2O", 1.57e1 * cW / s, {"H", "OHm(B)"}, 0}}},
+     {{"H3Op(B)", 2.25e10 * M, {"H"}, 0},
+      {"H2O", 1.57e1 * cW / s, {"H", "OHm(B)"}, 0},
+      {"O2", 1.74e10 * M, {"O2m"}, 0}}},
     {"O2m", {{"H3Op(B)", 4.78e10 * M, {kHO2}, 6}, {"H2O", 0.15 * cW / s, {kHO2, "OHm(B)"}, 0}}},
     {kHO2, {{"OHm(B)", 1.27e10 * M, {"O2m"}, 0}, {"H2O", 7.58e5 / s, {"H3Op(B)", "O2m"}, 6}}},
     {"HO2m",
      {{"H3Op(B)", 4.78e10 * M, {"H2O2"}, 0}, {"H2O", 1.36e6 * cW / s, {"H2O2", "OHm(B)"}, 7}}},
-    {"Om", {{"H3Op(B)", 9.56e10 * M, {kOH}, 0}, {"H2O", 1.8e6 * cW / s, {kOH, "OHm(B)"}, 8}}},
+    {"Om",
+     {{"H3Op(B)", 9.56e10 * M, {kOH}, 0},
+      {"H2O", 1.8e6 * cW / s, {kOH, "OHm(B)"}, 8},
+      {"O2", 3.7e9 * M, {"O3m"}, 0}}},
     {"O3m", {{"H3Op(B)", 9.0e10 * M, {kOH, "O2"}, 0}, {"H2O", 2.66e3 / s, {"Om", "O2"}, 0}}},
     {"H2O2", {{"H2O", 7.86e-2 / s, {"HO2m", "H3Op(B)"}, 0}, {"OHm(B)", 1.27e10 * M, {"HO2m"}, 7}}},
     {kOH, {{"OHm(B)", 1.27e10 * M, {"Om"}, 8}, {"H2O", 0.060176635 / s, {"Om", "H3Op(B)"}, 0}}},

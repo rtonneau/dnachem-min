@@ -8,9 +8,9 @@
 # DnaChemistryList rejects IRT with a fatal exception; IRT_syn is allowed.
 /process/chem/TimeStepModel SBS
 
-# Optional dissolved-O2 bulk scavenger (% of a pure-O2 atmosphere; 0 = anoxic).
-# When > 0 the UHDR O2 sub-system is added. Air-equilibrated water ~= 21 %.
-#/chem/env/O2 21
+# Optional dissolved-O2 bulk scavenger (0 or absent = anoxic).
+# Air-equilibrated water ~= 21 % of a pure-O2 atmosphere.
+#/chem/env/scavenger O2 21 %
 #/chem/env/pH 7
 
 /run/initialize

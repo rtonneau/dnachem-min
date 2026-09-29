@@ -8,14 +8,16 @@
 ///
 /// Reaction content: the Chemistry chosen with `/chem/select <name>` before
 /// `/run/initialize` (default `PureWater`; see ChemistryRegistry). It supplies
-/// the ordinary reaction table and the pH-driven acid-base buffer list against
-/// the bulk H3Op(B)/OHm(B) pseudo-species (UHDR: ChemPureWaterBuilder),
-/// registered as per-molecule `G4DNAScavengerProcess`. `PureWater` is the
-/// portable pure-water + O2-derived network (PureWaterReactions.cc) with the
-/// full acid-base network; another Chemistry may omit that buffer
+/// the ordinary reaction table and the bulk-reaction list (reactions against
+/// bulk species: the pH-driven acid-base buffer against H3Op(B)/OHm(B), UHDR:
+/// ChemPureWaterBuilder), registered as per-molecule `G4DNAScavengerProcess`.
+/// `PureWater` is the portable pure-water + O2-derived network
+/// (PureWaterReactions.cc) with the full acid-base network; another Chemistry
+/// may omit that buffer
 /// (docs/adr/0002-named-chemistries.md).
-/// An actual dissolved-O2 supply/population is deferred to future work;
-/// `/chem/env/O2` currently has no effect here.
+/// Exogenous scavengers (e.g. dissolved O2, `/chem/env/scavenger` on
+/// DnaChemistryWorld) react through the Chemistry's bulk reactions
+/// (docs/adr/0004-scavenger-reactions-per-chemistry.md).
 ///
 /// Time-step model: SBS only (hard-coded; IRT and IRT_syn are not
 /// supported).
@@ -79,13 +81,14 @@ private:
   /// The project chemistry world, via the run manager's detector.
   const DnaChemistryWorld* ChemistryWorld(const G4String& caller) const;
 
-  /// Registers one G4DNAScavengerProcess per entry of `list`: the pH-driven
-  /// acid-base buffer equilibria against the bulk H3Op(B) / OHm(B) / H2O
-  /// pseudo-species (UHDR: ChemPureWaterBuilder::WaterScavengerReaction).
+  /// Registers one G4DNAScavengerProcess per entry of `list`: the bulk
+  /// reactions, e.g. the pH-driven acid-base buffer equilibria against the
+  /// bulk H3Op(B) / OHm(B) / H2O pseudo-species (UHDR:
+  /// ChemPureWaterBuilder::WaterScavengerReaction).
   /// The values come from the Chemistry (PureWater: always the full network);
   /// an empty list registers nothing.
-  void RegisterAcidBaseScavengerProcesses(const G4DNABoundingBox& boundary,
-                                          const ChemistryTypes::AcidBaseList& list) const;
+  void RegisterBulkReactionProcesses(const G4DNABoundingBox& boundary,
+                                     const ChemistryTypes::BulkReactionList& list) const;
 
   /// Exposes /chem/select <name> and /chem/list.
   std::unique_ptr<ChemistrySelectMessenger> fSelectMessenger;

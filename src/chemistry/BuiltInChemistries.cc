@@ -26,7 +26,7 @@ void BuiltInChemistries::Register()
   };
 
   add({ChemistryRegistry::kDefaultName, &PureWaterReactions::BuildPureWaterReactions,
-       &PureWaterReactions::BuildPureWaterAcidBase});
+       &PureWaterReactions::BuildPureWaterBulkReactions});
   add({"BoscoloChem", &BoscoloChemReactions::BuildBoscoloChemReactions,
-       &BoscoloChemReactions::BuildBoscoloChemAcidBase});
+       &BoscoloChemReactions::BuildBoscoloChemBulkReactions});
 }
