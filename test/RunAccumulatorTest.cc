@@ -184,6 +184,37 @@ static void TestSubdirAndPrefixReservationsAreIndependent()
   assert(RunAccumulator::TryReserveSubdir("shared_name", true, err));
 }
 
+// --- AddRunRecord / GetRunRecords ------------------------------------------
+
+static void TestRunRecordsAccumulateAndClear()
+{
+  RunAccumulator::ClearAccumulated();
+
+  ManifestData::RunRecord record;
+  record.runId = 3;
+  record.events = 2;
+  RunAccumulator::AddRunRecord(record);
+  record.runId = 4;
+  RunAccumulator::AddRunRecord(record);
+
+  assert(RunAccumulator::GetRunRecords().size() == 2);
+  assert(RunAccumulator::GetRunRecords()[0].runId == 3);
+  assert(RunAccumulator::GetRunRecords()[1].runId == 4);
+
+  RunAccumulator::ClearAccumulated();
+  assert(RunAccumulator::GetRunRecords().empty());
+}
+
+static void TestAddRunRecordDoesNotSetPendingFlag()
+{
+  RunAccumulator::ClearAccumulated();
+
+  RunAccumulator::AddRunRecord(ManifestData::RunRecord());
+  assert(!RunAccumulator::HasPendingData());
+
+  RunAccumulator::ClearAccumulated();
+}
+
 int main()
 {
   TestAccumulateSetsPendingFlag();
@@ -193,6 +224,9 @@ int main()
   TestAccumulateDoesNotModifyItsInputs();
 
   TestClearAccumulatedResetsEverything();
+
+  TestRunRecordsAccumulateAndClear();
+  TestAddRunRecordDoesNotSetPendingFlag();
 
   TestTryReservePrefixAcceptsFirstUse();
   TestTryReservePrefixRefusesRepeatWhenEnforced();

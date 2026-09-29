@@ -17,10 +17,13 @@
 #ifndef RunAccumulator_h
 #define RunAccumulator_h 1
 
+#include "scoring/ManifestData.hh"
 #include "scoring/ReactionCounter.hh"
 #include "scoring/PhysicsInteractionCounter.hh"
 
 #include "globals.hh"
+
+#include <vector>
 
 namespace RunAccumulator
 {
@@ -39,8 +42,18 @@ namespace RunAccumulator
   const ReactionCounter &GetAccumulatedReactionCounter();
   const PhysicsInteractionCounter &GetAccumulatedInteractionCounter();
 
-  /// Resets energy to 0 and both counters to empty, and clears the
-  /// pending-data flag. Does not touch the prefix-uniqueness set.
+  /// Appends one run's record (beam, events, seed, energy deposit) for the
+  /// manifest of the next dump. Called once per run from
+  /// RunAction::EndOfRunAction (master thread only), next to Accumulate();
+  /// does not set the pending-data flag.
+  void AddRunRecord(const ManifestData::RunRecord &record);
+
+  /// The records added since the last ClearAccumulated(), in call order.
+  const std::vector<ManifestData::RunRecord> &GetRunRecords();
+
+  /// Resets energy to 0, both counters to empty and the run records to none,
+  /// and clears the pending-data flag. Does not touch the prefix-uniqueness
+  /// set.
   void ClearAccumulated();
 
   /// If enforceUniqueness is false, or prefix hasn't been reserved before,

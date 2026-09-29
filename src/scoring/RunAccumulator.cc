@@ -10,6 +10,7 @@ namespace
   G4double gAccumulatedEnergy = 0.;
   ReactionCounter gAccumulatedReactionCounter;
   PhysicsInteractionCounter gAccumulatedInteractionCounter;
+  std::vector<ManifestData::RunRecord> gRunRecords;
   G4bool gHasPendingData = false;
   std::set<G4String> gUsedPrefixes;
   std::set<G4String> gUsedSubdirs;
@@ -44,11 +45,22 @@ const PhysicsInteractionCounter &RunAccumulator::GetAccumulatedInteractionCounte
   return gAccumulatedInteractionCounter;
 }
 
+void RunAccumulator::AddRunRecord(const ManifestData::RunRecord &record)
+{
+  gRunRecords.push_back(record);
+}
+
+const std::vector<ManifestData::RunRecord> &RunAccumulator::GetRunRecords()
+{
+  return gRunRecords;
+}
+
 void RunAccumulator::ClearAccumulated()
 {
   gAccumulatedEnergy = 0.;
   gAccumulatedReactionCounter.Clear();
   gAccumulatedInteractionCounter.Clear();
+  gRunRecords.clear();
   gHasPendingData = false;
 }
 
