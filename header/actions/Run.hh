@@ -60,10 +60,11 @@ public:
 private:
     G4double fSumEne;
     G4VPrimitiveScorer *fScorerRun;
-    // Points at TimeStepAction's live counter on a worker thread (where
-    // reactions are actually counted); on the master thread (which never
-    // registers a TimeStepAction/runs chemistry) falls back to
-    // fOwnedReactionCounter, used purely as the Merge() accumulation target.
+    // Points at TimeStepAction's live counter on a thread that runs chemistry
+    // (the Serial master, or an MT worker); on the MT master (which never
+    // registers a TimeStepAction) falls back to fOwnedReactionCounter, used
+    // purely as the Merge() accumulation target. The live counter persists
+    // across runs; RunAction::BeginOfRunAction clears it at each run start.
     ReactionCounter *fReactionCounter;
     ReactionCounter fOwnedReactionCounter;
     // Same pattern as fReactionCounter/fOwnedReactionCounter, but for

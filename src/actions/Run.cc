@@ -93,14 +93,10 @@ void Run::Merge(const G4Run *aRun)
 
     masterScorer->AbsorbResultsFromWorkerScorer(localScorer);
 
-    // localRun->fReactionCounter points at the worker's live TimeStepAction
-    // counter, which persists across /run/beamOn calls -- clear it after
-    // merging so a subsequent run doesn't double-count.
+    // localRun's counters are the worker's live action counters; they are
+    // cleared at the worker's next RunAction::BeginOfRunAction, not here.
     fReactionCounter->Merge(*localRun->fReactionCounter);
-    localRun->fReactionCounter->Clear();
-
     fInteractionCounter->Merge(*localRun->fInteractionCounter);
-    localRun->fInteractionCounter->Clear();
 
     G4Run::Merge(aRun);
 }

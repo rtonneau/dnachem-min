@@ -44,6 +44,14 @@ void RunAction::BeginOfRunAction(const G4Run *run)
     if (G4DNAChemistryManager::GetInstanceIfExists() != nullptr)
         G4DNAChemistryManager::GetInstanceIfExists()->BeginOfRunAction(run);
 
+    // Give the reaction/interaction counters a per-run lifetime. On a thread
+    // that owns the TimeStepAction/SteppingAction (Serial master, MT worker)
+    // the new Run points at their live, persistent counters; on the MT master
+    // it points at its own, already empty ones. This is the only reset.
+    auto *thisRun = static_cast<const Run *>(run);
+    thisRun->GetReactionCounter()->Clear();
+    thisRun->GetInteractionCounter()->Clear();
+
     if (IsMaster())
     {
         G4cout << "### Run " << run->GetRunID() << " starts." << G4endl;
