@@ -83,6 +83,13 @@ target_link_libraries(RunAccumulatorTest ${Geant4_LIBRARIES})
 target_include_directories(RunAccumulatorTest PRIVATE ${project_include_dirs})
 add_test(NAME RunAccumulatorTest COMMAND RunAccumulatorTest)
 
+# Standalone unit test for PreChemicalFiles (file-name and staging-move logic,
+# standard library only).
+add_executable(PreChemicalFilesTest test/PreChemicalFilesTest.cc src/scoring/PreChemicalFiles.cc)
+target_link_libraries(PreChemicalFilesTest ${Geant4_LIBRARIES})
+target_include_directories(PreChemicalFilesTest PRIVATE ${project_include_dirs})
+add_test(NAME PreChemicalFilesTest COMMAND PreChemicalFilesTest)
+
 # Standalone unit test for ChemistryRegistry (pure name lookup/selection logic,
 # no Geant4 kernel dependency -- it only stores builder function pointers).
 add_executable(ChemistryRegistryTest test/ChemistryRegistryTest.cc src/chemistry/ChemistryRegistry.cc)
