@@ -102,26 +102,6 @@
     "sourcePath": null,
     "createdAt": "2026-09-28T13:49:34.973Z"
   },
-  "serial-counter-reset": {
-    "strength": "Strong",
-    "severity": "Critical",
-    "files": [
-      "src/actions/Run.cc",
-      "header/actions/Run.hh",
-      "src/actions/RunAction.cc",
-      "src/scoring/RunAccumulator.cc",
-      "src/chemistry/TimeStepAction.cc",
-      "src/actions/SteppingAction.cc",
-      "macro/beam.in"
-    ],
-    "problem": "F-001: In Serial mode (the default), Run points at the live TimeStepAction/SteppingAction counters, which are only cleared in Run::Merge (MT only). RunAction::EndOfRunAction folds the cumulative counters into RunAccumulator after every run, so each /run/beamOn re-adds all earlier runs to Reactions.* and PhysicsInteractions.*, and later dumps keep data from the start of the process. Affects the default beam.in (two beamOn) and every per-energy dump from reactions.in. Confirmed against existing smoke output (fits the cumulative model within 1 %). Species and energy deposit are unaffected; MT is unaffected. Context from Q2: Reactions.Txt counts bimolecular reactions only (bulk G4DNAScavengerProcess reactions are not seen by UserReactionAction) -- confirm intended.",
-    "solution": "Give each thread's live counters a per-run lifetime: clear the TimeStepAction and SteppingAction counters at BeginOfRunAction on every thread that owns them (!IsMaster() in MT, any thread in Serial), keeping exactly one reset per run (reconcile with the MT clear-after-merge), or have Run own the counters by value and the actions write into the current Run's. Verify with a Serial macro: beamOn 2, dump A_, beamOn 2, dump B_ -> B_ ~= A_ within 15 % (mean of 3 baselines, counts >= 400), not ~2x; repeat with --threads 2. Optionally add a RunAccumulatorTest case if the reset moves into a pure helper.",
-    "benefits": "Reaction and interaction outputs become correct in the default run mode and across dumps.",
-    "sourceDirection": null,
-    "sourceReport": "scout-reports/review-2026-09-29-whole-project-review-2026-09-29T16-49-12-241Z.md",
-    "sourcePath": "docs/reviews/2026-09-29-whole-project-review.md",
-    "createdAt": "2026-09-29T16:49:12.241Z"
-  },
   "diagnostic-output-files": {
     "strength": "Strong",
     "severity": "High",
