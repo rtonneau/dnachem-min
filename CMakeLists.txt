@@ -74,6 +74,12 @@ add_executable(ManifestWriterTest test/ManifestWriterTest.cc src/scoring/Manifes
 target_include_directories(ManifestWriterTest PRIVATE ${project_include_dirs})
 add_test(NAME ManifestWriterTest COMMAND ManifestWriterTest)
 
+# Standalone unit test for DataNode + JsonWriter (portable ordered tree and
+# its generic JSON serialiser, std only -- no Geant4 link needed).
+add_executable(JsonWriterTest test/JsonWriterTest.cc src/scoring/DataNode.cc src/scoring/JsonWriter.cc)
+target_include_directories(JsonWriterTest PRIVATE ${project_include_dirs})
+add_test(NAME JsonWriterTest COMMAND JsonWriterTest)
+
 # Standalone unit test for RunAccumulator (pure accumulation/prefix
 # bookkeeping logic, no Geant4 kernel dependency -- DumpAndReset's
 # file-writing/species lookup lives in RunAccumulatorMessenger instead,
