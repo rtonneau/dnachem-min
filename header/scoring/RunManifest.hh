@@ -1,11 +1,14 @@
 /// \file RunManifest.hh
 /// \brief Geant4-facing collector that writes a dump's Manifest.json.
 ///
-/// Fills a ManifestData::Manifest from the live process (selected Chemistry,
-/// environment, run manager, output directory, RunAccumulator's run records)
-/// and hands it to the portable ManifestWriter. Called once per dump from
-/// RunAccumulatorMessenger::WriteAllAndReset, after the data files are
-/// written and before the accumulators are cleared.
+/// The one place that lists the manifest's entries: RecordRun builds each
+/// run's entry, Write builds the top-level tree from the live process
+/// (selected Chemistry, environment, run manager, output directory,
+/// RunAccumulator's totals and run entries). Both use the portable,
+/// format-neutral DataNode tree, serialised by the generic JsonWriter --
+/// adding or removing an entry is one Add() line here. Write is called once
+/// per dump from RunAccumulatorMessenger::WriteAllAndReset, after the data
+/// files are written and before the accumulators are cleared.
 
 #ifndef RunManifest_h
 #define RunManifest_h 1
@@ -15,11 +18,18 @@
 #include <string>
 #include <vector>
 
+class Run;
+
 namespace RunManifest
 {
   /// Records the macro file the process was started with, for the manifest
   /// (called once from sim.cc; empty if never set, e.g. GUI mode).
   void SetMacroName(const G4String &macro);
+
+  /// Builds this run's manifest entry (run id, events, beam or nulls,
+  /// energy deposit, seed) and stores it with RunAccumulator::AddRunEntry.
+  /// Called once per run from RunAction::EndOfRunAction (master thread only).
+  void RecordRun(const Run &run);
 
   /// Writes Manifest.json (through OutputDir::Resolve, so the dump's prefix
   /// or subfolder applies). `files` are the data files this dump wrote, as

@@ -17,7 +17,7 @@
 #ifndef RunAccumulator_h
 #define RunAccumulator_h 1
 
-#include "scoring/ManifestData.hh"
+#include "scoring/DataNode.hh"
 #include "scoring/ReactionCounter.hh"
 #include "scoring/PhysicsInteractionCounter.hh"
 
@@ -27,33 +27,33 @@
 
 namespace RunAccumulator
 {
-  /// Merges energy/reactions/interactions into the persistent totals
+  /// Merges energy/events/reactions/interactions into the persistent totals
   /// (reactions and interactions are merged via ReactionCounter::Merge /
   /// PhysicsInteractionCounter::Merge -- their arguments are left
   /// unmodified) and marks pending data. Called once per run from
   /// RunAction::EndOfRunAction (master thread only).
-  void Accumulate(G4double energy, const ReactionCounter &reactions,
+  void Accumulate(G4double energy, long events, const ReactionCounter &reactions,
                    const PhysicsInteractionCounter &interactions);
 
   /// True if Accumulate() has added data since the last ClearAccumulated().
   G4bool HasPendingData();
 
   G4double GetAccumulatedEnergy();
+  long GetAccumulatedEvents();
   const ReactionCounter &GetAccumulatedReactionCounter();
   const PhysicsInteractionCounter &GetAccumulatedInteractionCounter();
 
-  /// Appends one run's record (beam, events, seed, energy deposit) for the
-  /// manifest of the next dump. Called once per run from
-  /// RunAction::EndOfRunAction (master thread only), next to Accumulate();
-  /// does not set the pending-data flag.
-  void AddRunRecord(const ManifestData::RunRecord &record);
+  /// Appends one run's manifest entry (built by RunManifest::RecordRun) for
+  /// the manifest of the next dump. Called once per run (master thread only),
+  /// next to Accumulate(); does not set the pending-data flag.
+  void AddRunEntry(const DataNode &entry);
 
-  /// The records added since the last ClearAccumulated(), in call order.
-  const std::vector<ManifestData::RunRecord> &GetRunRecords();
+  /// The entries added since the last ClearAccumulated(), in call order.
+  const std::vector<DataNode> &GetRunEntries();
 
-  /// Resets energy to 0, both counters to empty and the run records to none,
-  /// and clears the pending-data flag. Does not touch the prefix-uniqueness
-  /// set.
+  /// Resets energy and events to 0, both counters to empty and the run
+  /// entries to none, and clears the pending-data flag. Does not touch the
+  /// prefix-uniqueness set.
   void ClearAccumulated();
 
   /// If enforceUniqueness is false, or prefix hasn't been reserved before,

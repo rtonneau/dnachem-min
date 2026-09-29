@@ -3,12 +3,13 @@
 
 #include "scoring/RunManifest.hh"
 
+#include "actions/Run.hh"
 #include "chemistry/ChemistryRegistry.hh"
 #include "core/OutputDir.hh"
 #include "geometry/DetectorConstruction.hh"
 #include "geometry/DnaChemistryWorld.hh"
-#include "scoring/ManifestData.hh"
-#include "scoring/ManifestWriter.hh"
+#include "scoring/DataNode.hh"
+#include "scoring/JsonWriter.hh"
 #include "scoring/RunAccumulator.hh"
 
 #include "G4Exception.hh"
@@ -55,6 +56,11 @@ namespace
     const std::string::size_type first = tag.find_first_not_of(' ');
     return first == std::string::npos ? std::string() : tag.substr(first);
   }
+
+  DataNode Vec3(const double *values)
+  {
+    return DataNode::MakeArray().Push(values[0]).Push(values[1]).Push(values[2]);
+  }
 }
 
 void RunManifest::SetMacroName(const G4String &macro)
@@ -62,24 +68,38 @@ void RunManifest::SetMacroName(const G4String &macro)
   gMacroName = macro;
 }
 
+void RunManifest::RecordRun(const Run &run)
+{
+  DataNode entry = DataNode::MakeObject();
+  entry.Add("run", run.GetRunID());
+  entry.Add("events", static_cast<long>(run.GetNumberOfEvent()));
+  if (run.HasBeam())
+  {
+    const Run::Beam &beam = run.GetBeam();
+    entry.Add("particle", beam.particle);
+    entry.Add("beamEnergy_keV", beam.energy_keV);
+    entry.Add("position_um", Vec3(beam.position_um));
+    entry.Add("direction", Vec3(beam.direction));
+  }
+  else
+  {
+    entry.Add("particle", DataNode());
+    entry.Add("beamEnergy_keV", DataNode());
+    entry.Add("position_um", DataNode());
+    entry.Add("direction", DataNode());
+  }
+  entry.Add("energyDeposit_eV", run.GetSumDose() / eV);
+  entry.Add("seed", run.GetSeed());
+  RunAccumulator::AddRunEntry(entry);
+}
+
 void RunManifest::Write(const G4String &prefix, const G4String &subdir,
                         const std::vector<std::string> &files)
 {
-  ManifestData::Manifest manifest;
-  manifest.timestamp = Timestamp();
-  manifest.geant4Version = Geant4Version();
-  manifest.macro = gMacroName;
-
-  const ChemistryRegistry::Chemistry *chemistry = ChemistryRegistry::Selected();
-  if (chemistry != nullptr)
-    manifest.chemistry = chemistry->name;
-
   G4RunManager *runManager = G4RunManager::GetRunManager();
   auto *mtRunManager = dynamic_cast<G4MTRunManager *>(runManager);
-  manifest.runMode = (mtRunManager != nullptr) ? "MT" : "Serial";
-  manifest.threads = (mtRunManager != nullptr) ? mtRunManager->GetNumberOfThreads() : 1;
 
-  manifest.chemistryEndTime_ns = G4Scheduler::Instance()->GetEndTime() / ns;
+  const ChemistryRegistry::Chemistry *chemistry = ChemistryRegistry::Selected();
 
   // Environment set on the chemistry world (pH, scavengers), if the detector
   // has one.
@@ -88,29 +108,49 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   const auto *chemistryWorld =
       (detector != nullptr) ? dynamic_cast<const DnaChemistryWorld *>(detector->GetChemistryWorld())
                             : nullptr;
+  DataNode scavengers = DataNode::MakeArray();
   if (chemistryWorld != nullptr)
   {
-    manifest.pH = chemistryWorld->GetpH();
     for (const ScavengerSpec::Entry &entry : chemistryWorld->GetScavengers())
-    {
-      ManifestData::Scavenger scavenger;
-      scavenger.species = entry.species;
-      scavenger.molarity_M = entry.molarity;
-      manifest.scavengers.push_back(scavenger);
-    }
+      scavengers.Push(DataNode::MakeObject()
+                          .Add("species", std::string(entry.species))
+                          .Add("molarity_M", entry.molarity));
   }
 
   const std::string dir = OutputDir::GetDirectory();
-  manifest.outputDirAsConfigured = dir;
   std::error_code ec;
   const std::filesystem::path absolute =
       std::filesystem::absolute(std::filesystem::path(dir.empty() ? "." : dir), ec);
-  manifest.outputDirAbsolute = ec ? dir : absolute.lexically_normal().string();
 
-  manifest.prefix = prefix;
-  manifest.subdir = subdir;
-  manifest.files = files;
-  manifest.runs = RunAccumulator::GetRunRecords();
+  DataNode fileList = DataNode::MakeArray();
+  for (const std::string &file : files)
+    fileList.Push(file);
+
+  DataNode runs = DataNode::MakeArray();
+  for (const DataNode &entry : RunAccumulator::GetRunEntries())
+    runs.Push(entry);
+
+  // The manifest's entries, in output order. Add or remove a line here to
+  // change what Manifest.json states; JsonWriter needs no change.
+  DataNode manifest = DataNode::MakeObject();
+  manifest.Add("schemaVersion", 1);
+  manifest.Add("timestamp", Timestamp());
+  manifest.Add("geant4Version", Geant4Version());
+  manifest.Add("macro", std::string(gMacroName));
+  manifest.Add("chemistry", (chemistry != nullptr) ? std::string(chemistry->name) : std::string());
+  manifest.Add("scavengers", scavengers);
+  manifest.Add("pH", (chemistryWorld != nullptr) ? chemistryWorld->GetpH() : 7.);
+  manifest.Add("chemistryEndTime_ns", G4Scheduler::Instance()->GetEndTime() / ns);
+  manifest.Add("runMode", (mtRunManager != nullptr) ? "MT" : "Serial");
+  manifest.Add("threads", (mtRunManager != nullptr) ? mtRunManager->GetNumberOfThreads() : 1);
+  manifest.Add("outputDirAsConfigured", dir);
+  manifest.Add("outputDirAbsolute", ec ? dir : absolute.lexically_normal().string());
+  manifest.Add("prefix", std::string(prefix));
+  manifest.Add("subdir", std::string(subdir));
+  manifest.Add("totalEvents", RunAccumulator::GetAccumulatedEvents());
+  manifest.Add("totalEnergyDeposit_eV", RunAccumulator::GetAccumulatedEnergy() / eV);
+  manifest.Add("files", fileList);
+  manifest.Add("runs", runs);
 
   const G4String path = OutputDir::Resolve("Manifest.json");
   std::ofstream out(path);
@@ -122,5 +162,5 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
                     .c_str());
     return;
   }
-  ManifestWriter::Write(out, manifest);
+  JsonWriter::Write(out, manifest);
 }
