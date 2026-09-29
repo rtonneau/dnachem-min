@@ -694,3 +694,17 @@ Skipped at 2026-09-29T16:12:39.3075101+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAU
 Skipped at 2026-09-29T16:12:39.8642393+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
 Skipped at 2026-09-29T16:12:40.4464872+02:00: C:\DEV\GEANT4\SIM\dnachem-min\docs\adr\0005-manifest-per-dump.md
 Skipped at 2026-09-29T16:14:01.2726468+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-29__manifest-implementation-refactor\03-implement\03-e2e-and-docs\commit-log.md
+Skipped at 2026-09-29T16:40:42.5336384+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-29__world-halfbox-macro\.write-payload.md
+Skipped at 2026-09-29T16:41:04.8670735+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\geometry\DnaChemistryWorld.hh
+Skipped at 2026-09-29T16:41:05.3750524+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\geometry\DnaChemistryWorld.hh
+Triggered at 2026-09-29T16:41:05.9049711+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\geometry\DnaChemistryWorld.cc
+Completed at 2026-09-29T16:41:10.6842835+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:41:11.1545422+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\geometry\DnaChemistryWorld.cc
+Completed at 2026-09-29T16:41:14.8739057+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:41:21.9450214+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\geometry\DetectorConstruction.cc
+Completed at 2026-09-29T16:41:26.4186303+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:41:26.9369257+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\geometry\DetectorConstruction.cc
+Completed at 2026-09-29T16:41:31.5660940+02:00: copied compile_commands.json
+Triggered at 2026-09-29T16:41:32.0666114+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\scoring\RunManifest.cc
+Completed at 2026-09-29T16:41:36.7583143+02:00: copied compile_commands.json
+Skipped at 2026-09-29T16:41:43.3326347+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md

@@ -181,12 +181,6 @@
 },
 {
   "directory": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja",
-  "command": "C:\\PROGRA~1\\MICROS~4\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DG4LIB_BUILD_DLL -DG4UI_USE_QT -DG4UI_USE_WIN32 -DG4VIS_USE_OPENGLQT -DG4VIS_USE_RAYTRACER_QT -DG4VIS_USE_TOOLSSG_QT_GLES -DG4VIS_USE_TOOLSSG_QT_ZB -DG4VIS_USE_TOOLSSG_WINDOWS_ZB -DH5_BUILT_AS_DYNAMIC_LIB -DPTL_BUILD_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DTOOLS_USE_HDF5 -IC:\\DEV\\GEANT4\\SIM\\dnachem-min\\header -external:IC:\\DEV\\GEANT4\\geant4-v11.4.1-install\\include\\Geant4 -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtCore -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\.\\mkspecs\\win32-msvc -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtGui -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtANGLE -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtWidgets -external:IC:\\DEV\\vcpkg\\installed\\x64-windows\\include -external:W0 /DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -std:c++20 -MDd -Zi /FoCMakeFiles\\sim.dir\\src\\scoring\\ManifestWriter.cc.obj /FdCMakeFiles\\sim.dir\\ /FS -c C:\\DEV\\GEANT4\\SIM\\dnachem-min\\src\\scoring\\ManifestWriter.cc",
-  "file": "C:/DEV/GEANT4/SIM/dnachem-min/src/scoring/ManifestWriter.cc",
-  "output": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja/CMakeFiles/sim.dir/src/scoring/ManifestWriter.cc.obj"
-},
-{
-  "directory": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja",
   "command": "C:\\PROGRA~1\\MICROS~4\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DG4LIB_BUILD_DLL -DG4UI_USE_QT -DG4UI_USE_WIN32 -DG4VIS_USE_OPENGLQT -DG4VIS_USE_RAYTRACER_QT -DG4VIS_USE_TOOLSSG_QT_GLES -DG4VIS_USE_TOOLSSG_QT_ZB -DG4VIS_USE_TOOLSSG_WINDOWS_ZB -DH5_BUILT_AS_DYNAMIC_LIB -DPTL_BUILD_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DTOOLS_USE_HDF5 -IC:\\DEV\\GEANT4\\SIM\\dnachem-min\\header -external:IC:\\DEV\\GEANT4\\geant4-v11.4.1-install\\include\\Geant4 -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtCore -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\.\\mkspecs\\win32-msvc -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtGui -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtANGLE -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtWidgets -external:IC:\\DEV\\vcpkg\\installed\\x64-windows\\include -external:W0 /DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -std:c++20 -MDd -Zi /FoCMakeFiles\\sim.dir\\src\\scoring\\PhysicsInteractionCounter.cc.obj /FdCMakeFiles\\sim.dir\\ /FS -c C:\\DEV\\GEANT4\\SIM\\dnachem-min\\src\\scoring\\PhysicsInteractionCounter.cc",
   "file": "C:/DEV/GEANT4/SIM/dnachem-min/src/scoring/PhysicsInteractionCounter.cc",
   "output": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja/CMakeFiles/sim.dir/src/scoring/PhysicsInteractionCounter.cc.obj"
@@ -301,18 +295,6 @@
 },
 {
   "directory": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja",
-  "command": "C:\\PROGRA~1\\MICROS~4\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\DEV\\GEANT4\\SIM\\dnachem-min\\header /DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -std:c++20 -MDd -Zi /FoCMakeFiles\\ManifestWriterTest.dir\\test\\ManifestWriterTest.cc.obj /FdCMakeFiles\\ManifestWriterTest.dir\\ /FS -c C:\\DEV\\GEANT4\\SIM\\dnachem-min\\test\\ManifestWriterTest.cc",
-  "file": "C:/DEV/GEANT4/SIM/dnachem-min/test/ManifestWriterTest.cc",
-  "output": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja/CMakeFiles/ManifestWriterTest.dir/test/ManifestWriterTest.cc.obj"
-},
-{
-  "directory": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja",
-  "command": "C:\\PROGRA~1\\MICROS~4\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\DEV\\GEANT4\\SIM\\dnachem-min\\header /DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -std:c++20 -MDd -Zi /FoCMakeFiles\\ManifestWriterTest.dir\\src\\scoring\\ManifestWriter.cc.obj /FdCMakeFiles\\ManifestWriterTest.dir\\ /FS -c C:\\DEV\\GEANT4\\SIM\\dnachem-min\\src\\scoring\\ManifestWriter.cc",
-  "file": "C:/DEV/GEANT4/SIM/dnachem-min/src/scoring/ManifestWriter.cc",
-  "output": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja/CMakeFiles/ManifestWriterTest.dir/src/scoring/ManifestWriter.cc.obj"
-},
-{
-  "directory": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja",
   "command": "C:\\PROGRA~1\\MICROS~4\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\DEV\\GEANT4\\SIM\\dnachem-min\\header /DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -std:c++20 -MDd -Zi /FoCMakeFiles\\JsonWriterTest.dir\\test\\JsonWriterTest.cc.obj /FdCMakeFiles\\JsonWriterTest.dir\\ /FS -c C:\\DEV\\GEANT4\\SIM\\dnachem-min\\test\\JsonWriterTest.cc",
   "file": "C:/DEV/GEANT4/SIM/dnachem-min/test/JsonWriterTest.cc",
   "output": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja/CMakeFiles/JsonWriterTest.dir/test/JsonWriterTest.cc.obj"
@@ -352,6 +334,12 @@
   "command": "C:\\PROGRA~1\\MICROS~4\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DG4LIB_BUILD_DLL -DG4UI_USE_QT -DG4UI_USE_WIN32 -DG4VIS_USE_OPENGLQT -DG4VIS_USE_RAYTRACER_QT -DG4VIS_USE_TOOLSSG_QT_GLES -DG4VIS_USE_TOOLSSG_QT_ZB -DG4VIS_USE_TOOLSSG_WINDOWS_ZB -DPTL_BUILD_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DTOOLS_USE_HDF5 -IC:\\DEV\\GEANT4\\SIM\\dnachem-min\\header -external:IC:\\DEV\\GEANT4\\geant4-v11.4.1-install\\include\\Geant4 -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtCore -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\.\\mkspecs\\win32-msvc -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtGui -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtANGLE -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtWidgets -external:IC:\\DEV\\vcpkg\\installed\\x64-windows\\include -external:W0 /DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -std:c++20 -MDd -Zi /FoCMakeFiles\\RunAccumulatorTest.dir\\src\\scoring\\PhysicsInteractionCounter.cc.obj /FdCMakeFiles\\RunAccumulatorTest.dir\\ /FS -c C:\\DEV\\GEANT4\\SIM\\dnachem-min\\src\\scoring\\PhysicsInteractionCounter.cc",
   "file": "C:/DEV/GEANT4/SIM/dnachem-min/src/scoring/PhysicsInteractionCounter.cc",
   "output": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja/CMakeFiles/RunAccumulatorTest.dir/src/scoring/PhysicsInteractionCounter.cc.obj"
+},
+{
+  "directory": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja",
+  "command": "C:\\PROGRA~1\\MICROS~4\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1451~1.362\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DG4LIB_BUILD_DLL -DG4UI_USE_QT -DG4UI_USE_WIN32 -DG4VIS_USE_OPENGLQT -DG4VIS_USE_RAYTRACER_QT -DG4VIS_USE_TOOLSSG_QT_GLES -DG4VIS_USE_TOOLSSG_QT_ZB -DG4VIS_USE_TOOLSSG_WINDOWS_ZB -DPTL_BUILD_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DTOOLS_USE_HDF5 -IC:\\DEV\\GEANT4\\SIM\\dnachem-min\\header -external:IC:\\DEV\\GEANT4\\geant4-v11.4.1-install\\include\\Geant4 -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtCore -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\.\\mkspecs\\win32-msvc -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtGui -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtANGLE -external:IC:\\Users\\rtonneau\\AppData\\Local\\anaconda3\\Library\\include\\qt\\QtWidgets -external:IC:\\DEV\\vcpkg\\installed\\x64-windows\\include -external:W0 /DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -std:c++20 -MDd -Zi /FoCMakeFiles\\RunAccumulatorTest.dir\\src\\scoring\\DataNode.cc.obj /FdCMakeFiles\\RunAccumulatorTest.dir\\ /FS -c C:\\DEV\\GEANT4\\SIM\\dnachem-min\\src\\scoring\\DataNode.cc",
+  "file": "C:/DEV/GEANT4/SIM/dnachem-min/src/scoring/DataNode.cc",
+  "output": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja/CMakeFiles/RunAccumulatorTest.dir/src/scoring/DataNode.cc.obj"
 },
 {
   "directory": "C:/DEV/GEANT4/SIM/dnachem-min/build-ninja",
