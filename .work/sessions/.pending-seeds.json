@@ -101,5 +101,88 @@
     "sourceReport": "scout-reports/architecture-review-2026-09-28T13-49-34-973Z.html",
     "sourcePath": null,
     "createdAt": "2026-09-28T13:49:34.973Z"
+  },
+  "serial-counter-reset": {
+    "strength": "Strong",
+    "severity": "Critical",
+    "files": [
+      "src/actions/Run.cc",
+      "header/actions/Run.hh",
+      "src/actions/RunAction.cc",
+      "src/scoring/RunAccumulator.cc",
+      "src/chemistry/TimeStepAction.cc",
+      "src/actions/SteppingAction.cc",
+      "macro/beam.in"
+    ],
+    "problem": "F-001: In Serial mode (the default), Run points at the live TimeStepAction/SteppingAction counters, which are only cleared in Run::Merge (MT only). RunAction::EndOfRunAction folds the cumulative counters into RunAccumulator after every run, so each /run/beamOn re-adds all earlier runs to Reactions.* and PhysicsInteractions.*, and later dumps keep data from the start of the process. Affects the default beam.in (two beamOn) and every per-energy dump from reactions.in. Confirmed against existing smoke output (fits the cumulative model within 1 %). Species and energy deposit are unaffected; MT is unaffected. Context from Q2: Reactions.Txt counts bimolecular reactions only (bulk G4DNAScavengerProcess reactions are not seen by UserReactionAction) -- confirm intended.",
+    "solution": "Give each thread's live counters a per-run lifetime: clear the TimeStepAction and SteppingAction counters at BeginOfRunAction on every thread that owns them (!IsMaster() in MT, any thread in Serial), keeping exactly one reset per run (reconcile with the MT clear-after-merge), or have Run own the counters by value and the actions write into the current Run's. Verify with a Serial macro: beamOn 2, dump A_, beamOn 2, dump B_ -> B_ ~= A_ within 15 % (mean of 3 baselines, counts >= 400), not ~2x; repeat with --threads 2. Optionally add a RunAccumulatorTest case if the reset moves into a pure helper.",
+    "benefits": "Reaction and interaction outputs become correct in the default run mode and across dumps.",
+    "sourceDirection": null,
+    "sourceReport": "scout-reports/review-2026-09-29-whole-project-review-2026-09-29T16-49-12-241Z.md",
+    "sourcePath": "docs/reviews/2026-09-29-whole-project-review.md",
+    "createdAt": "2026-09-29T16:49:12.241Z"
+  },
+  "diagnostic-output-files": {
+    "strength": "Strong",
+    "severity": "High",
+    "files": [
+      "src/chemistry/TimeStepAction.cc",
+      "header/chemistry/TimeStepAction.hh",
+      "src/actions/EventAction.cc",
+      "src/chemistry/DnaChemistryList.cc",
+      ".claude/.claude-project.json"
+    ],
+    "problem": "F-002, F-003: TimeStepAction::EndProcessing calls G4DNAChemistryManager::WriteInto(output_event_N.txt) at the END of event N; Geant4's FormattedText keeps the stream open (CloseFile returns early), so event N+1's physico-chemical data lands in output_event_N.txt, the next open() fails and no further file is ever written (one file per thread). The file also ignores dump prefix/subdir and is overwritten across Serial runs. F-003: /chem/reaction/dump is written from DnaChemistryList::ConstructProcess, which runs on the master and every worker in MT, so all threads write the same path concurrently. Open decision (Q1): is output_event_*.txt used by any analysis -- fix it or remove it?",
+    "solution": "Depending on Q1: either open the per-event file at begin of event N (EventAction::BeginOfEventAction), close it explicitly after the chemistry stage, include run ID in the name and route it through the dump subdir; or drop the WriteInto call and remove it from run.outputs in .claude-project.json. For F-003, guard the dump with !G4Threading::IsWorkerThread(). Verify: 3 events -> 3 files whose H2O record counts match each event's 'Size of pre chemical main list'; reaction dump byte-identical between Serial and --threads 4.",
+    "benefits": "Auxiliary diagnostic outputs become trustworthy and MT-safe.",
+    "sourceDirection": null,
+    "sourceReport": "scout-reports/review-2026-09-29-whole-project-review-2026-09-29T16-49-12-241Z.md",
+    "sourcePath": "docs/reviews/2026-09-29-whole-project-review.md",
+    "createdAt": "2026-09-29T16:49:12.241Z"
+  },
+  "primary-killer-controls": {
+    "strength": "Strong",
+    "severity": "Medium",
+    "files": [
+      "src/scoring/PrimaryKiller.cc",
+      "header/scoring/PrimaryKiller.hh",
+      "src/actions/SteppingAction.cc",
+      "src/actions/EventAction.cc",
+      "src/actions/Run.cc"
+    ],
+    "problem": "F-004, F-006: /primaryKiller/minKineticE is created but SetNewValue has no branch for it (silent no-op, command also leaked in destructor; inherited from chem4). F-006: events aborted by PrimaryKiller (eLossMax, default 1 MeV) are excluded from events/energy/species, but SteppingAction has already recorded their steps into PhysicsInteractions.",
+    "solution": "Handle fpMinKineticE in SetNewValue, delete it in the destructor, add SetUnitCategory(\"Energy\") to the energy commands. Record steps into a per-event scratch counter and merge into the live counter from EventAction::EndOfEventAction only when !event->IsAborted(). Depends on serial-counter-reset (same live-counter feed). Verify: minKineticE 90 keV at 100 keV lowers energyDeposit_eV per event; eLossMax 5 keV reduces events and interaction counts in proportion.",
+    "benefits": "All macro controls work and aborted events are excluded consistently.",
+    "sourceDirection": null,
+    "sourceReport": "scout-reports/review-2026-09-29-whole-project-review-2026-09-29T16-49-12-241Z.md",
+    "sourcePath": "docs/reviews/2026-09-29-whole-project-review.md",
+    "createdAt": "2026-09-29T16:49:12.241Z"
+  },
+  "cleanup-and-docs": {
+    "strength": "Worth exploring",
+    "severity": "Low",
+    "files": [
+      "macro/beam.in",
+      "macro/beam_02.in",
+      "src/physics/PhysicsList.cc",
+      "src/actions/StackingAction.cc",
+      "CLAUDE.md",
+      "src/scoring/ReactionCounter.cc",
+      "src/actions/Run.cc",
+      "src/geometry/DetectorConstruction.cc",
+      "src/chemistry/TimeStepAction.cc",
+      "src/actions/EventAction.cc",
+      "header/actions/StackingAction.hh",
+      "header/actions/RunAction.hh",
+      "sim.cc",
+      "src/scoring/RunManifest.cc"
+    ],
+    "problem": "F-005, F-007, F-008, F-009: stale comments claim IRT is rejected fatally and IRT_syn allowed (SBS is hard-coded; the Debug log prints G4EmParameters' model, manifest lacks the model; CLAUDE.md says Build() runs at /run/initialize but in Serial it runs in SetUserInitialization). ReactionCounter::BinFor takes a global mutex on every reaction in MT. Run::Run/Merge look up the Species scorer by passing a hits-collection ID as a primitive index and dereference an unchecked dynamic_cast. Ad hoc std::cerr/G4cout (DetectorConstruction, TimeStepAction per-event lines incl. a raw pointer) instead of DnaLogger, plus dead code (EventAction helpers, StackingAction::DumpPreChemical, RunAction::fDoseAccumulable, global std::ofstream out). Open questions to raise: Q3 whether BoscoloChem (verbatim PureWater copy) should stay selectable; Q4 whether the manifest 'seed' key should be renamed (configuredSeed) or store engine status (ADR 0005).",
+    "solution": "Fix comments and CLAUDE.md, log/record the actual model (SBS). Snapshot bin edges per counter/thread at run start and read lock-free. Look up the Species primitive by name with a G4Exception if missing. Route console output through DnaLogger Debug/Trace and delete dead code. Depends on diagnostic-output-files (same TimeStepAction functions).",
+    "benefits": "Docs match behaviour, quieter logs, robust scorer lookup, no lock on the reaction hot path.",
+    "sourceDirection": null,
+    "sourceReport": "scout-reports/review-2026-09-29-whole-project-review-2026-09-29T16-49-12-241Z.md",
+    "sourcePath": "docs/reviews/2026-09-29-whole-project-review.md",
+    "createdAt": "2026-09-29T16:49:12.241Z"
   }
 }
