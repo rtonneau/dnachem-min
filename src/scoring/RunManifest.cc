@@ -140,6 +140,8 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   manifest.Add("chemistry", (chemistry != nullptr) ? std::string(chemistry->name) : std::string());
   manifest.Add("scavengers", scavengers);
   manifest.Add("pH", (chemistryWorld != nullptr) ? chemistryWorld->GetpH() : 7.);
+  manifest.Add("halfBox_um",
+               (chemistryWorld != nullptr) ? DataNode(chemistryWorld->GetHalfBox() / um) : DataNode());
   manifest.Add("chemistryEndTime_ns", G4Scheduler::Instance()->GetEndTime() / ns);
   manifest.Add("runMode", (mtRunManager != nullptr) ? "MT" : "Serial");
   manifest.Add("threads", (mtRunManager != nullptr) ? mtRunManager->GetNumberOfThreads() : 1);

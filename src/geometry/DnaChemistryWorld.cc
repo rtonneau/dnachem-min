@@ -23,6 +23,10 @@ DnaChemistryWorld::DnaChemistryWorld()
                                                     "Bulk chemistry environment");
   auto& pHCmd = fMessenger->DeclareProperty("pH", fpH, "Bulk water pH (default 7).");
   pHCmd.SetStates(G4State_PreInit);
+  auto& halfBoxCmd = fMessenger->DeclareMethodWithUnit(
+    "halfBox", "um", &DnaChemistryWorld::SetHalfBox,
+    "Half side of the water box, i.e. of the whole geometry (default 500 um).");
+  halfBoxCmd.SetStates(G4State_PreInit);
 
   // After fMessenger: /chem/env/scavenger attaches to the directory it created.
   fScavengerMessenger = std::make_unique<ScavengerMessenger>(this);
@@ -40,6 +44,24 @@ void DnaChemistryWorld::ConstructChemistryBoundary()
   const std::initializer_list<G4double> box{
     fHalfBox, -fHalfBox, fHalfBox, -fHalfBox, fHalfBox, -fHalfBox};
   fpChemistryBoundary = std::make_unique<G4DNABoundingBox>(box);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DnaChemistryWorld::SetHalfBox(G4double halfBox)
+{
+  if (halfBox <= 0.) {
+    G4Exception("DnaChemistryWorld::SetHalfBox", "InvalidHalfBox", FatalException,
+                ("/chem/env/halfBox: the half side must be > 0 (got " +
+                 std::to_string(halfBox / um) + " um).")
+                  .c_str());
+    return;
+  }
+  fHalfBox = halfBox;
+  // The boundary was built in DetectorConstruction's constructor, before any
+  // macro: rebuild it so the world, diffusion boundary and scavenger volume
+  // all follow the new size.
+  ConstructChemistryBoundary();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
