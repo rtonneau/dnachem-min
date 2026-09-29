@@ -14,6 +14,7 @@
 #include "G4THitsMap.hh"
 #include "G4VSensitiveDetector.hh"
 #include "G4MultiFunctionalDetector.hh"
+#include "Randomize.hh"
 
 #include <map>
 
@@ -34,6 +35,8 @@ Run::Run() : G4Run(), fSumEne(0), fScorerRun(0), fReactionCounter(nullptr), fInt
         dynamic_cast<const SteppingAction *>(G4RunManager::GetRunManager()->GetUserSteppingAction()));
     fInteractionCounter =
         (steppingAction != nullptr) ? &steppingAction->GetInteractionCounter() : &fOwnedInteractionCounter;
+
+    fSeed = G4Random::getTheEngine()->getSeed();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -79,6 +82,10 @@ void Run::Merge(const G4Run *aRun)
 
     const Run *localRun = static_cast<const Run *>(aRun);
     fSumEne += localRun->fSumEne;
+
+    // A worker that got no events has no beam; the first one that has one wins.
+    if (localRun->fHasBeam)
+        SetBeamIfUnset(localRun->fBeam);
 
     ScoreSpecies *masterScorer = dynamic_cast<ScoreSpecies *>(this->fScorerRun);
 
