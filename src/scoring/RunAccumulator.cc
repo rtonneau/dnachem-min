@@ -8,18 +8,20 @@
 namespace
 {
   G4double gAccumulatedEnergy = 0.;
+  long gAccumulatedEvents = 0;
   ReactionCounter gAccumulatedReactionCounter;
   PhysicsInteractionCounter gAccumulatedInteractionCounter;
-  std::vector<ManifestData::RunRecord> gRunRecords;
+  std::vector<DataNode> gRunEntries;
   G4bool gHasPendingData = false;
   std::set<G4String> gUsedPrefixes;
   std::set<G4String> gUsedSubdirs;
 }
 
-void RunAccumulator::Accumulate(G4double energy, const ReactionCounter &reactions,
+void RunAccumulator::Accumulate(G4double energy, long events, const ReactionCounter &reactions,
                                  const PhysicsInteractionCounter &interactions)
 {
   gAccumulatedEnergy += energy;
+  gAccumulatedEvents += events;
   gAccumulatedReactionCounter.Merge(reactions);
   gAccumulatedInteractionCounter.Merge(interactions);
   gHasPendingData = true;
@@ -35,6 +37,11 @@ G4double RunAccumulator::GetAccumulatedEnergy()
   return gAccumulatedEnergy;
 }
 
+long RunAccumulator::GetAccumulatedEvents()
+{
+  return gAccumulatedEvents;
+}
+
 const ReactionCounter &RunAccumulator::GetAccumulatedReactionCounter()
 {
   return gAccumulatedReactionCounter;
@@ -45,22 +52,23 @@ const PhysicsInteractionCounter &RunAccumulator::GetAccumulatedInteractionCounte
   return gAccumulatedInteractionCounter;
 }
 
-void RunAccumulator::AddRunRecord(const ManifestData::RunRecord &record)
+void RunAccumulator::AddRunEntry(const DataNode &entry)
 {
-  gRunRecords.push_back(record);
+  gRunEntries.push_back(entry);
 }
 
-const std::vector<ManifestData::RunRecord> &RunAccumulator::GetRunRecords()
+const std::vector<DataNode> &RunAccumulator::GetRunEntries()
 {
-  return gRunRecords;
+  return gRunEntries;
 }
 
 void RunAccumulator::ClearAccumulated()
 {
   gAccumulatedEnergy = 0.;
+  gAccumulatedEvents = 0;
   gAccumulatedReactionCounter.Clear();
   gAccumulatedInteractionCounter.Clear();
-  gRunRecords.clear();
+  gRunEntries.clear();
   gHasPendingData = false;
 }
 

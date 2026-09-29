@@ -36,8 +36,9 @@ resets all counters to empty/zero:
   <e2> ... <eN> <unit>` (explicit edges) — both `PreInit`, mutually exclusive
   (last one issued wins).
 - `Manifest.json`: one per dump, describing what produced the data beside it
-  (`ManifestWriter` serialises, `RunManifest` collects; `schemaVersion: 1`,
-  units in the keys). Top level: `timestamp`, `geant4Version`, `macro`,
+  (`RunManifest` builds a `DataNode` tree and is the only place listing the
+  entries, the generic `JsonWriter` serialises it; `schemaVersion: 1`, units
+  in the keys). Top level: `timestamp`, `geant4Version`, `macro`,
   `chemistry`, `scavengers` (`species`, `molarity_M`), `pH`,
   `chemistryEndTime_ns`, `runMode` (`Serial`/`MT`), `threads`,
   `outputDirAsConfigured`/`outputDirAbsolute`, `prefix`, `subdir`,

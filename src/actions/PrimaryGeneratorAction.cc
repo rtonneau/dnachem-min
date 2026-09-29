@@ -44,7 +44,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
   auto *run = dynamic_cast<Run *>(G4RunManager::GetRunManager()->GetNonConstCurrentRun());
   if (run != nullptr && !run->HasBeam())
   {
-    ManifestData::Beam beam;
+    Run::Beam beam;
     beam.particle = this->fpParticleGun->GetParticleDefinition()->GetParticleName();
     beam.energy_keV = this->fpParticleGun->GetParticleEnergy() / keV;
     const G4ThreeVector position = this->fpParticleGun->GetParticlePosition();
