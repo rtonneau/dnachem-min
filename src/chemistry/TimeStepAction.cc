@@ -1,20 +1,13 @@
 #include "chemistry/TimeStepAction.hh"
 
 #include "core/DnaLogger.hh"
-#include "core/OutputDir.hh"
 #include "chemistry/ReactionTableDump.hh"
 
-#include "G4DNAChemistryManager.hh"
 #include "G4DNAMolecularReactionTable.hh"
 #include "G4Scheduler.hh"
-#include "G4ITTrackHolder.hh"
-#include "G4AnalysisManager.hh"
 #include "G4Molecule.hh"
 #include "G4MolecularConfiguration.hh"
 #include "G4SystemOfUnits.hh"
-#include "G4UnitsTable.hh"
-#include "G4RunManager.hh"
-#include "G4Threading.hh"
 
 #include <vector>
 
@@ -69,7 +62,6 @@ void TimeStepAction::StartProcessing()
   // G4ITScheduler::Instance()->WhyDoYouStop();
   // At the end of the simulation, information will be printed
   // It is better to place this command before the simulation starts
-  G4cout << "TimeStepAction::StartProcessing() called" << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -170,69 +162,7 @@ void TimeStepAction::UserReactionAction(const G4Track &a, const G4Track &b,
 
 void TimeStepAction::EndProcessing()
 {
-  G4cout << "TimeStepAction::EndProcessing() called" << G4endl;
-  // You want to know why the simulation stopped ?
-  G4cout << "Current time step: " << G4Scheduler::Instance()->GetTimeStep() / picosecond << " ps" << G4endl;
-  G4cout << "Current global time: " << G4Scheduler::Instance()->GetGlobalTime() / picosecond << " ps" << G4endl;
-  const G4Event *currentEvent = G4RunManager::GetRunManager()->GetCurrentEvent();
-  G4cout << "[TimeStepAction End] G4Event pointer: " << currentEvent << G4endl;
-  this->DumpPreChemical(currentEvent->GetEventID()); // Dump the state at the beginning of the simulation (eventID=0)
-}
-
-// void TimeStepAction::WriteChemistryOutput(G4int eventID)
-// {
-//   G4String fileName = "output_event_" + std::to_string(eventID) + ".txt";
-//   G4cout << "Writing chemistry output for event " << eventID << " to file: " << fileName << G4endl;
-
-//   // Thread-safe filename (if running in MT mode)
-//   if (G4RunManager::GetRunManager()->GetRunManagerType() != G4RunManager::sequentialRM)
-//   {
-//     G4int threadID = G4Threading::G4GetThreadId();
-//     fileName = "output_event_" + std::to_string(threadID) + "_" + std::to_string(eventID) + ".txt";
-//   }
-
-//   // Write chemistry data to file
-//   G4DNAChemistryManager::Instance()->WriteInto(fileName);
-// }
-
-void TimeStepAction::DumpPreChemical(G4int eventID)
-{
-  // Thread-safe filename in MT mode (each worker writes its own file).
-  G4String fileName = "output_event_" + std::to_string(eventID) + ".txt";
-  if (G4Threading::IsMultithreadedApplication())
-  {
-    fileName = "output_event_t" + std::to_string(G4Threading::G4GetThreadId()) +
-               "_e" + std::to_string(eventID) + ".txt";
-  }
-  G4DNAChemistryManager::Instance()->WriteInto(OutputDir::Resolve(fileName));
-
-  G4ITTrackHolder *trackHolder = G4ITTrackHolder::Instance();
-
-  // Use the Delayed List (tracks waiting for chemistry to start)
-  // Note: Implementation depends slightly on G4 version, usually fMainList
-  auto mainList = trackHolder->GetMainList();
-  G4cout << "Size of pre chemical main list: " << mainList->size() << G4endl;
-
-  // Iterate over all molecules
-  // Note: This is pseudo-code logic, exact iterator syntax depends on G4 version (10.7 vs 11.1)
-  // for (auto it : *mainList)
-  // {
-  //   G4Track *track = it;
-  //   G4String name = track->GetDefinition()->GetParticleName();
-  //   G4ThreeVector pos = track->GetPosition();
-  //   G4cout << "Event " << eventID << ": Molecule " << name
-  //          << " at position (nm) x=" << pos.x() / nm
-  //          << " y=" << pos.y() / nm
-  //          << " z=" << pos.z() / nm
-  //          << G4endl;
-
-  //   // Save to One Single File via Analysis Manager
-  //   // auto analysis = G4AnalysisManager::Instance();
-  //   // analysis->FillNtupleIColumn(0, eventID); // Column 0: Event ID
-  //   // analysis->FillNtupleSColumn(1, name);    // Column 1: Molecule
-  //   // analysis->FillNtupleDColumn(2, pos.x());
-  //   // analysis->FillNtupleDColumn(3, pos.y());
-  //   // analysis->FillNtupleDColumn(4, pos.z());
-  //   // analysis->AddNtupleRow();
-  // }
+  DnaLogger::Print(DnaLogger::Level::Debug,
+                   "[TimeStepAction] Chemistry ends at global time " +
+                       std::to_string(G4Scheduler::Instance()->GetGlobalTime() / picosecond) + " ps");
 }
