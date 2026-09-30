@@ -349,7 +349,7 @@ void DnaChemistryList::RegisterBulkReactionProcesses(
   // class pointer: several species here (OHm, H3Op) have no dedicated
   // factory class, and using GetDefinition() uniformly avoids the previous
   // mismatch where Om's process was attached to G4Oxygen::Definition() (the
-  // separate, unused "Oxy" species) instead of Om's actual definition (a
+  // separate "Oxy" O(3P) species) instead of Om's actual definition (a
   // private G4MoleculeDefinition("O", ...) created inside
   // G4ChemDissociationChannels_option1::ConstructMolecule()) -- silently
   // making those reactions unreachable.

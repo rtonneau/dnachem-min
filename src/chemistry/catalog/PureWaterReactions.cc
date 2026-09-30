@@ -59,6 +59,7 @@ void PureWaterReactions::BuildPureWaterReactions(G4DNAMolecularReactionTable* re
   auto* HO2m = Conf("HO2m");
   auto* O2m = Conf("O2m");
   auto* O3m = Conf("O3m");
+  auto* Oxy = Conf("Oxy");  // O(3P) atom from water dissociation
 
   // Pure-water radiolysis (project values -- not UHDR's SecondOrderReactionExtended
   // "Type I" block, which covers the same 9 pairs with different rate constants
@@ -117,6 +118,7 @@ void PureWaterReactions::BuildPureWaterReactions(G4DNAMolecularReactionTable* re
   add(HO2, HO2, 9.80e5, {H2O2, O2});
   add(HO2, O2m, 9.70e7, {HO2m, O2});
   add(O2m, O2m, 1.0e2, {H2O2, O2, OHm, OHm});
+  add(Oxy, OH, 2.0e10, {HO2});  // B. Gervais et al., Chem. Phys. Lett. 410 (2005) 330
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -136,7 +138,7 @@ ChemistryTypes::BulkReactionList PureWaterReactions::BuildPureWaterBulkReactions
       {"OHm(B)", 2.49e7 * M, {"e_aq"}, 0},
       {"O2", 2.1e10 * M, {kHO2}, 0}}},
     {"e_aq",
-     {{"H3Op(B)", 2.25e10 * M, {"H"}, 0},
+     {{"H3Op(B)", 2.11e10 * M, {"H"}, 0},
       {"H2O", 1.57e1 * cW / s, {"H", "OHm(B)"}, 0},
       {"O2", 1.74e10 * M, {"O2m"}, 0}}},
     {"O2m", {{"H3Op(B)", 4.78e10 * M, {kHO2}, 6}, {"H2O", 0.15 * cW / s, {kHO2, "OHm(B)"}, 0}}},
