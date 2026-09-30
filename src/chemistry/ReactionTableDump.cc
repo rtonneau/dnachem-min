@@ -12,10 +12,12 @@
 #include "G4ProcessTable.hh"
 #include "G4SystemOfUnits.hh"
 
+#include <algorithm>
 #include <fstream>
 #include <mutex>
 #include <ostream>
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace
@@ -86,6 +88,10 @@ void WriteBulkReactions(std::ostream& out)
       continue;
     }
 
+    // The reaction map's iteration order is not stable from one process to
+    // the next, so this molecule's lines are sorted before writing to keep
+    // the dump identical across runs and thread counts.
+    std::vector<std::string> lines;
     for (const auto& [mol, materialMap] : access->GetReactionMap()) {
       for (const auto& [material, rd] : materialMap) {
         std::vector<const G4MolecularConfiguration*> products;
@@ -93,9 +99,15 @@ void WriteBulkReactions(std::ostream& out)
         for (G4int i = 0; i < nbProducts; ++i) {
           products.push_back(rd->GetProduct(i));
         }
-        WriteLine(out, mol->GetName(), material->GetName(),
-                 rd->GetObservedReactionRateConstant(), products);
+        std::ostringstream line;
+        WriteLine(line, mol->GetName(), material->GetName(),
+                  rd->GetObservedReactionRateConstant(), products);
+        lines.push_back(line.str());
       }
+    }
+    std::sort(lines.begin(), lines.end());
+    for (const auto& line : lines) {
+      out << line;
     }
   }
 }

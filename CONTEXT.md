@@ -67,3 +67,11 @@ describes: what was simulated (beam per run, Chemistry, environment), how (seed,
 threads), the totals (events, energy deposit) and which files the dump produced.
 Every dump has exactly one.
 _Avoid_: "metadata" (already names `ReactionsMetadata.csv`, the reaction-id → label map).
+
+**Pre-chemical file**:
+The per-event record of what the physical stage handed to the chemical stage: every
+ionised or excited water molecule and every solvated electron, with energy and
+position. One file per event, including an empty one when the event made none. It
+belongs to the **Dump** that covers its run and is listed in that dump's **Manifest**.
+_Avoid_: "output_event file", "chemistry output" (the chemical stage's own results are
+the species and reaction files).

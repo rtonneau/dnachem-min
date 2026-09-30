@@ -2,6 +2,8 @@
 #include "scoring/RunAccumulator.hh"
 #include "scoring/RunManifest.hh"
 #include "core/OutputDir.hh"
+#include "core/DnaLogger.hh"
+#include "scoring/PreChemicalFiles.hh"
 #include "scoring/ScoreSpecies.hh"
 
 #include "G4UIcmdWithAString.hh"
@@ -188,6 +190,21 @@ void RunAccumulatorMessenger::WriteAllAndReset(const G4String &prefix, const G4S
     interactionCounter.WriteCsv(interactionsCsv);
     interactionsCsv.close();
     files.push_back(prefix + "PhysicsInteractions.csv");
+
+    // Pre-chemical files: move the per-event files staged since the last dump
+    // into this dump (target = prefix/subdir applied by OutputDir::Resolve).
+    const PreChemicalFiles::MoveResult moveResult = PreChemicalFiles::MoveStaged(
+        PreChemicalFiles::StagingDir(OutputDir::GetDirectory()),
+        [](const std::string &name) { return OutputDir::Resolve(name); });
+    files.insert(files.end(), moveResult.moved.begin(), moveResult.moved.end());
+    for (const std::string &failure : moveResult.failures)
+    {
+        G4Exception("RunAccumulatorMessenger::WriteAllAndReset", "PreChemicalMoveFailed",
+                    JustWarning, failure.c_str());
+    }
+    DnaLogger::Print(DnaLogger::Level::Info,
+                     "[RunAccumulatorMessenger] moved " + std::to_string(moveResult.moved.size()) +
+                         " pre-chemical file(s) into the dump");
 
     // Energy deposit, beam and everything else that describes this dump.
     RunManifest::Write(prefix, subdir, files);

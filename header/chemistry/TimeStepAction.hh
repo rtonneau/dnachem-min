@@ -24,9 +24,6 @@ public:
   ReactionCounter &GetReactionCounter() { return fReactionCounter; }
 
 private:
-  void WriteChemistryOutput(G4int eventID); // Helper function to write output
-  void DumpPreChemical(G4int eventID);      // Helper function to dump pre-chemical state
-
   ReactionCounter fReactionCounter;
 };
 
