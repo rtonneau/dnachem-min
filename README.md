@@ -131,6 +131,13 @@ named **Chemistry**. Pick one in the macro, before `/run/initialize`:
 Only SBS is supported as the chemistry time-step model
 (`/process/chem/TimeStepModel SBS`); IRT is rejected with a fatal exception.
 
+`/chem/sbs/rateAwareReactions true` (`PreInit`, default `false`) makes SBS
+accept an encounter during a step with the exact 3D encounter probability
+instead of Geant4's Brownian-bridge limit, so slow reactions fire at their
+rate constant. Off by default; see
+`docs/adr/0006-opt-in-sbs-rate-aware-acceptance.md`. `Manifest.json` records
+it under `sbs.rateAwareReactions`.
+
 The chemistry time limit defaults to 1 µs
 (`G4Scheduler::Instance()->SetEndTime()` in `ActionInitialization::Build()`,
 applied on `/run/initialize`). To override it, issue

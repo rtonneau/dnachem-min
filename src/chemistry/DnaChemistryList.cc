@@ -25,6 +25,7 @@
 #include "chemistry/BuiltInChemistries.hh"
 #include "chemistry/ChemistryRegistry.hh"
 #include "chemistry/ChemistrySelectMessenger.hh"
+#include "chemistry/RateAwareReactionModel.hh"
 #include "geometry/DetectorConstruction.hh"
 #include "geometry/DnaChemistryWorld.hh"
 #include "geometry/ScavengerSpec.hh"
@@ -131,6 +132,18 @@ DnaChemistryList::DnaChemistryList()
     "'1 10 100 1000 picosecond'). Mutually exclusive with timeBinsFixed (issuing both is a fatal "
     "configuration error).");
   timeBinsListCmd.SetStates(G4State_PreInit);
+
+  fSbsMessenger = std::make_unique<G4GenericMessenger>(this, "/chem/sbs/",
+                                                       "Step-by-step (SBS) chemistry options");
+  // DeclareMethod, not DeclareProperty: a bool property is assigned through
+  // G4AnyType::FromString (stream >> bool, which rejects "true"), while the
+  // method path converts the token with G4UIcommand's StoB.
+  auto& rateAwareCmd = fSbsMessenger->DeclareMethod(
+    "rateAwareReactions", &DnaChemistryList::SetRateAwareReactions,
+    "true: accept along-step encounters with the exact 3D encounter probability, so slow "
+    "reactions fire at their rate constant (RateAwareReactionModel). false (default): Geant4's "
+    "G4DNASmoluchowskiReactionModel. See docs/adr/0006-opt-in-sbs-rate-aware-acceptance.md.");
+  rateAwareCmd.SetStates(G4State_PreInit);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -156,6 +169,11 @@ void DnaChemistryList::SetReactionTimeBinsFixed(G4double width)
 {
   fReactionBinWidthSet = true;
   fReactionBinWidth = width;
+}
+
+void DnaChemistryList::SetRateAwareReactions(G4bool enabled)
+{
+  fRateAwareReactions = enabled;
 }
 
 void DnaChemistryList::ApplyReactionTimeBinning() const
@@ -258,10 +276,23 @@ void DnaChemistryList::ConstructReactionTable(G4DNAMolecularReactionTable* react
 
 void DnaChemistryList::ConstructTimeStepModel(G4DNAMolecularReactionTable* /*reactionTable*/)
 {
-  RegisterTimeStepModel(new G4DNAMolecularStepByStepModel(), 0);
+  if (!fRateAwareReactions) {
+    RegisterTimeStepModel(new G4DNAMolecularStepByStepModel(), 0);
+    DnaLogger::Print(DnaLogger::Level::Info,
+                     "[DnaChemistryList] time-step model = SBS (hard-coded), "
+                     "reaction acceptance = Geant4 Brownian bridge (G4DNASmoluchowskiReactionModel)");
+    return;
+  }
 
+  // Geant4 11.4.1 has no SBS constructor taking a reaction model; a model set
+  // before Initialize() is kept (G4DNAMolecularStepByStepModel.cc:69-74), and
+  // the SBS model owns it.
+  auto* sbs = new G4DNAMolecularStepByStepModel();
+  sbs->SetReactionModel(new RateAwareReactionModel());
+  RegisterTimeStepModel(sbs, 0);
   DnaLogger::Print(DnaLogger::Level::Info,
-                   "[DnaChemistryList] time-step model = SBS (hard-coded)");
+                   "[DnaChemistryList] time-step model = SBS (hard-coded), "
+                   "reaction acceptance = rate-aware (RateAwareReactionModel)");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

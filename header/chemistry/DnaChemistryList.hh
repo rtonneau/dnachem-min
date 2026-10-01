@@ -20,7 +20,8 @@
 /// (docs/adr/0004-scavenger-reactions-per-chemistry.md).
 ///
 /// Time-step model: SBS only (hard-coded; IRT and IRT_syn are not
-/// supported).
+/// supported). `/chem/sbs/rateAwareReactions true` swaps its reaction model
+/// for RateAwareReactionModel (docs/adr/0006-opt-in-sbs-rate-aware-acceptance.md).
 
 #ifndef DnaChemistryList_h
 #define DnaChemistryList_h 1
@@ -70,7 +71,14 @@ public:
   /// timeBinsList is a plain string property -- see fReactionTimeBinsList).
   void ApplyReactionTimeBinning() const;
 
+  /// True when /chem/sbs/rateAwareReactions true was issued: the SBS model
+  /// then uses RateAwareReactionModel instead of Geant4's default.
+  G4bool IsRateAwareReactions() const { return fRateAwareReactions; }
+
 private:
+  /// /chem/sbs/rateAwareReactions <bool> setter.
+  void SetRateAwareReactions(G4bool enabled);
+
   /// /chem/reaction/timeBinsFixed <width> <unit> setter.
   void SetReactionTimeBinsFixed(G4double width);
 
@@ -95,6 +103,15 @@ private:
 
   /// Exposes /chem/reaction/dump <filename>.
   std::unique_ptr<G4GenericMessenger> fMessenger;
+
+  /// Exposes /chem/sbs/rateAwareReactions (own directory: G4DNAChemistryManager
+  /// owns /chem/).
+  std::unique_ptr<G4GenericMessenger> fSbsMessenger;
+
+  /// /chem/sbs/rateAwareReactions; false (default) keeps Geant4's
+  /// G4DNASmoluchowskiReactionModel. Set in PreInit on this shared object,
+  /// before worker threads build their time-step models.
+  G4bool fRateAwareReactions = false;
 
   /// Target file for ConstructProcess() to dump the reaction table to;
   /// empty (default) disables the dump.

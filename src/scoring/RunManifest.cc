@@ -5,9 +5,11 @@
 
 #include "actions/Run.hh"
 #include "chemistry/ChemistryRegistry.hh"
+#include "chemistry/DnaChemistryList.hh"
 #include "core/OutputDir.hh"
 #include "geometry/DetectorConstruction.hh"
 #include "geometry/DnaChemistryWorld.hh"
+#include "physics/PhysicsList.hh"
 #include "scoring/DataNode.hh"
 #include "scoring/JsonWriter.hh"
 #include "scoring/RunAccumulator.hh"
@@ -132,6 +134,17 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
                           .Add("molarity_M", entry.molarity));
   }
 
+  // SBS options set on DnaChemistryList (reached like RunAction does).
+  // maxTimeStep_ns stays null until the step cap is implemented (ticket 3).
+  const auto *physicsList = dynamic_cast<const PhysicsList *>(runManager->GetUserPhysicsList());
+  const DnaChemistryList *chemistryList =
+      (physicsList != nullptr) ? physicsList->GetChemistryList() : nullptr;
+  DataNode sbs = DataNode::MakeObject();
+  sbs.Add("rateAwareReactions", (chemistryList != nullptr)
+                                    ? DataNode(chemistryList->IsRateAwareReactions())
+                                    : DataNode());
+  sbs.Add("maxTimeStep_ns", DataNode());
+
   const std::string dir = OutputDir::GetDirectory();
   std::error_code ec;
   const std::filesystem::path absolute =
@@ -159,6 +172,7 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   manifest.Add("pH", (chemistryWorld != nullptr) ? chemistryWorld->GetpH() : 7.);
   manifest.Add("halfBox_um",
                (chemistryWorld != nullptr) ? DataNode(chemistryWorld->GetHalfBox() / um) : DataNode());
+  manifest.Add("sbs", sbs);
   manifest.Add("chemistryEndTime_ns", G4Scheduler::Instance()->GetEndTime() / ns);
   manifest.Add("runMode", (mtRunManager != nullptr) ? "MT" : "Serial");
   manifest.Add("threads", (mtRunManager != nullptr) ? mtRunManager->GetNumberOfThreads() : 1);
