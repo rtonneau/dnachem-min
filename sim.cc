@@ -42,6 +42,7 @@ constexpr long kDefaultSeed = 12345;
 int main(int argc, char **argv)
 {
   DnaLogger::SetLevel(DnaLogger::Level::Quiet);
+  RunManifest::MarkProcessStart();
 
   G4Random::setTheSeed(kDefaultSeed);
 

@@ -19,3 +19,15 @@ The Geant4-facing collector (`RunManifest`) builds a format-neutral, ordered `Da
 The per-event **Pre-chemical file** (`G4DNAChemistryManager::WriteInto`) is written during each event, before the dump that will own it, and so before its prefix or subfolder is known. Each event therefore writes `PreChemical_run<R>_event<E>.txt` into a staging folder, `<outdir>/.pending_prechem/`. At dump time, including the `EndOfRun_` flush, every staged file is moved into the dump as `<prefix>PreChemical_run<R>_event<E>.txt` (or into `<subdir>/`) and listed individually in the manifest's `files`. The dump finds the files by scanning the folder, not through a registry filled by worker threads, so it needs no cross-thread bookkeeping. Event IDs are unique within a run in both Serial and MT, so the name has no thread ID. Leftover files from an aborted earlier process are swept into the first dump. An existing target file is overwritten. Any other move failure is a warning, and the file stays staged and is not listed. An event with no records keeps its empty file, so the number of files equals the number of events.
 
 Each event installs a fresh `G4PhysChemIO::FormattedText` through `SetPhysChemIO` at begin of event. Reusing one writer does not work: Geant4 11.4.1's `CloseFile()` does nothing until the file has a record, so the next event's records land in the previous file and the next `open()` fails.
+
+## Addendum (2026-10-01): wall-clock runtimes
+
+Three runtime fields record how long each dump's data took: `elapsedSinceStart_s` and `elapsedSincePreviousDump_s` at top level, and `wallTime_s` in each `runs[]` entry.
+
+| Key | Span |
+|---|---|
+| `elapsedSinceStart_s` | start of `main()` (via `RunManifest::MarkProcessStart()`) → this dump |
+| `elapsedSincePreviousDump_s` | previous dump (or process start) → this dump |
+| `wallTime_s` | master `RunAction::BeginOfRunAction` → master `RunAction::EndOfRunAction` (event loop, chemistry, MT worker merge; run initialization excluded) |
+
+Wall clock only (`std::chrono::steady_clock`), in seconds: CPU time is misleading under MT (summed across workers) and the master's CPU time excludes workers. No total process time is recorded because the `EndOfRun_` flush runs before `theTimer->Stop()`, so the final elapsed time is unknown when any manifest is written. `elapsedSincePreviousDump_s` exceeds the sum of a dump's `runs[].wallTime_s` by the time spent outside the run actions (setup, `/run/initialize`, run initialization such as physics tables on the first `/run/beamOn`, macro commands). `schemaVersion` is unchanged.

@@ -4,6 +4,8 @@
 #include "G4UserRunAction.hh"
 #include "globals.hh"
 
+#include <chrono>
+
 class G4Run;
 class DetectorConstruction;
 
@@ -26,6 +28,7 @@ public:
     virtual void EndOfRunAction(const G4Run *);
 
 private:
+    std::chrono::steady_clock::time_point fRunStart; // master: set in BeginOfRunAction
     DoseAccumulable *fDoseAccumulable = nullptr;
 };
 
