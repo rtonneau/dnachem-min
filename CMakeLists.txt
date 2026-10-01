@@ -104,6 +104,12 @@ target_link_libraries(ScavengerSpecTest ${Geant4_LIBRARIES})
 target_include_directories(ScavengerSpecTest PRIVATE ${project_include_dirs})
 add_test(NAME ScavengerSpecTest COMMAND ScavengerSpecTest)
 
+# Standalone unit test for EncounterProbability (pure math, standard library only).
+add_executable(EncounterProbabilityTest test/EncounterProbabilityTest.cc src/chemistry/EncounterProbability.cc)
+target_link_libraries(EncounterProbabilityTest ${Geant4_LIBRARIES})
+target_include_directories(EncounterProbabilityTest PRIVATE ${project_include_dirs})
+add_test(NAME EncounterProbabilityTest COMMAND EncounterProbabilityTest)
+
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but
 # CMAKE_BUILD_TYPE is known at build time with MSVC.
