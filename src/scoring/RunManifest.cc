@@ -3,6 +3,8 @@
 
 #include "scoring/RunManifest.hh"
 
+#include <cfloat>
+
 #include "actions/Run.hh"
 #include "chemistry/ChemistryRegistry.hh"
 #include "chemistry/DnaChemistryList.hh"
@@ -135,7 +137,6 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   }
 
   // SBS options set on DnaChemistryList (reached like RunAction does).
-  // maxTimeStep_ns stays null until the step cap is implemented (ticket 3).
   const auto *physicsList = dynamic_cast<const PhysicsList *>(runManager->GetUserPhysicsList());
   const DnaChemistryList *chemistryList =
       (physicsList != nullptr) ? physicsList->GetChemistryList() : nullptr;
@@ -143,7 +144,9 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   sbs.Add("rateAwareReactions", (chemistryList != nullptr)
                                     ? DataNode(chemistryList->IsRateAwareReactions())
                                     : DataNode());
-  sbs.Add("maxTimeStep_ns", DataNode());
+  sbs.Add("maxTimeStep_ns", (chemistryList != nullptr && chemistryList->GetMaxTimeStep() != DBL_MAX)
+                                ? DataNode(chemistryList->GetMaxTimeStep() / ns)
+                                : DataNode());
 
   const std::string dir = OutputDir::GetDirectory();
   std::error_code ec;

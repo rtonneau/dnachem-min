@@ -47,7 +47,7 @@ resets all counters to empty/zero:
   `elapsedSincePreviousDump_s` (previous dump or process start → dump),
   `geant4Version`, `macro`, `chemistry`, `scavengers` (`species`, `molarity_M`), `pH`,
   `sbs` (`rateAwareReactions`: `/chem/sbs/rateAwareReactions`, default `false`;
-  `maxTimeStep_ns`: `null` for now), `chemistryEndTime_ns`, `runMode` (`Serial`/`MT`), `threads`,
+  `maxTimeStep_ns`: `/chem/sbs/maxTimeStep` in ns, `null` when unset), `chemistryEndTime_ns`, `runMode` (`Serial`/`MT`), `threads`,
   `outputDirAsConfigured`/`outputDirAbsolute`, `prefix`, `subdir`,
   `totalEvents`, `totalEnergyDeposit_eV` (sums over `runs`; this replaces the
   old `EnergyDeposit.Txt`), `files` (the data files this dump wrote, relative

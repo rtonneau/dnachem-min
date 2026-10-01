@@ -144,6 +144,12 @@ DnaChemistryList::DnaChemistryList()
     "reactions fire at their rate constant (RateAwareReactionModel). false (default): Geant4's "
     "G4DNASmoluchowskiReactionModel. See docs/adr/0006-opt-in-sbs-rate-aware-acceptance.md.");
   rateAwareCmd.SetStates(G4State_PreInit);
+
+  auto& maxStepCmd = fSbsMessenger->DeclareMethodWithUnit(
+    "maxTimeStep", "ns", &DnaChemistryList::SetMaxTimeStep,
+    "Upper bound on the chemistry time step (G4Scheduler::SetMaxTimeStep). Must be > 0. Not "
+    "issued = no cap. The scheduler's own minimum steps are unchanged.");
+  maxStepCmd.SetStates(G4State_PreInit);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -174,6 +180,23 @@ void DnaChemistryList::SetReactionTimeBinsFixed(G4double width)
 void DnaChemistryList::SetRateAwareReactions(G4bool enabled)
 {
   fRateAwareReactions = enabled;
+}
+
+void DnaChemistryList::SetMaxTimeStep(G4double maxTimeStep)
+{
+  if (!(maxTimeStep > 0.)) {
+    G4Exception("DnaChemistryList::SetMaxTimeStep", "BadMaxTimeStep", FatalException,
+                "/chem/sbs/maxTimeStep must be > 0.");
+  }
+  fMaxTimeStep = maxTimeStep;
+}
+
+void DnaChemistryList::ApplyMaxTimeStep() const
+{
+  if (fMaxTimeStep == DBL_MAX) return;
+  G4Scheduler::Instance()->SetMaxTimeStep(fMaxTimeStep);
+  DnaLogger::Print(DnaLogger::Level::Info, "[DnaChemistryList] chemistry max time step = " +
+                                             std::to_string(fMaxTimeStep / ns) + " ns");
 }
 
 void DnaChemistryList::ApplyReactionTimeBinning() const

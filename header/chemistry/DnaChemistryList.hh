@@ -32,6 +32,7 @@
 #include "G4VUserChemistryList.hh"
 #include "globals.hh"
 
+#include <cfloat>
 #include <memory>
 
 namespace ChemistryRegistry
@@ -75,7 +76,18 @@ public:
   /// then uses RateAwareReactionModel instead of Geant4's default.
   G4bool IsRateAwareReactions() const { return fRateAwareReactions; }
 
+  /// /chem/sbs/maxTimeStep cap (internal time units); DBL_MAX when unset.
+  G4double GetMaxTimeStep() const { return fMaxTimeStep; }
+
+  /// Calls G4Scheduler::Instance()->SetMaxTimeStep(cap) only when a cap was
+  /// set. G4Scheduler is thread-local, so this must run on every thread that
+  /// runs chemistry (RunAction::BeginOfRunAction), not in the PreInit command.
+  void ApplyMaxTimeStep() const;
+
 private:
+  /// /chem/sbs/maxTimeStep <value> <unit> setter (fatal if <= 0).
+  void SetMaxTimeStep(G4double maxTimeStep);
+
   /// /chem/sbs/rateAwareReactions <bool> setter.
   void SetRateAwareReactions(G4bool enabled);
 
@@ -112,6 +124,9 @@ private:
   /// G4DNASmoluchowskiReactionModel. Set in PreInit on this shared object,
   /// before worker threads build their time-step models.
   G4bool fRateAwareReactions = false;
+
+  /// /chem/sbs/maxTimeStep; DBL_MAX (default) = no cap.
+  G4double fMaxTimeStep = DBL_MAX;
 
   /// Target file for ConstructProcess() to dump the reaction table to;
   /// empty (default) disables the dump.

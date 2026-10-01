@@ -70,6 +70,15 @@ void RunAction::BeginOfRunAction(const G4Run *run)
             physicsList->GetChemistryList()->ApplyReactionTimeBinning();
     }
 
+    // G4Scheduler is thread-local: the chemistry step cap must be applied on
+    // every thread that runs chemistry (Serial master, each MT worker).
+    {
+        auto *physicsList = dynamic_cast<const PhysicsList *>(
+            G4RunManager::GetRunManager()->GetUserPhysicsList());
+        if (physicsList != nullptr)
+            physicsList->GetChemistryList()->ApplyMaxTimeStep();
+    }
+
     // informs the runManager to save random number seed
     G4RunManager::GetRunManager()->SetRandomNumberStore(false);
 }
