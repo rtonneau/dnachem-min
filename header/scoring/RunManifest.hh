@@ -26,10 +26,16 @@ namespace RunManifest
   /// (called once from sim.cc; empty if never set, e.g. GUI mode).
   void SetMacroName(const G4String &macro);
 
+  /// Marks the process start (steady clock), the origin of the manifest's
+  /// elapsedSinceStart_s. Called once at the top of main() in sim.cc.
+  void MarkProcessStart();
+
   /// Builds this run's manifest entry (run id, events, beam or nulls,
-  /// energy deposit, seed) and stores it with RunAccumulator::AddRunEntry.
-  /// Called once per run from RunAction::EndOfRunAction (master thread only).
-  void RecordRun(const Run &run);
+  /// energy deposit, seed, wall time) and stores it with
+  /// RunAccumulator::AddRunEntry. `wallTime_s` is the run's wall-clock
+  /// duration (BeginOfRunAction to EndOfRunAction). Called once per run from
+  /// RunAction::EndOfRunAction (master thread only).
+  void RecordRun(const Run &run, double wallTime_s);
 
   /// Writes Manifest.json (through OutputDir::Resolve, so the dump's prefix
   /// or subfolder applies). `files` are the data files this dump wrote, as

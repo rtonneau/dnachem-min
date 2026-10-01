@@ -40,6 +40,9 @@ G4Run *RunAction::GenerateRun()
 
 void RunAction::BeginOfRunAction(const G4Run *run)
 {
+    if (IsMaster())
+        fRunStart = std::chrono::steady_clock::now();
+
     // ensure that the chemistry is notified!
     if (G4DNAChemistryManager::GetInstanceIfExists() != nullptr)
         G4DNAChemistryManager::GetInstanceIfExists()->BeginOfRunAction(run);
@@ -100,8 +103,10 @@ void RunAction::EndOfRunAction(const G4Run *run)
                                     *masterRun->GetInteractionCounter());
 
         // One entry per run for the dump's manifest (beam, events, seed,
-        // this run's energy deposit).
-        RunManifest::RecordRun(*masterRun);
+        // this run's energy deposit, Begin->EndOfRunAction wall time).
+        RunManifest::RecordRun(
+            *masterRun,
+            std::chrono::duration<double>(std::chrono::steady_clock::now() - fRunStart).count());
 
         DnaLogger::Print(DnaLogger::Level::Info,
                           "[RunAction] accumulated this run's energy/reaction/interaction data -- "

@@ -24,11 +24,14 @@
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
+#include <optional>
 #include <sstream>
 
 namespace
 {
   G4String gMacroName;
+  std::chrono::steady_clock::time_point gProcessStart = std::chrono::steady_clock::now();
+  std::optional<std::chrono::steady_clock::time_point> gPreviousDump;
 
   std::string Timestamp()
   {
@@ -68,7 +71,12 @@ void RunManifest::SetMacroName(const G4String &macro)
   gMacroName = macro;
 }
 
-void RunManifest::RecordRun(const Run &run)
+void RunManifest::MarkProcessStart()
+{
+  gProcessStart = std::chrono::steady_clock::now();
+}
+
+void RunManifest::RecordRun(const Run &run, double wallTime_s)
 {
   DataNode entry = DataNode::MakeObject();
   entry.Add("run", run.GetRunID());
@@ -90,12 +98,19 @@ void RunManifest::RecordRun(const Run &run)
   }
   entry.Add("energyDeposit_eV", run.GetSumDose() / eV);
   entry.Add("seed", run.GetSeed());
+  entry.Add("wallTime_s", wallTime_s);
   RunAccumulator::AddRunEntry(entry);
 }
 
 void RunManifest::Write(const G4String &prefix, const G4String &subdir,
                         const std::vector<std::string> &files)
 {
+  const auto now = std::chrono::steady_clock::now();
+  const double elapsedSinceStart = std::chrono::duration<double>(now - gProcessStart).count();
+  const double elapsedSincePreviousDump =
+      std::chrono::duration<double>(now - gPreviousDump.value_or(gProcessStart)).count();
+  gPreviousDump = now;
+
   G4RunManager *runManager = G4RunManager::GetRunManager();
   auto *mtRunManager = dynamic_cast<G4MTRunManager *>(runManager);
 
@@ -135,6 +150,8 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   DataNode manifest = DataNode::MakeObject();
   manifest.Add("schemaVersion", 1);
   manifest.Add("timestamp", Timestamp());
+  manifest.Add("elapsedSinceStart_s", elapsedSinceStart);
+  manifest.Add("elapsedSincePreviousDump_s", elapsedSincePreviousDump);
   manifest.Add("geant4Version", Geant4Version());
   manifest.Add("macro", std::string(gMacroName));
   manifest.Add("chemistry", (chemistry != nullptr) ? std::string(chemistry->name) : std::string());
