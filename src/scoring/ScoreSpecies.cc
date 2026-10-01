@@ -50,6 +50,8 @@ ScoreSpecies::ScoreSpecies(G4String name, G4int depth)
   AddTimeToRecord(1000 * CLHEP::picosecond);
   AddTimeToRecord(10000 * CLHEP::picosecond);
   AddTimeToRecord(100000 * CLHEP::picosecond);
+  // 0.5 us: lets analysis/compare_boscolo_fig3.py test saturation (0.5 vs 1 us).
+  AddTimeToRecord(500000 * CLHEP::picosecond);
   AddTimeToRecord(999999 * CLHEP::picosecond);
   fEdep = 0;
 }
