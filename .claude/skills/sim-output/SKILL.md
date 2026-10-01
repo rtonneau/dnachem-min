@@ -43,15 +43,16 @@ resets all counters to empty/zero:
 - `Manifest.json`: one per dump, describing what produced the data beside it
   (`RunManifest` builds a `DataNode` tree and is the only place listing the
   entries, the generic `JsonWriter` serialises it; `schemaVersion: 1`, units
-  in the keys). Top level: `timestamp`, `geant4Version`, `macro`,
-  `chemistry`, `scavengers` (`species`, `molarity_M`), `pH`,
+  in the keys). Top level: `timestamp`, `elapsedSinceStart_s` (main start → dump),
+  `elapsedSincePreviousDump_s` (previous dump or process start → dump),
+  `geant4Version`, `macro`, `chemistry`, `scavengers` (`species`, `molarity_M`), `pH`,
   `chemistryEndTime_ns`, `runMode` (`Serial`/`MT`), `threads`,
   `outputDirAsConfigured`/`outputDirAbsolute`, `prefix`, `subdir`,
   `totalEvents`, `totalEnergyDeposit_eV` (sums over `runs`; this replaces the
   old `EnergyDeposit.Txt`), `files` (the data files this dump wrote, relative
   to the manifest's folder, manifest excluded) and `runs[]`: one entry per
   `/run/beamOn` folded into the dump with `run`, `events`, `particle`,
-  `beamEnergy_keV`, `position_um`, `direction`, `energyDeposit_eV` and `seed`.
+  `beamEnergy_keV`, `position_um`, `direction`, `energyDeposit_eV`, `seed` and `wallTime_s`.
   The beam is what the gun actually had on the first event of that run, so
   several `/gun/energy` values between dumps show up as separate `runs[]`
   entries. `seed` is the random engine's seed as configured when the run
