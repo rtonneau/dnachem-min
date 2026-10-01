@@ -13,7 +13,10 @@ param(
   [int]      $Events    = 2,
   [string]   $RunDir    = (Get-Location).Path,  # holds sim.exe and macro/
   [string]   $Results   = 'results',            # created inside RunDir
-  [switch]   $Force                             # overwrite existing level folders
+  [switch]   $Force,                            # overwrite existing level folders
+  [switch]   $RateAware,                        # /chem/sbs/rateAwareReactions true
+  [string]   $MaxTimeStep  = '',                # e.g. '1 ns' -> /chem/sbs/maxTimeStep
+  [string]   $ReactionBins = ''                 # e.g. '1 3 10 ps' -> /chem/reaction/timeBinsList
 )
 
 $ErrorActionPreference = 'Stop'
@@ -39,6 +42,11 @@ try {
     }
 
     $o2Text = $o2.ToString([cultureinfo]::InvariantCulture)
+    $extra = @()
+    if ($RateAware)    { $extra += '/chem/sbs/rateAwareReactions true' }
+    if ($MaxTimeStep)  { $extra += "/chem/sbs/maxTimeStep $MaxTimeStep" }
+    if ($ReactionBins) { $extra += "/chem/reaction/timeBinsList $ReactionBins" }
+    $extraText = if ($extra) { ($extra -join "`n") + "`n" } else { '' }
     @"
 /run/verbose 0
 /tracking/verbose 0
@@ -47,7 +55,7 @@ try {
 /process/chem/TimeStepModel SBS
 /chem/select $Chemistry
 /chem/env/scavenger O2 $o2Text %
-/run/initialize
+${extraText}/run/initialize
 /gun/particle e-
 /gun/energy $Energy
 /run/beamOn $Events
