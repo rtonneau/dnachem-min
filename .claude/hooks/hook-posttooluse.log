@@ -726,3 +726,107 @@ Skipped at 2026-09-30T14:31:30.3022584+02:00: C:\Users\rtonneau\DATA\Geant4\2609
 Skipped at 2026-09-30T14:31:30.7280890+02:00: C:\Users\rtonneau\DATA\Geant4\260930\run.ps1
 Skipped at 2026-09-30T14:31:31.1589559+02:00: C:\Users\rtonneau\DATA\Geant4\260930\run.ps1
 Skipped at 2026-09-30T14:31:31.5836443+02:00: C:\Users\rtonneau\DATA\Geant4\260930\run.ps1
+Skipped at 2026-10-01T17:49:32.8767102+02:00: C:\Users\rtonneau\dotfiles\.vscode\settings.json
+Skipped at 2026-10-01T17:53:17.1926855+02:00: C:\Users\rtonneau\dotfiles\scripts\setup-dev-env.ps1
+Skipped at 2026-10-01T17:53:18.5144814+02:00: C:\Users\rtonneau\dotfiles\claude\hooks\check-env.ps1
+Skipped at 2026-10-01T17:53:33.0211485+02:00: C:\Users\rtonneau\dotfiles\claude\hooks\check-env.ps1
+Skipped at 2026-10-01T17:53:34.2897814+02:00: C:\Users\rtonneau\dotfiles\claude\hooks\check-env.ps1
+Skipped at 2026-10-01T17:55:00.0538637+02:00: C:\Users\rtonneau\dotfiles\claude\COMMON_CLAUDE.md
+Skipped at 2026-10-01T17:55:01.3409938+02:00: C:\Users\rtonneau\dotfiles\README.md
+Skipped at 2026-10-01T17:55:02.6149532+02:00: C:\Users\rtonneau\dotfiles\bootstrap.ps1
+Skipped at 2026-10-01T17:55:03.8707856+02:00: C:\Users\rtonneau\dotfiles\bootstrap.ps1
+Skipped at 2026-10-01T17:55:05.1680772+02:00: C:\Users\rtonneau\dotfiles\bootstrap.ps1
+Skipped at 2026-10-01T17:55:06.4442053+02:00: C:\Users\rtonneau\dotfiles\bootstrap.ps1
+Skipped at 2026-10-01T17:55:07.6915706+02:00: C:\Users\rtonneau\dotfiles\bootstrap.ps1
+Skipped at 2026-10-01T18:43:17.6953541+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CONTEXT.md
+Skipped at 2026-10-01T18:43:19.6484659+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CONTEXT.md
+Skipped at 2026-10-01T18:43:21.5035996+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CONTEXT.md
+Skipped at 2026-10-01T18:43:23.5413773+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\docs\adr\0006-irt-bulk-reaction-translation.md
+Skipped at 2026-10-01T18:45:03.5140495+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\docs\adr\0006-irt-bulk-reaction-translation.md
+Skipped at 2026-10-01T18:46:19.5990650+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-01__irt-time-step-model\.write-payload.md
+Skipped at 2026-10-01T18:49:13.8090928+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-01__irt-time-step-model\.write-payload.md
+Triggered at 2026-10-01T18:51:29.0100552+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\physics\PhysicsList.cc
+Completed at 2026-10-01T18:51:35.6825007+02:00: copied compile_commands.json
+Skipped at 2026-10-01T18:52:10.9026424+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\DnaChemistryList.hh
+Skipped at 2026-10-01T18:52:16.5067943+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\DnaChemistryList.hh
+Skipped at 2026-10-01T18:57:08.0197482+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.scratch\tests\2026-10-01__irt-time-step-model\spike-findings.md
+Skipped at 2026-10-01T18:58:47.5949555+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-01__irt-time-step-model\03-implement\01-irt-model-selection-spike\commit-log.md
+Skipped at 2026-10-01T19:00:37.2399520+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-01__irt-time-step-model\03-implement\02-irt-bulk-translation-module\commit-log.md
+Skipped at 2026-10-02T13:15:47.2991546+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CONTEXT.md
+Skipped at 2026-10-02T13:15:47.7458936+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CONTEXT.md
+Skipped at 2026-10-02T13:15:48.1790666+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CONTEXT.md
+Skipped at 2026-10-02T13:15:48.6127117+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CONTEXT.md
+Skipped at 2026-10-02T13:15:49.0445753+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\docs\adr\0006-irt-syn-and-mesoscopic-chemistry.md
+Skipped at 2026-10-02T13:17:20.7330795+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\.write-payload.md
+Skipped at 2026-10-02T13:19:28.5123159+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\.write-payload.md
+Skipped at 2026-10-02T14:58:16.2845605+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\03-implement\01-sbs-reference-capture\commit-log.md
+Skipped at 2026-10-02T15:01:46.0510124+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\TimeStepAction.hh
+Triggered at 2026-10-02T15:02:48.9158318+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T15:02:53.0543064+02:00: copied compile_commands.json
+Skipped at 2026-10-02T15:08:22.8643775+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.scratch\tests\2026-10-02__irt-syn-mesoscopic\spike-findings.md
+Skipped at 2026-10-02T15:19:31.8853567+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\02-plan\tickets\02-irtsyn-meso-spike.md
+Skipped at 2026-10-02T15:19:32.3384201+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\02-plan\tickets\04-meso-settings-and-commands.md
+Skipped at 2026-10-02T15:19:32.7572701+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\02-plan\tickets\04-meso-settings-and-commands.md
+Skipped at 2026-10-02T15:19:33.1802011+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\02-plan\tickets\04-meso-settings-and-commands.md
+Skipped at 2026-10-02T15:19:33.6213814+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\02-plan\tickets\07-validation.md
+Skipped at 2026-10-02T15:19:34.0432290+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\docs\adr\0006-irt-syn-and-mesoscopic-chemistry.md
+Skipped at 2026-10-02T15:55:48.1739340+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\02-plan\tickets\05-species-meso-output.md
+Skipped at 2026-10-02T15:55:48.6427549+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\02-plan\tickets\07-validation.md
+Skipped at 2026-10-02T15:59:31.8649276+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\03-implement\02-irtsyn-meso-spike\commit-log.md
+Skipped at 2026-10-02T16:06:43.4930189+02:00: C:\Users\rtonneau\AppData\Local\Temp\claude\C--Users-rtonneau-DEV-GEANT4-SIM-dnachem-min\5fa52649-e80e-4d67-a8cb-12f77bfcac66\scratchpad\edit_driver.py
+Skipped at 2026-10-02T16:13:45.5121015+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\03-implement\03-bulk-reactions-both-stages\commit-log.md
+Skipped at 2026-10-02T16:16:04.9581003+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\MesoMessenger.hh
+Triggered at 2026-10-02T16:16:05.3744949+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\MesoMessenger.cc
+Completed at 2026-10-02T16:16:07.9706434+02:00: copied compile_commands.json
+Skipped at 2026-10-02T16:16:08.3564873+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.scratch\tests\2026-10-02__irt-syn-mesoscopic\04-edit.py
+Skipped at 2026-10-02T16:19:56.5327628+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\03-implement\04-meso-settings-and-commands\commit-log.md
+Skipped at 2026-10-02T16:21:44.7653998+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\scoring\MesoSpeciesCounter.hh
+Triggered at 2026-10-02T16:21:45.1786991+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\scoring\MesoSpeciesCounter.cc
+Completed at 2026-10-02T16:21:48.7755907+02:00: copied compile_commands.json
+Triggered at 2026-10-02T16:22:10.7126165+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\MesoSpeciesCounterTest.cc
+Completed at 2026-10-02T16:22:13.0020382+02:00: copied compile_commands.json
+Skipped at 2026-10-02T16:22:21.2717985+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CMakeLists.txt
+Triggered at 2026-10-02T16:22:57.8436251+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\scoring\MesoSpeciesCounter.cc
+Completed at 2026-10-02T16:23:00.1077450+02:00: copied compile_commands.json
+Skipped at 2026-10-02T16:27:14.2868730+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\03-implement\05-species-meso-output\commit-log.md
+Skipped at 2026-10-02T16:31:54.7772947+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\README.md
+Skipped at 2026-10-02T16:31:55.1916215+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\README.md
+Skipped at 2026-10-02T16:31:55.6277544+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-10-02T16:32:38.6949759+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\03-implement\06-manifest-macros-docs-scope\commit-log.md
+Skipped at 2026-10-02T16:34:07.3632989+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\analysis\compare_reference.py
+Skipped at 2026-10-02T17:57:59.8759526+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\02-plan\tickets\07-validation.md
+Skipped at 2026-10-02T17:58:00.3134006+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\02-plan\tickets\07-validation.md
+Skipped at 2026-10-02T17:58:00.7536956+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\02-plan\tickets\07-validation.md
+Skipped at 2026-10-02T17:58:05.9942779+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\02-plan\tickets\07-validation.md
+Triggered at 2026-10-02T19:00:37.3941289+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T19:00:40.8730535+02:00: copied compile_commands.json
+Triggered at 2026-10-02T19:05:43.0326715+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T19:05:47.0693476+02:00: copied compile_commands.json
+Triggered at 2026-10-02T19:05:58.3487712+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T19:06:00.6505462+02:00: copied compile_commands.json
+Triggered at 2026-10-02T19:06:01.0912075+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T19:06:03.3355672+02:00: copied compile_commands.json
+Skipped at 2026-10-02T19:06:07.2190860+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\TimeStepAction.hh
+Triggered at 2026-10-02T19:06:58.8003733+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T19:07:01.0947136+02:00: copied compile_commands.json
+Skipped at 2026-10-02T19:07:01.5198507+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\TimeStepAction.hh
+Triggered at 2026-10-02T20:13:20.9072666+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T20:13:24.9301007+02:00: copied compile_commands.json
+Triggered at 2026-10-02T20:13:25.3786866+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T20:13:27.6137684+02:00: copied compile_commands.json
+Triggered at 2026-10-02T20:13:28.0339778+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T20:13:30.2746278+02:00: copied compile_commands.json
+Triggered at 2026-10-02T20:13:30.7081858+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T20:13:32.9378587+02:00: copied compile_commands.json
+Triggered at 2026-10-02T20:13:33.3738946+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T20:13:35.6372921+02:00: copied compile_commands.json
+Triggered at 2026-10-02T20:13:36.0437026+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T20:13:38.2953480+02:00: copied compile_commands.json
+Triggered at 2026-10-02T20:13:38.7041434+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T20:13:40.9419204+02:00: copied compile_commands.json
+Triggered at 2026-10-02T20:13:49.4487459+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\TimeStepAction.cc
+Completed at 2026-10-02T20:13:51.7074552+02:00: copied compile_commands.json
+Skipped at 2026-10-02T20:38:34.0726501+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\02-plan\tickets\07-validation.md
+Skipped at 2026-10-02T21:31:01.8924753+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\docs\irt-syn-mesoscopic-validation.md
+Skipped at 2026-10-02T21:31:59.6322551+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\docs\adr\0006-irt-syn-and-mesoscopic-chemistry.md
+Skipped at 2026-10-02T21:32:15.5805269+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\03-implement\07-validation\commit-log.md
