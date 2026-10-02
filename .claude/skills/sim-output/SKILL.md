@@ -20,6 +20,15 @@ resets all counters to empty/zero:
   ntuple, `Species_nt_species_all.csv` (same, per event), is only written when
   `ScoreSpecies` is compiled with `_ScoreSpecies_FOR_ALL_EVENTS` (off by
   default; see `header/scoring/ScoreSpecies.hh`).
+- `SpeciesMeso.Txt` and `SpeciesMeso.csv`: species counts of the mesoscopic
+  stage (after the hand-over time, default 5 ns, to the end time), collected per
+  event by `TimeStepAction` into `MesoSpeciesCounter`, merged in `Run::Merge`,
+  accumulated by `RunAccumulator`. `.Txt` is the mean count per event at each
+  record time (header `Time is in ns; mean count per event over N events`);
+  `.csv` rows are `time_ns,species,count` (summed over events). Record times
+  are a log grid from the hand-over time to the end time
+  (`/chem/meso/timesPerDecade`, default 10). Bulk species are not listed.
+  `Species.*` stops at the hand-over time.
 - `PreChemical_run<R>_event<E>.txt`: one pre-chemical file per event (Serial
   and MT alike). Each event writes it into the staging folder
   `<outdir>/.pending_prechem/`; every dump then moves all staged files into
@@ -33,7 +42,9 @@ resets all counters to empty/zero:
   threads in `Run::Merge`, accumulated across runs by `RunAccumulator`).
   `Reactions_nt_reactions.csv` rows are `(reactionId, time, count)`;
   `ReactionsMetadata.csv` maps each `reactionId` to its full `"A + B -> C + D"`
-  label (`Reactions.Txt` still prints the full label directly). Acid-base/
+  label (`Reactions.Txt` still prints the full label directly). Reactions
+  cover the particle-based stage only (the mesoscopic stage does not record
+  which reaction fired). Acid-base/
   scavenger reactions are not counted (they never reach that hook). The
   default time-bin edges are a built-in 7-entry table; override them with
   `/chem/reaction/timeBinsFixed <width> <unit>` (a fixed step, expanded up to
@@ -46,7 +57,11 @@ resets all counters to empty/zero:
   in the keys). Top level: `timestamp`, `elapsedSinceStart_s` (main start → dump),
   `elapsedSincePreviousDump_s` (previous dump or process start → dump),
   `geant4Version`, `macro`, `chemistry`, `scavengers` (`species`, `molarity_M`), `pH`,
-  `chemistryEndTime_ns`, `runMode` (`Serial`/`MT`), `threads`,
+  `chemistryEndTime_ns` (default 1e9 for the 1 s end time), `chemistryModel`
+  (`"IRT_syn+mesoscopic"`), `handOverTime_ns`, `voxelSize_nm` (requested cell
+  size), `mesoPixels` (initial mesh pixels per side, capped at 65536, so on the
+  default 1 mm box the cell actually used is 15.26 nm; null without a chemistry
+  world), `mesoTimesPerDecade`, `runMode` (`Serial`/`MT`), `threads`,
   `outputDirAsConfigured`/`outputDirAbsolute`, `prefix`, `subdir`,
   `totalEvents`, `totalEnergyDeposit_eV` (sums over `runs`; this replaces the
   old `EnergyDeposit.Txt`), `files` (the data files this dump wrote, relative
