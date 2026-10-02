@@ -42,9 +42,8 @@ private:
   /// Hands the surviving molecules over to the mesoscopic stage and runs it.
   void CompartmentBased();
 
-  /// Initial mesh pixel count per side: the power of 2 closest to
-  /// 2 * halfBox / 6.25 nm, capped at 65536 to avoid the 32-bit overflow in
-  /// G4DNAMesh::ConvertIndex (temporary; ticket 04 makes the cell size a command).
+  /// Initial mesh pixel count per side from /chem/meso/voxelSize
+  /// (MesoSettings::PixelCount, capped at 65536).
   G4int InitialPixel() const;
 
   ReactionCounter fReactionCounter;

@@ -104,6 +104,12 @@ target_link_libraries(ScavengerSpecTest ${Geant4_LIBRARIES})
 target_include_directories(ScavengerSpecTest PRIVATE ${project_include_dirs})
 add_test(NAME ScavengerSpecTest COMMAND ScavengerSpecTest)
 
+# Standalone unit test for MesoSettings (pixel count, log time grid -- pure
+# logic, std only).
+add_executable(MesoSettingsTest test/MesoSettingsTest.cc src/chemistry/MesoSettings.cc)
+target_include_directories(MesoSettingsTest PRIVATE ${project_include_dirs})
+add_test(NAME MesoSettingsTest COMMAND MesoSettingsTest)
+
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but
 # CMAKE_BUILD_TYPE is known at build time with MSVC.

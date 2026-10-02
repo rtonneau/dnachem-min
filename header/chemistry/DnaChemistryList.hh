@@ -41,6 +41,7 @@ namespace ChemistryRegistry
 struct Chemistry;
 }
 class ChemistrySelectMessenger;
+class MesoMessenger;
 class G4DNABoundingBox;
 class G4DNAMolecularReactionTable;
 class G4GenericMessenger;
@@ -112,6 +113,7 @@ private:
 
   /// Exposes /chem/select <name> and /chem/list.
   std::unique_ptr<ChemistrySelectMessenger> fSelectMessenger;
+  std::unique_ptr<MesoMessenger> fMesoMessenger;
 
   /// Exposes /chem/reaction/dump <filename>.
   std::unique_ptr<G4GenericMessenger> fMessenger;

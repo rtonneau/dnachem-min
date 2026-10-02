@@ -4,6 +4,7 @@
 #include "chemistry/TimeStepAction.hh"
 
 #include "core/DnaLogger.hh"
+#include "chemistry/MesoSettings.hh"
 #include "chemistry/ReactionTableDump.hh"
 
 #include "G4DNABoundingBox.hh"
@@ -28,20 +29,6 @@
 
 namespace
 {
-/// Global time at which the particle-based stage hands over to the
-/// mesoscopic stage (UHDR example: T1 = 5 ns). Fixed here; ticket 04 turns it
-/// into /chem/meso/handOverTime.
-constexpr G4double kHandOverTime = 5. * nanosecond;
-
-/// Target initial cell size of the mesoscopic mesh (UHDR: 3.2 um / 512).
-constexpr G4double kTargetVoxelSize = 6.25 * nanometer;
-
-/// Largest safe initial pixel count per side. G4DNAMesh::ConvertIndex computes
-/// index.x * pixels / xmax in G4int, so at the first coarsening (P -> P/2) the
-/// product reaches (P - 1) * P/2, which stays below 2^31 only for P <= 65536
-/// (a 131072-pixel start gives fatal G4DNAMesh013; see ADR 0006).
-constexpr G4int kMaxInitialPixel = 65536;
-
 /// Number of molecules held by a mesoscopic mesh (all cells, all species).
 long long MeshTotal(const G4DNAMesh &mesh)
 {
@@ -214,13 +201,21 @@ void TimeStepAction::StartProcessing()
 
   // G4DNAEventScheduler::RecordTime / LastRegisterForCounter dereference the
   // record-time iterator unconditionally, so at least one record time is
-  // required. Temporary decade grid from 1 ps to the end time (ticket 04
-  // replaces it with /chem/meso/timesPerDecade); ResetCounter rewinds it.
+  // required. Log grid from the hand-over time to the end time
+  // (/chem/meso/timesPerDecade); ResetCounter rewinds it. When the end time is
+  // not after the hand-over time there is no mesoscopic stage and the grid
+  // reduces to the end time alone.
+  const auto& meso = MesoSettings::Current();
+  const G4double handOverTime = meso.handOverTime * ns;
   const G4double endTime = G4Scheduler::Instance()->GetEndTime();
-  for (G4double t = 1. * picosecond; t < endTime; t *= 10.) {
-    fpEventScheduler->AddTimeToRecord(t);
+  if (handOverTime < endTime) {
+    for (const G4double t : MesoSettings::LogTimeGrid(handOverTime, endTime, meso.timesPerDecade)) {
+      fpEventScheduler->AddTimeToRecord(t);
+    }
   }
-  fpEventScheduler->AddTimeToRecord(endTime);
+  else {
+    fpEventScheduler->AddTimeToRecord(endTime);
+  }
   fpEventScheduler->ResetCounter();
   fHandOverDrift = false;
   fParticleStageWall = 0.;
@@ -239,7 +234,7 @@ void TimeStepAction::UserPreTimeStepAction()
 
 void TimeStepAction::UserPostTimeStepAction()
 {
-  if (!fHandedOver && G4Scheduler::Instance()->GetGlobalTime() >= kHandOverTime) {
+  if (!fHandedOver && G4Scheduler::Instance()->GetGlobalTime() >= MesoSettings::Current().handOverTime * ns) {
     fHandedOver = true;
     CompartmentBased();
   }
@@ -250,14 +245,7 @@ void TimeStepAction::UserPostTimeStepAction()
 G4int TimeStepAction::InitialPixel() const
 {
   const G4double side = 2. * fpChemWorld->GetChemistryBoundary()->halfSideLengthInX();
-  const G4double exponent = std::round(std::log2(side / kTargetVoxelSize));
-  if (exponent < 0. || exponent > 30.) {
-    G4Exception("TimeStepAction::InitialPixel", "MesoPixelRange", FatalException,
-                ("Box side " + Format(side / nm) + " nm gives an initial pixel count outside "
-                 "[1, 2^30] for a 6.25 nm cell.").c_str());
-  }
-  const G4int pixel = 1 << static_cast<G4int>(exponent);
-  return pixel < kMaxInitialPixel ? pixel : kMaxInitialPixel;
+  return MesoSettings::PixelCount(side, MesoSettings::Current().voxelSize * mm);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

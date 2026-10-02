@@ -25,6 +25,8 @@
 #include "chemistry/BuiltInChemistries.hh"
 #include "chemistry/ChemistryRegistry.hh"
 #include "chemistry/ChemistrySelectMessenger.hh"
+#include "chemistry/MesoMessenger.hh"
+#include "chemistry/MesoSettings.hh"
 #include "geometry/DetectorConstruction.hh"
 #include "geometry/DnaChemistryWorld.hh"
 #include "geometry/ScavengerSpec.hh"
@@ -139,6 +141,7 @@ DnaChemistryList::DnaChemistryList()
   // manager singleton above already exists, so /chem/ is there for the commands.
   BuiltInChemistries::Register();
   fSelectMessenger = std::make_unique<ChemistrySelectMessenger>();
+  fMesoMessenger = std::make_unique<MesoMessenger>();
 
   fMessenger = std::make_unique<G4GenericMessenger>(this, "/chem/reaction/",
                                                     "Chemistry reaction-table diagnostics");
@@ -374,6 +377,21 @@ void DnaChemistryList::ConstructProcess()
     auto scavenger = std::make_unique<G4DNAScavengerMaterial>(chemWorld);
     scavenger->SetCounterAgainstTime();
     G4Scheduler::Instance()->SetScavengerMaterial(std::move(scavenger));
+  }
+
+  // The initial mesh pixel count is capped (ADR 0006): say so once, from the
+  // master, with the cell size the cap leaves.
+  if (!G4Threading::IsWorkerThread()) {
+    const auto& meso = MesoSettings::Current();
+    const G4double side = 2. * chemWorld->GetHalfBox();
+    if (MesoSettings::PixelCountCapped(side, meso.voxelSize * mm)) {
+      const G4double used = side / MesoSettings::PixelCount(side, meso.voxelSize * mm);
+      DnaLogger::Print(DnaLogger::Level::Warning,
+                       "[meso] pixel count capped at " + std::to_string(MesoSettings::kMaxPixels) +
+                         " per side (G4DNAMesh index overflow, ADR 0006): requested cell " +
+                         std::to_string(meso.voxelSize * mm / nm) + " nm, cell used " +
+                         std::to_string(used / nm) + " nm");
+    }
   }
 
   // Both networks (bimolecular + bulk) are fully constructed by this
