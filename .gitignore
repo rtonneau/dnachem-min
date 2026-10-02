@@ -60,3 +60,6 @@ compile_commands.json
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
 .claude/hooks/*.log
+
+# Python bytecode (analysis scripts)
+__pycache__/
