@@ -1,0 +1,18 @@
+---
+status: proposed
+---
+
+# Chemistry runs IRT_syn, then a mesoscopic stage; SBS is removed
+
+Each event's chemical stage now has two parts, following the Geant4-DNA `UHDR` example. First, a particle-based stage (`G4DNAIndependentReactionTimeModel`, IRT_syn) runs up to a configurable hand-over time (default 5 ns). Then the compartment-based mesoscopic stage (`G4DNAEventScheduler`, Gillespie on a cell mesh, initial cell about 6.25 nm) runs up to the end time, which now defaults to 1 s. The goal is staged: long-time yields of single tracks now, and later dose-sized multi-track runs (stage 2), both with a consumable O2 pool. The pool stays per event (see [[0004-scavenger-reactions-per-chemistry]]), consumed in both parts and restored for each event. Multi-track depletion will come from putting several tracks in one event, not from carrying state across events.
+
+**Considered options.**
+- *Classic IRT*: rejected. It ignores `G4DNAScavengerProcess` and `G4DNAScavengerMaterial`, so bulk reactions would need non-diffusing fake partner molecules. `G4DNAIRT` builds those fakes as real tracks, and the molecule counter counts them as species. It also can't consume a scavenger.
+- *Keeping SBS selectable*: rejected in favour of a single model. SBS results recorded before removal are kept as the validation reference.
+
+**Consequences.**
+- **Scope change.** The project's rules said "no voxelization" and "no dedicated UHDR models". They now read as follows: the geometry stays one homogeneous water box (no voxel geometry or G4Vox), but the chemistry may use Geant4's mesoscopic cell mesh. Pulse structure and multi-track dose effects remain future work.
+- **Bulk reactions twice.** Each Chemistry's bulk-reaction list is registered both as `G4DNAScavengerProcess`, for the particle-based stage, and as reaction-table entries against the bulk species, which the mesoscopic Gillespie stage reads through `G4DNAScavengerMaterial`. The rates stay as they are. Reaction types 6, 7 and 8 are equilibria in the mesoscopic stage. Partially diffusion-controlled reactions are marked type 1 directly in each Chemistry.
+- **Outputs.** The species output covers the particle-based stage, and a separate mesoscopic species output (log time grid, 10 per decade by default) covers the rest. Geant4 doesn't report which reaction fired in the mesoscopic stage, so the reaction output covers the particle-based stage only.
+- **MT** is supported, with one mesoscopic scheduler per worker, and validated against Serial.
+- **Open risk.** `G4DNAEventScheduler` computes `pixel³` in a 32-bit int when it coarsens the mesh. That overflows above about 1290 cells per side, which a 1 mm box at 6.25 nm exceeds. A spike decides how the default 1 mm box is handled before any further work.

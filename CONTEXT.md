@@ -13,7 +13,8 @@ and matched case-insensitively (`PureWater`, `BoscoloChem`, ...). All Chemistrie
 share the same molecule set and dissociation channels. `PureWater` is the default.
 A Chemistry reproduces the network of a given paper or library; it is a variant of
 the reaction content only, not of the time-step model, physics, or scoring.
-_Avoid_: "chemistry model" (collides with the chemistry time-step model, e.g. SBS);
+_Avoid_: "chemistry model" (collides with the **Particle-based stage** /
+**Mesoscopic stage** models, e.g. IRT_syn);
 "chemistry list" (that is the Geant4 class `G4VUserChemistryList`, the driver).
 
 **Pure-water chemistry** (the `PureWater` Chemistry, baseline chemistry):
@@ -31,8 +32,10 @@ atmospheric O2, set via `/chem/env/scavenger O2 21 %`), acting as an additional
 reactant/sink for tracked molecules. Its concentration is part of the environment
 (shared by all Chemistries); the reactions it takes part in, and their rates, are
 **Bulk reactions** of the selected Chemistry. A concentration of 0 means the
-scavenger is absent. Consumed as it reacts, restored to its initial concentration at
-the start of each event's chemistry. Not required for pure-water chemistry to
+scavenger is absent. Consumed as it reacts, in both the **Particle-based stage** and
+the **Mesoscopic stage**; restored to its initial concentration at the start of each
+event's chemistry (the pool belongs to one event, never shared across events). Not
+required for pure-water chemistry to
 function or to produce O2 — see [[0001-baseline-acid-base-buffer]].
 _Avoid_: using "scavenger" for the pH acid-base buffer network itself — that is
 baseline pure-water chemistry, not a scavenger.
@@ -43,16 +46,42 @@ diffusing molecule: the pH-owned pseudo-species (name suffix `(B)`, e.g. `H3Op(B
 `OHm(B)`), bulk water, and any **Scavenger** (which, unlike the pH pool, is keyed on
 the ordinary species name, e.g. `O2` — the same species can exist both as tracked
 radiolytic molecules and as a bulk background). Reactions against a bulk species
-only fire as **Bulk reactions** — an ordinary reaction-table entry naming a bulk
-species reacts only with tracked molecules of that name, never with the background.
+only fire as **Bulk reactions**. A bulk species is never an individual molecule and
+never appears in the species output.
 
 **Bulk reaction**:
 A reaction of a tracked molecule with a bulk species, defined per molecule by the
 selected Chemistry: the acid-base buffer equilibria (against `H3Op(B)`/`OHm(B)`/
 water) and the scavenger reactions (e.g. e_aq + O2(bulk) → O2⁻). Distinct from the
-bimolecular reactions between two tracked molecules.
+bimolecular reactions between two tracked molecules. A Chemistry defines each bulk
+reaction once; it applies in both stages of the chemistry. Bulk reactions are not
+counted in the reaction output.
 _Avoid_: "acid-base reaction" as the umbrella term — acid-base is only one kind of
 bulk reaction.
+
+**Particle-based stage**:
+The first part of an event's chemistry, from the end of the pre-chemical stage to
+the **Hand-over time**: every radiolytic molecule is an individual particle with a
+position, and reactions between two of them are sampled from their separation
+(independent reaction times, synchronous variant: IRT_syn). Species and reaction
+counts of this stage are the species output and the reaction output.
+_Avoid_: "microscopic stage" (fine informally, but use one name); "IRT" alone (the
+classic, non-synchronous IRT is not used); "SBS" (no longer used).
+
+**Mesoscopic stage**:
+The second part of an event's chemistry, from the **Hand-over time** to the end
+time: molecules are no longer individuals but counts per small cubic cell of the
+water box, reacting within a cell and hopping between neighbouring cells
+(compartment-based reaction-diffusion). It reaches long times (up to seconds) that
+the particle-based stage cannot afford. Its species counts are a separate output;
+which reaction fired is not recorded.
+_Avoid_: "voxel geometry" or "voxelization" for its cells — the geometry stays one
+homogeneous water box; the cells exist only inside the chemistry.
+
+**Hand-over time**:
+The moment of an event's chemistry at which the **Particle-based stage** stops and
+the **Mesoscopic stage** takes over, carrying every remaining molecule into the
+cells. Configurable; a few nanoseconds by default.
 
 **Dump**:
 One flush of everything accumulated since the previous flush (or program start) into
