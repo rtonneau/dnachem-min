@@ -74,6 +74,8 @@
 
 #include "G4PhysicsConstructorFactory.hh"
 
+#include <algorithm>
+#include <cmath>
 #include <memory>
 #include <vector>
 
@@ -91,6 +93,34 @@ MolConf Conf(const G4String& name, const G4String& caller)
                 (G4String("Unknown species configuration: ") + name).c_str());
   }
   return p;
+}
+
+/// One bulk reaction of `molecule` as reaction data: the configurations,
+/// products and reaction type, resolved once for both consumers (the
+/// G4DNAScavengerProcess and the reaction table each own their copy).
+G4DNAMolecularReactionData* MakeBulkReactionData(MolConf molecule,
+                                                 const ChemistryTypes::BulkReaction& reaction,
+                                                 const G4String& caller)
+{
+  auto* rd = new G4DNAMolecularReactionData(reaction.rate, molecule, Conf(reaction.partner, caller));
+  for (const auto& product : reaction.products) {
+    rd->AddProduct(Conf(product, caller));
+  }
+  if (reaction.reactionType != 0) {
+    rd->SetReactionType(reaction.reactionType);
+  }
+  return rd;
+}
+
+/// Product names of `rd`, sorted, for an order-independent comparison.
+std::vector<G4String> SortedProducts(const G4DNAMolecularReactionData& rd)
+{
+  std::vector<G4String> names;
+  for (G4int i = 0; i < rd.GetNbProducts(); ++i) {
+    names.push_back(rd.GetProduct(i)->GetName());
+  }
+  std::sort(names.begin(), names.end());
+  return names;
 }
 }  // namespace
 
@@ -250,6 +280,11 @@ void DnaChemistryList::ConstructReactionTable(G4DNAMolecularReactionTable* react
   // Ordinary (non-bulk) reactions of the selected Chemistry (default PureWater).
   chemistry->buildReactions(reactionTable);
 
+  // Its bulk reactions too, for the mesoscopic stage (UHDR:
+  // ChemPureWaterBuilder::WaterScavengerReaction).
+  AddBulkReactionsToTable(reactionTable, chemistry->buildBulkReactions());
+  WarnOnNegativeActivationRates(reactionTable);
+
   DnaLogger::Print(DnaLogger::Level::Info,
                    "[DnaChemistryList] chemistry = " + chemistry->name +
                      ", reaction table constructed");
@@ -369,16 +404,79 @@ void DnaChemistryList::RegisterBulkReactionProcesses(
     auto* mol = Conf(entry.molecule, caller);
     auto* process = new ScavengerReactionAccess("G4DNAScavengerProcess", boundary);
     for (const auto& r : entry.reactions) {
-      auto* rd = new G4DNAMolecularReactionData(r.rate, mol, Conf(r.partner, caller));
-      for (const auto& product : r.products) {
-        rd->AddProduct(Conf(product, caller));
-      }
-      if (r.reactionType != 0) {
-        rd->SetReactionType(r.reactionType);
-      }
-      process->SetReaction(mol, rd);
+      process->SetReaction(mol, MakeBulkReactionData(mol, r, caller));
     }
     auto* def = const_cast<G4MoleculeDefinition*>(mol->GetDefinition());
     ph->RegisterProcess(process, def);
+  }
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DnaChemistryList::AddBulkReactionsToTable(G4DNAMolecularReactionTable* reactionTable,
+                                               const ChemistryTypes::BulkReactionList& list) const
+{
+  const G4String caller = "AddBulkReactionsToTable";
+  G4int added = 0;
+  G4int shared = 0;
+  for (const auto& entry : list) {
+    auto* mol = Conf(entry.molecule, caller);
+    for (const auto& r : entry.reactions) {
+      auto* partner = Conf(r.partner, caller);
+      // GetReactionData is fatal on an empty table, so ask only when it isn't.
+      const auto* existing = reactionTable->GetNReactions() == 0
+                               ? nullptr
+                               : reactionTable->GetReactionData(mol, partner);
+      if (existing == nullptr) {
+        reactionTable->SetReaction(MakeBulkReactionData(mol, r, caller));
+        ++added;
+        continue;
+      }
+
+      // The pair is already there: a bulk partner that is also a tracked
+      // species (O2) has one configuration for both, so the tracked-pair
+      // entry serves the bulk reaction too. A second SetReaction would list
+      // the pair twice, and the mesoscopic Gillespie sums every listed entry.
+      const std::unique_ptr<G4DNAMolecularReactionData> candidate(
+        MakeBulkReactionData(mol, r, caller));
+      const G4double rate = existing->GetObservedReactionRateConstant();
+      const G4bool sameRate =
+        std::abs(rate - r.rate) <= 1e-9 * std::max(std::abs(rate), std::abs(r.rate));
+      if (!sameRate || SortedProducts(*existing) != SortedProducts(*candidate)) {
+        G4Exception(("DnaChemistryList::" + caller).c_str(), "ConflictingBulkReaction",
+                    FatalException,
+                    ("Bulk reaction " + mol->GetName() + " + " + partner->GetName() +
+                     " differs (rate or products) from the reaction-table entry of the same "
+                     "pair; a Chemistry must define both identically.")
+                      .c_str());
+        return;
+      }
+      ++shared;
+      DnaLogger::Print(DnaLogger::Level::Debug,
+                       "[DnaChemistryList] bulk reaction " + mol->GetName() + " + " +
+                         partner->GetName() + " shares the existing reaction-table entry");
+    }
+  }
+  DnaLogger::Print(DnaLogger::Level::Info,
+                   "[DnaChemistryList] bulk reactions in the reaction table: " +
+                     std::to_string(added) + " added, " + std::to_string(shared) +
+                     " sharing a tracked-pair entry");
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DnaChemistryList::WarnOnNegativeActivationRates(
+  G4DNAMolecularReactionTable* reactionTable) const
+{
+  // SetReactionType(1) derives k_act = k_diff * k_obs / (k_diff - k_obs) from
+  // the vdW radius (G4DNAMolecularReactionData::SetReactionType); k_obs at or
+  // above that k_diff gives k_act <= 0, an ill-defined partial reaction.
+  for (const auto* rd : reactionTable->GetVectorOfReactionData()) {
+    if (rd->GetReactionType() == 1 && rd->GetActivationRateConstant() <= 0.) {
+      DnaLogger::Print(DnaLogger::Level::Warning,
+                       "[DnaChemistryList] partially diffusion-controlled reaction " +
+                         rd->GetReactant1()->GetName() + " + " + rd->GetReactant2()->GetName() +
+                         " has k_obs >= k_diff (vdW radius): activation rate <= 0");
+    }
   }
 }

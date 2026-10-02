@@ -23,6 +23,7 @@
 
 #include <cmath>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 namespace
@@ -65,6 +66,23 @@ G4String Format(G4double value)
   os.precision(6);
   os << value;
   return os.str();
+}
+
+/// Molecule count of every species held by G4DNAScavengerMaterial (the bulk:
+/// H2O(B), H3Op(B), OHm(B) and the /chem/env/scavenger species), in its
+/// scavenger-table order. Its bulk reactions change these counts, so two
+/// snapshots show what the mesoscopic stage consumed or produced in bulk.
+std::vector<std::pair<const G4MolecularConfiguration *, long long>> BulkCounts()
+{
+  std::vector<std::pair<const G4MolecularConfiguration *, long long>> counts;
+  auto *scavenger =
+    dynamic_cast<G4DNAScavengerMaterial *>(G4Scheduler::Instance()->GetScavengerMaterial());
+  if (scavenger == nullptr) return counts;
+  for (const auto *conf : scavenger->GetScavengerList()) {
+    counts.emplace_back(conf, static_cast<long long>(
+                                scavenger->GetNumberMoleculePerVolumeUnitForMaterialConf(conf)));
+  }
+  return counts;
 }
 
 /// Debug-level molecule bookkeeping of the mesoscopic stage. A diffusive jump
@@ -318,7 +336,27 @@ void TimeStepAction::CompartmentBased()
     if (tMeshAction != nullptr) tMeshAction->ResetEvent(total);
   }
 
+  const auto bulkAtHandOver = debug ? BulkCounts() : decltype(BulkCounts()){};
+
   fpEventScheduler->Run();
+
+  if (debug) {
+    // Net change of each bulk species over the mesoscopic stage (reactions
+    // against a bulk partner consume it; bulk products, e.g. O2 from
+    // O3- + H3O+(B) with bulk O2 set, add to it). H2O(B) / H3Op(B) / OHm(B)
+    // stay constant: G4DNAScavengerMaterial holds the pH fixed.
+    for (const auto &[conf, after] : BulkCounts()) {
+      long long before = after;
+      for (const auto &[confAtHandOver, n] : bulkAtHandOver) {
+        if (confAtHandOver == conf) before = n;
+      }
+      DnaLogger::Print(DnaLogger::Level::Debug,
+                       "[meso] bulk " + conf->GetName() + ": " + std::to_string(before) +
+                         " at hand-over -> " + std::to_string(after) +
+                         " at end of mesoscopic stage (net " + std::to_string(after - before) +
+                         ")");
+    }
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

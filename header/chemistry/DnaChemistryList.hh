@@ -10,7 +10,9 @@
 /// `/run/initialize` (default `PureWater`; see ChemistryRegistry). It supplies
 /// the ordinary reaction table and the bulk-reaction list (reactions against
 /// bulk species: the pH-driven acid-base buffer against H3Op(B)/OHm(B), UHDR:
-/// ChemPureWaterBuilder), registered as per-molecule `G4DNAScavengerProcess`.
+/// ChemPureWaterBuilder), registered as per-molecule `G4DNAScavengerProcess`
+/// for the particle-based stage and added to the reaction table for the
+/// mesoscopic stage.
 /// `PureWater` is the portable pure-water + O2-derived network
 /// (PureWaterReactions.cc) with the full acid-base network; another Chemistry
 /// may omit that buffer
@@ -90,6 +92,23 @@ private:
   /// an empty list registers nothing.
   void RegisterBulkReactionProcesses(const G4DNABoundingBox& boundary,
                                      const ChemistryTypes::BulkReactionList& list) const;
+
+  /// Adds every entry of `list` to the reaction table too, one
+  /// G4DNAMolecularReactionData per bulk reaction with the configurations,
+  /// products and reaction type RegisterBulkReactionProcesses uses (UHDR:
+  /// ChemPureWaterBuilder::WaterScavengerReaction): the mesoscopic stage
+  /// (G4DNAGillespieDirectMethod) only reads the reaction table, and takes a
+  /// bulk partner's count from G4DNAScavengerMaterial. In the particle stage
+  /// these entries never pair, a bulk species having no tracks. A pair
+  /// already in the table (bulk O2 = the tracked "O2" configuration) shares
+  /// that entry, which must then have the same rate and products (fatal
+  /// otherwise).
+  void AddBulkReactionsToTable(G4DNAMolecularReactionTable* reactionTable,
+                               const ChemistryTypes::BulkReactionList& list) const;
+
+  /// Warns about every type-1 (partially diffusion-controlled) entry whose
+  /// observed rate is not below its diffusion rate (activation rate <= 0).
+  void WarnOnNegativeActivationRates(G4DNAMolecularReactionTable* reactionTable) const;
 
   /// Exposes /chem/select <name> and /chem/list.
   std::unique_ptr<ChemistrySelectMessenger> fSelectMessenger;

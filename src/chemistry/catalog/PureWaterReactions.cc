@@ -37,6 +37,10 @@ MolConf Conf(const G4String& name)
 
 void PureWaterReactions::BuildPureWaterReactions(G4DNAMolecularReactionTable* reactionTable)
 {
+  // add(): fully diffusion-controlled (reaction type 0, the default).
+  // partial(): partially diffusion-controlled, SetReactionType(1) -- the IRT
+  // stepper then samples an activation step with the vdW reaction radius
+  // (Type II neutral pair, Type IV ionic pair: G4DNAMolecularReactionData.cc).
   auto add = [reactionTable](MolConf a, MolConf b, G4double k,
                              std::initializer_list<MolConf> products) {
     auto* rd = new G4DNAMolecularReactionData(k * (1e-3 * m3 / (mole * s)), a, b);
@@ -44,6 +48,11 @@ void PureWaterReactions::BuildPureWaterReactions(G4DNAMolecularReactionTable* re
       rd->AddProduct(p);
     }
     reactionTable->SetReaction(rd);
+    return rd;
+  };
+  auto partial = [&add](MolConf a, MolConf b, G4double k,
+                        std::initializer_list<MolConf> products) {
+    add(a, b, k, products)->SetReactionType(1);
   };
 
   auto* e_aq = Conf("e_aq");
@@ -65,60 +74,66 @@ void PureWaterReactions::BuildPureWaterReactions(G4DNAMolecularReactionTable* re
   // "Type I" block, which covers the same 9 pairs with different rate constants
   // for 7 of them; keeping these avoids overwriting/duplicating SetReaction
   // calls for the same reactant pair).
+  // Type 0: G4EmDNAChemistry_option3 Type I (H+H, e_aq+H) / Type III (e_aq+e_aq, H3O+ + OH-).
   add(H, H, 1.2e10, {H2});
   add(e_aq, H, 2.65e10, {H2, OHm});
   add(e_aq, e_aq, 0.5e10, {H2, OHm, OHm});
   add(H3Op, OHm, 1.43e11, {});
-  add(e_aq, OH, 2.95e10, {OHm});
-  add(OH, OH, 0.44e10, {H2O2});
-  add(e_aq, H2O2, 1.41e10, {OHm, OH});
-  add(e_aq, H3Op, 2.11e10, {H});
-  add(OH, H, 1.44e10, {});
+  // Type 1: option3 Type II (e_aq+OH, OH+OH, e_aq+H2O2, OH+H) / Type IV (e_aq+H3O+); UHDR same.
+  partial(e_aq, OH, 2.95e10, {OHm});
+  partial(OH, OH, 0.44e10, {H2O2});
+  partial(e_aq, H2O2, 1.41e10, {OHm, OH});
+  partial(e_aq, H3Op, 2.11e10, {H});
+  partial(OH, H, 1.44e10, {});
 
   // O2 scavenging against *tracked* radiolytic O2 molecules (UHDR:
   // ChemOxygenWaterBuilder::OxygenScavengerReaction). The same reactions
   // against the dissolved-O2 background are bulk reactions, see the
-  // bulk-reaction list below.
-  add(e_aq, O2, 1.74e10, {O2m});
-  add(H, O2, 2.1e10, {HO2});
-  add(Om, O2, 3.7e9, {O3m});
+  // bulk-reaction list below; they share these entries (same pair).
+  // Type 1: option3 Type II (eaq-+O2, H+O2, O2+O-); UHDR leaves them 0 as bulk-only reactions.
+  partial(e_aq, O2, 1.74e10, {O2m});
+  partial(H, O2, 2.1e10, {HO2});
+  partial(Om, O2, 3.7e9, {O3m});
 
   // O2-/HO2/HO2-/O-/O3- second-order network (UHDR:
   // ChemOxygenWaterBuilder::SecondOrderReactionExtended, "extended" block
   // only; NO2-/CO2/HCO3-/N2O/MeOH lines excluded -- out of project scope).
+  // Type 0: option3 Type I (H+O-, O(3p)+OH) / Type III (H3O+ + O3-); UHDR same.
   add(H, Om, 2.00e10, {OHm});
   add(H3Op, O3m, 9.0e10, {OH, O2});
-  add(H, HO2, 1.00e10, {H2O2});
-  add(H, O2m, 1.00e10, {HO2m});
-  add(OH, O2m, 1.07e10, {O2, OHm});
-  add(e_aq, O2m, 1.3e10, {H2O2, OHm, OHm});
-  add(e_aq, HO2m, 3.51e9, {Om, OHm});
-  add(e_aq, Om, 2.31e10, {OHm, OHm});
-  add(H3Op, O2m, 4.78e10, {HO2});
-  add(H3Op, HO2m, 4.78e10, {H2O2});
-  add(H3Op, Om, 4.78e10, {OH});
-  add(e_aq, HO2, 1.29e10, {HO2m});
-  add(OH, OHm, 1.27e10, {Om});
-  add(OH, HO2, 7.90e9, {O2});
-  add(OH, HO2m, 8.32e9, {HO2, OHm});
-  add(OH, Om, 1.00e9, {HO2m});
-  add(OH, O3m, 8.50e9, {O2m, HO2});
-  add(OHm, HO2, 1.27e10, {O2m});
-  add(H2O2, OHm, 1.3e10, {HO2m});
-  add(H2O2, Om, 5.55e8, {HO2, OHm});
-  add(H2, Om, 1.21e8, {H, OHm});
-  add(O2m, Om, 6.00e8, {O2, OHm, OHm});
-  add(HO2m, Om, 3.50e8, {O2m, OHm});
-  add(Om, Om, 1.00e8, {H2O2, OHm, OHm});
-  add(Om, O3m, 7.00e8, {O2m, O2m});
-  add(H, OHm, 2.51e7, {e_aq});
-  add(H, H2O2, 3.50e7, {OH});
-  add(OH, H2O2, 2.88e7, {HO2});
-  add(OH, H2, 3.28e7, {H});
-  add(HO2, HO2, 9.80e5, {H2O2, O2});
-  add(HO2, O2m, 9.70e7, {HO2m, O2});
-  add(O2m, O2m, 1.0e2, {H2O2, O2, OHm, OHm});
   add(Oxy, OH, 2.0e10, {HO2});  // B. Gervais et al., Chem. Phys. Lett. 410 (2005) 330
+  // Type 0: O2- + O2- has no option3 counterpart; UHDR leaves it 0.
+  add(O2m, O2m, 1.0e2, {H2O2, O2, OHm, OHm});
+  // Type 1: option3 Type II / Type IV (all charged pairs below); UHDR same.
+  partial(H, HO2, 1.00e10, {H2O2});
+  partial(H, O2m, 1.00e10, {HO2m});
+  partial(OH, O2m, 1.07e10, {O2, OHm});
+  partial(e_aq, O2m, 1.3e10, {H2O2, OHm, OHm});
+  partial(e_aq, HO2m, 3.51e9, {Om, OHm});
+  partial(e_aq, Om, 2.31e10, {OHm, OHm});
+  partial(H3Op, O2m, 4.78e10, {HO2});
+  partial(H3Op, HO2m, 4.78e10, {H2O2});
+  partial(H3Op, Om, 4.78e10, {OH});
+  partial(e_aq, HO2, 1.29e10, {HO2m});
+  partial(OH, OHm, 1.27e10, {Om});
+  partial(OH, HO2, 7.90e9, {O2});
+  partial(OH, HO2m, 8.32e9, {HO2, OHm});
+  partial(OH, Om, 1.00e9, {HO2m});
+  partial(OH, O3m, 8.50e9, {O2m, HO2});
+  partial(OHm, HO2, 1.27e10, {O2m});
+  partial(H2O2, OHm, 1.3e10, {HO2m});
+  partial(H2O2, Om, 5.55e8, {HO2, OHm});
+  partial(H2, Om, 1.21e8, {H, OHm});
+  partial(O2m, Om, 6.00e8, {O2, OHm, OHm});
+  partial(HO2m, Om, 3.50e8, {O2m, OHm});
+  partial(Om, Om, 1.00e8, {H2O2, OHm, OHm});
+  partial(Om, O3m, 7.00e8, {O2m, O2m});
+  partial(H, OHm, 2.51e7, {e_aq});
+  partial(H, H2O2, 3.50e7, {OH});
+  partial(OH, H2O2, 2.88e7, {HO2});
+  partial(OH, H2, 3.28e7, {H});
+  partial(HO2, HO2, 9.80e5, {H2O2, O2});
+  partial(HO2, O2m, 9.70e7, {HO2m, O2});
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

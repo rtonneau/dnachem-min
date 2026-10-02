@@ -23,9 +23,14 @@
 /// coefficients are not applied: molecules are shared by all Chemistries.
 /// Needs ChemistryTypes.hh -- copy both files to port this unit.
 ///
-/// Hard-coded SBS assumption: no G4ChemTimeStepModel branching, no
-/// conditional SetReactionType(1) (that existed only for IRT_syn support,
-/// dropped project-wide).
+/// Reaction types (IRT_syn): every tracked pair that G4EmDNAChemistry_option3
+/// lists as Type II or Type IV calls SetReactionType(1) unconditionally
+/// (partially diffusion-controlled); the others stay type 0 (fully
+/// diffusion-controlled). The bulk-reaction list keeps its own types (the
+/// acid-base equilibria 6/7/8). The driver also adds every bulk reaction to
+/// the reaction table, for the mesoscopic stage; a bulk reaction whose pair
+/// is already in the table (e.g. e_aq + O2, tracked and bulk O2 share one
+/// configuration) must have the same rate and products and shares that entry.
 
 #ifndef BoscoloChemReactions_h
 #define BoscoloChemReactions_h 1
