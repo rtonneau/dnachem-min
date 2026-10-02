@@ -47,6 +47,13 @@ private:
   /// Hands the surviving molecules over to the mesoscopic stage and runs it.
   void CompartmentBased();
 
+  /// Merges every live track whose species the scavenger material holds
+  /// (e.g. radiolytic O2 while bulk O2 is set) into the bulk pool and kills
+  /// it, before the hand-over (Voxelizing then clears all pending
+  /// reactions). Voxelizing would
+  /// leave such tracks alive, which hangs IRT_syn (see the .cc).
+  void MergeScavengerSpeciesIntoBulk(G4double globalTime);
+
   /// Initial mesh pixel count per side from /chem/meso/voxelSize
   /// (MesoSettings::PixelCount, capped at 65536).
   G4int InitialPixel() const;

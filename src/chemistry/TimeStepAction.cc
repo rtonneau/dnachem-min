@@ -12,6 +12,8 @@
 #include "G4DNAMesh.hh"
 #include "G4DNAMolecularReactionTable.hh"
 #include "G4DNAScavengerMaterial.hh"
+#include "G4Event.hh"
+#include "G4EventManager.hh"
 #include "G4ITTrackHolder.hh"
 #include "G4MolecularConfiguration.hh"
 #include "G4Molecule.hh"
@@ -219,6 +221,12 @@ void TimeStepAction::StartProcessing()
   fpEventScheduler->ResetCounter();
   fHandOverDrift = false;
   fParticleStageWall = 0.;
+  if (DnaLogger::Enabled(DnaLogger::Level::Info)) {
+    const G4Event* event = G4EventManager::GetEventManager()->GetConstCurrentEvent();
+    DnaLogger::Print(DnaLogger::Level::Info,
+                     "[TimeStepAction] Chemistry starts, event " +
+                       std::to_string(event != nullptr ? event->GetEventID() : -1));
+  }
   fChemTimer.Start();
 }
 
@@ -246,6 +254,42 @@ G4int TimeStepAction::InitialPixel() const
 {
   const G4double side = 2. * fpChemWorld->GetChemistryBoundary()->halfSideLengthInX();
   return MesoSettings::PixelCount(side, MesoSettings::Current().voxelSize * mm);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void TimeStepAction::MergeScavengerSpeciesIntoBulk(G4double globalTime)
+{
+  // G4DNAEventScheduler::Voxelizing leaves out (neither meshes nor kills) every
+  // track whose species is held by the scavenger material: bulk O2 and
+  // radiolytic O2 share the "O2" configuration (ADR 0004), so with a bulk O2
+  // concentration set, the radiolytic O2 tracks alive at the hand-over stayed
+  // alive in the particle stage. On the scheduler's next step IRT_syn then
+  // paired them with the killed (meshed) tracks, and
+  // G4DNAIndependentReactionTimeStepper::FindReaction loops forever on a
+  // reaction whose partner is fStopAndKill (it skips it without removing it).
+  // Fix: merge these molecules into the bulk pool, as G4DNAScavengerProcess
+  // does for a scavenger-species product (ADR 0004), and kill them before
+  // Voxelizing, whose CleanAllReaction() then drops their pending reactions
+  // too, so no live track survives the hand-over.
+  auto *scavenger =
+    dynamic_cast<G4DNAScavengerMaterial *>(G4Scheduler::Instance()->GetScavengerMaterial());
+  if (scavenger == nullptr) return;
+  long long merged = 0;
+  for (auto *track : *G4ITTrackHolder::Instance()->GetMainList()) {
+    if (track->GetTrackStatus() == fStopAndKill) continue;
+    auto *molType = GetMolecule(track)->GetMolecularConfiguration();
+    if (!scavenger->find(molType)) continue;
+    scavenger->AddNumberMoleculePerVolumeUnitForMaterialConf(molType, globalTime);
+    track->SetTrackStatus(fStopAndKill);
+    ++merged;
+  }
+  if (merged > 0) {
+    DnaLogger::Print(DnaLogger::Level::Debug,
+                     "[meso] hand-over at t = " + Format(globalTime / ns) + " ns: " +
+                       std::to_string(merged) +
+                       " tracked scavenger-species molecule(s) merged into the bulk pool");
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -283,6 +327,7 @@ void TimeStepAction::CompartmentBased()
                        (nextTime == DBL_MAX ? G4String("none")
                                             : "next at " + Format(nextTime / ns) + " ns"));
   }
+  MergeScavengerSpeciesIntoBulk(globalTime);
   fChemTimer.Stop();
   fParticleStageWall = fChemTimer.GetRealElapsed();
   fChemTimer.Start();
