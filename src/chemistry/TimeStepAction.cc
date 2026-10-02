@@ -25,6 +25,7 @@
 #include "G4VChemistryWorld.hh"
 
 #include <cmath>
+#include <map>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -74,11 +75,37 @@ std::vector<std::pair<const G4MolecularConfiguration *, long long>> BulkCounts()
   return counts;
 }
 
-/// Debug-level molecule bookkeeping of the mesoscopic stage. A diffusive jump
-/// never changes the mesh total and one reaction changes it by at most 2
-/// (A + B -> nothing), so between two Gillespie steps the total may only move
-/// by 0, +-1 or +-2; anything else, or a change across a mesh coarsening
-/// (EndOfMesh -> next BeginOfMesh, no step in between), is a drift.
+/// Species counts of a mesoscopic mesh (all cells), per molecular configuration.
+using MeshCounts = std::map<const G4MolecularConfiguration *, long>;
+
+MeshCounts MeshSpeciesCounts(const G4DNAMesh &mesh)
+{
+  MeshCounts counts;
+  for (auto it = mesh.const_begin(); it != mesh.const_end(); ++it) {
+    for (const auto &[molType, count] : std::get<2>(*it)) {
+      counts[molType] += static_cast<long>(count);
+    }
+  }
+  return counts;
+}
+
+/// Mesoscopic-stage mesh action, called by G4DNAEventScheduler around and
+/// after every Gillespie step (reaction or diffusive jump).
+///
+/// 1. Records the species counts at the record times (always). This replaces
+///    G4DNAEventScheduler's own counter map: in Geant4 11.4.1 its RecordTime()
+///    runs only after a *reaction* step and records at most one record time
+///    per call, and Reset() -> LastRegisterForCounter() copies the last
+///    recorded counts into every record time not reached. Late in the stage,
+///    when reactions are rare, the late record times were therefore stale
+///    (validation: e_aq with bulk O2 frozen from ~800 ns). Here a snapshot is
+///    taken as soon as any step passes a record time; species counts change
+///    only on reactions, so it is off by at most one reaction.
+/// 2. Debug-level molecule bookkeeping. A diffusive jump never changes the
+///    mesh total and one reaction changes it by at most 2 (A + B -> nothing),
+///    so between two Gillespie steps the total may only move by 0, +-1 or +-2;
+///    anything else, or a change across a mesh coarsening (EndOfMesh -> next
+///    BeginOfMesh, no step in between), is a drift.
 class MeshTotalsAction : public G4UserMeshAction
 {
 public:
@@ -90,11 +117,33 @@ public:
     fFirstMesh = true;
   }
 
+  /// Record times of this event (sorted ascending); clears earlier records.
+  void StartRecording(std::vector<G4double> recordTimes)
+  {
+    fRecordTimes = std::move(recordTimes);
+    fNextRecord = 0;
+    fRecords.clear();
+  }
+
+  /// Fills every record time not yet passed with the final state of the
+  /// stage, which holds from the last Gillespie step to the end time.
+  void FinishRecording(const G4DNAMesh *mesh)
+  {
+    if (mesh == nullptr || fNextRecord >= fRecordTimes.size()) return;
+    const MeshCounts counts = MeshSpeciesCounts(*mesh);
+    for (; fNextRecord < fRecordTimes.size(); ++fNextRecord) {
+      fRecords[fRecordTimes[fNextRecord]] = counts;
+    }
+  }
+
+  const std::map<G4double, MeshCounts> &Records() const { return fRecords; }
+
   void BeginOfMesh(const G4VDNAMesh *aMesh, G4double time) override
   {
-    if (!DnaLogger::Enabled(DnaLogger::Level::Debug)) return;
     const auto *mesh = dynamic_cast<const G4DNAMesh *>(aMesh);
     if (mesh == nullptr) return;
+    Record(*mesh, time);
+    if (!DnaLogger::Enabled(DnaLogger::Level::Debug)) return;
     const long long total = MeshTotal(*mesh);
     const G4bool conserved = (total == fLastTotal);
     if (!conserved) ++fDrifts;
@@ -115,11 +164,12 @@ public:
     fAnomalousSteps = 0;
   }
 
-  void InMesh(const G4VDNAMesh *aMesh, G4double /*time*/) override
+  void InMesh(const G4VDNAMesh *aMesh, G4double time) override
   {
-    if (!DnaLogger::Enabled(DnaLogger::Level::Debug)) return;
     const auto *mesh = dynamic_cast<const G4DNAMesh *>(aMesh);
     if (mesh == nullptr) return;
+    Record(*mesh, time);
+    if (!DnaLogger::Enabled(DnaLogger::Level::Debug)) return;
     const long long total = MeshTotal(*mesh);
     const long long delta = total - fLastTotal;
     ++fSteps;
@@ -153,6 +203,21 @@ public:
   long long LastTotal() const { return fLastTotal; }
 
 private:
+  /// Snapshots the mesh for every record time the stage time has reached.
+  void Record(const G4DNAMesh &mesh, G4double time)
+  {
+    if (fNextRecord >= fRecordTimes.size() || time < fRecordTimes[fNextRecord]) return;
+    const MeshCounts counts = MeshSpeciesCounts(mesh);
+    for (; fNextRecord < fRecordTimes.size() && time >= fRecordTimes[fNextRecord];
+         ++fNextRecord) {
+      fRecords[fRecordTimes[fNextRecord]] = counts;
+    }
+  }
+
+  std::vector<G4double> fRecordTimes;
+  std::size_t fNextRecord = 0;
+  std::map<G4double, MeshCounts> fRecords;
+
   long long fLastTotal = 0;
   long long fMeshStartTotal = 0;
   long long fSteps = 0;
@@ -209,15 +274,21 @@ void TimeStepAction::StartProcessing()
   // reduces to the end time alone.
   const auto& meso = MesoSettings::Current();
   const G4double handOverTime = meso.handOverTime * ns;
+  // The species output (SpeciesMeso.*) is recorded by the mesh action on the
+  // same grid (see MeshTotalsAction); the scheduler's own counter map is kept
+  // fed only because its RecordTime() needs at least one record time.
   const G4double endTime = G4Scheduler::Instance()->GetEndTime();
+  std::vector<G4double> recordTimes;
   if (handOverTime < endTime) {
     for (const G4double t : MesoSettings::LogTimeGrid(handOverTime, endTime, meso.timesPerDecade)) {
       fpEventScheduler->AddTimeToRecord(t);
+      recordTimes.push_back(t);
     }
   }
   else {
     fpEventScheduler->AddTimeToRecord(endTime);
   }
+  if (tMeshAction != nullptr) tMeshAction->StartRecording(std::move(recordTimes));
   fpEventScheduler->ResetCounter();
   fHandOverDrift = false;
   fParticleStageWall = 0.;
@@ -372,6 +443,8 @@ void TimeStepAction::CompartmentBased()
   const auto bulkAtHandOver = debug ? BulkCounts() : decltype(BulkCounts()){};
 
   fpEventScheduler->Run();
+  // The state after the last Gillespie step holds up to the end time.
+  if (tMeshAction != nullptr) tMeshAction->FinishRecording(fpEventScheduler->GetMesh());
 
   if (debug) {
     // Net change of each bulk species over the mesoscopic stage (reactions
@@ -394,11 +467,12 @@ void TimeStepAction::CompartmentBased()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-// UHDR example, Scorer<Gvalues>::SaveMoleculeCounter + EndOfEvent: read the
-// record-time counter map, then ResetCounter() for the next event.
+// Reads the mesh action's record-time snapshots (not the scheduler's counter
+// map, see MeshTotalsAction), then ResetCounter() for the next event.
 void TimeStepAction::CollectMesoSpecies()
 {
-  for (const auto &[time, counts] : fpEventScheduler->GetCounterMap()) {
+  if (tMeshAction == nullptr) return;
+  for (const auto &[time, counts] : tMeshAction->Records()) {
     for (const auto &[molType, n] : counts) {
       // Bulk species (G4DNAScavengerMaterial: H2O(B), H3Op(B), OHm(B), the
       // /chem/env/scavenger species) and water are not scored, as in Species.*.
@@ -463,9 +537,9 @@ void TimeStepAction::EndProcessing()
     G4MoleculeCounterManager::Instance()->SetIsActive(fCounterWasActive);
     fCounterMuted = false;
   }
-  fpEventScheduler->Reset();  // also fills the record times not reached
-  if (DnaLogger::Enabled(DnaLogger::Level::Debug)) {
-    for (const auto &[time, counts] : fpEventScheduler->GetCounterMap()) {
+  fpEventScheduler->Reset();
+  if (DnaLogger::Enabled(DnaLogger::Level::Debug) && tMeshAction != nullptr) {
+    for (const auto &[time, counts] : tMeshAction->Records()) {
       long long total = 0;
       for (const auto &[molType, n] : counts) total += n;
       DnaLogger::Print(DnaLogger::Level::Debug, "[meso] record t = " + Format(time / ns) +
