@@ -20,7 +20,7 @@ RunAccumulatorMessenger::RunAccumulatorMessenger()
 {
     fpDumpCmd = new G4UIcmdWithAString("/run/dumpDataAndReset", this);
     fpDumpCmd->SetGuidance(
-        "Write Species/Reactions/PhysicsInteractions output files and a "
+        "Write Species/SpeciesMeso/Reactions/PhysicsInteractions output files and a "
         "Manifest.json for everything accumulated since the last dump (or program "
         "start), then reset all counters. Optional prefix is prepended "
         "literally to every output filename (no separator inserted). Fatal "
@@ -190,6 +190,18 @@ void RunAccumulatorMessenger::WriteAllAndReset(const G4String &prefix, const G4S
     interactionCounter.WriteCsv(interactionsCsv);
     interactionsCsv.close();
     files.push_back(prefix + "PhysicsInteractions.csv");
+
+    // Species counts of the mesoscopic stage (hand-over to end time).
+    const MesoSpeciesCounter &mesoSpeciesCounter = RunAccumulator::GetAccumulatedMesoSpeciesCounter();
+    std::ofstream mesoOut(OutputDir::Resolve("SpeciesMeso.Txt"));
+    mesoSpeciesCounter.WriteAscii(mesoOut, RunAccumulator::GetAccumulatedEvents());
+    mesoOut.close();
+    files.push_back(prefix + "SpeciesMeso.Txt");
+
+    std::ofstream mesoCsv(OutputDir::Resolve("SpeciesMeso.csv"));
+    mesoSpeciesCounter.WriteCsv(mesoCsv);
+    mesoCsv.close();
+    files.push_back(prefix + "SpeciesMeso.csv");
 
     // Pre-chemical files: move the per-event files staged since the last dump
     // into this dump (target = prefix/subdir applied by OutputDir::Resolve).

@@ -349,6 +349,25 @@ void TimeStepAction::CompartmentBased()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+// UHDR example, Scorer<Gvalues>::SaveMoleculeCounter + EndOfEvent: read the
+// record-time counter map, then ResetCounter() for the next event.
+void TimeStepAction::CollectMesoSpecies()
+{
+  for (const auto &[time, counts] : fpEventScheduler->GetCounterMap()) {
+    for (const auto &[molType, n] : counts) {
+      // Bulk species (G4DNAScavengerMaterial: H2O(B), H3Op(B), OHm(B), the
+      // /chem/env/scavenger species) and water are not scored, as in Species.*.
+      const G4String &userID = molType->GetUserID();
+      if (userID == "H2O" || G4StrUtil::ends_with(userID, "(B)")) continue;
+      // Display name as in Species.Txt (G4MolecularConfiguration::GetName).
+      fMesoSpeciesCounter.Add(time / ns, molType->GetName(), n);
+    }
+  }
+  fpEventScheduler->ResetCounter();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 // Counts each bimolecular reaction that fires, binned by time, so a
 // per-reaction rate-over-time output can be written at end of run (see
 // Run::Merge / RunAction::EndOfRunAction). Only the particle-based stage
@@ -408,6 +427,7 @@ void TimeStepAction::EndProcessing()
                                                   " ns: total = " + std::to_string(total));
     }
   }
+  CollectMesoSpecies();
   fHandedOver = false;
   fHandOverDrift = false;
 }

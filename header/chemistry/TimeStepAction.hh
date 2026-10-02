@@ -12,6 +12,7 @@
 
 #include "G4Timer.hh"
 #include "G4UserTimeStepAction.hh"
+#include "scoring/MesoSpeciesCounter.hh"
 #include "scoring/ReactionCounter.hh"
 
 #include <memory>
@@ -37,6 +38,10 @@ public:
   void EndProcessing() override;
 
   ReactionCounter &GetReactionCounter() { return fReactionCounter; }
+  /// Species counts at the mesoscopic record times (hand-over to end time,
+  /// /chem/meso/timesPerDecade), summed over this thread's events; bulk
+  /// species and water excluded. Cleared by RunAction::BeginOfRunAction.
+  MesoSpeciesCounter &GetMesoSpeciesCounter() { return fMesoSpeciesCounter; }
 
 private:
   /// Hands the surviving molecules over to the mesoscopic stage and runs it.
@@ -46,7 +51,12 @@ private:
   /// (MesoSettings::PixelCount, capped at 65536).
   G4int InitialPixel() const;
 
+  /// Copies the scheduler's record-time counter into fMesoSpeciesCounter,
+  /// then resets that counter for the next event.
+  void CollectMesoSpecies();
+
   ReactionCounter fReactionCounter;
+  MesoSpeciesCounter fMesoSpeciesCounter;
   const G4VChemistryWorld *fpChemWorld = nullptr;
   std::unique_ptr<G4DNAEventScheduler> fpEventScheduler;
   /// True once this event's chemistry has been handed over.

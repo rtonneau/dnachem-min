@@ -78,7 +78,7 @@ add_test(NAME JsonWriterTest COMMAND JsonWriterTest)
 # bookkeeping logic, no Geant4 kernel dependency -- DumpAndReset's
 # file-writing/species lookup lives in RunAccumulatorMessenger instead,
 # which is not unit-tested, matching this project's existing convention).
-add_executable(RunAccumulatorTest test/RunAccumulatorTest.cc src/scoring/RunAccumulator.cc src/scoring/ReactionCounter.cc src/scoring/PhysicsInteractionCounter.cc src/scoring/DataNode.cc src/core/OutputDir.cc)
+add_executable(RunAccumulatorTest test/RunAccumulatorTest.cc src/scoring/RunAccumulator.cc src/scoring/ReactionCounter.cc src/scoring/PhysicsInteractionCounter.cc src/scoring/MesoSpeciesCounter.cc src/scoring/DataNode.cc src/core/OutputDir.cc)
 target_link_libraries(RunAccumulatorTest ${Geant4_LIBRARIES})
 target_include_directories(RunAccumulatorTest PRIVATE ${project_include_dirs})
 add_test(NAME RunAccumulatorTest COMMAND RunAccumulatorTest)
@@ -109,6 +109,12 @@ add_test(NAME ScavengerSpecTest COMMAND ScavengerSpecTest)
 add_executable(MesoSettingsTest test/MesoSettingsTest.cc src/chemistry/MesoSettings.cc)
 target_include_directories(MesoSettingsTest PRIVATE ${project_include_dirs})
 add_test(NAME MesoSettingsTest COMMAND MesoSettingsTest)
+
+# Standalone unit test for MesoSpeciesCounter (per-time species counts of the
+# mesoscopic stage -- pure logic, std only).
+add_executable(MesoSpeciesCounterTest test/MesoSpeciesCounterTest.cc src/scoring/MesoSpeciesCounter.cc)
+target_include_directories(MesoSpeciesCounterTest PRIVATE ${project_include_dirs})
+add_test(NAME MesoSpeciesCounterTest COMMAND MesoSpeciesCounterTest)
 
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but

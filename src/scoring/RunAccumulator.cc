@@ -11,6 +11,7 @@ namespace
   long gAccumulatedEvents = 0;
   ReactionCounter gAccumulatedReactionCounter;
   PhysicsInteractionCounter gAccumulatedInteractionCounter;
+  MesoSpeciesCounter gAccumulatedMesoSpeciesCounter;
   std::vector<DataNode> gRunEntries;
   G4bool gHasPendingData = false;
   std::set<G4String> gUsedPrefixes;
@@ -18,12 +19,14 @@ namespace
 }
 
 void RunAccumulator::Accumulate(G4double energy, long events, const ReactionCounter &reactions,
-                                 const PhysicsInteractionCounter &interactions)
+                                 const PhysicsInteractionCounter &interactions,
+                                 const MesoSpeciesCounter &mesoSpecies)
 {
   gAccumulatedEnergy += energy;
   gAccumulatedEvents += events;
   gAccumulatedReactionCounter.Merge(reactions);
   gAccumulatedInteractionCounter.Merge(interactions);
+  gAccumulatedMesoSpeciesCounter.Merge(mesoSpecies);
   gHasPendingData = true;
 }
 
@@ -52,6 +55,11 @@ const PhysicsInteractionCounter &RunAccumulator::GetAccumulatedInteractionCounte
   return gAccumulatedInteractionCounter;
 }
 
+const MesoSpeciesCounter &RunAccumulator::GetAccumulatedMesoSpeciesCounter()
+{
+  return gAccumulatedMesoSpeciesCounter;
+}
+
 void RunAccumulator::AddRunEntry(const DataNode &entry)
 {
   gRunEntries.push_back(entry);
@@ -68,6 +76,7 @@ void RunAccumulator::ClearAccumulated()
   gAccumulatedEvents = 0;
   gAccumulatedReactionCounter.Clear();
   gAccumulatedInteractionCounter.Clear();
+  gAccumulatedMesoSpeciesCounter.Clear();
   gRunEntries.clear();
   gHasPendingData = false;
 }
