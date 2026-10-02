@@ -1,30 +1,66 @@
+/// \file TimeStepAction.hh
+/// \brief Definition of the TimeStepAction class
+///
+/// Per-thread chemistry time-step action. The particle-based stage (IRT_syn)
+/// runs up to the hand-over time; at the first time step reaching it, the
+/// remaining molecules are handed to a G4DNAEventScheduler (compartment-based
+/// mesoscopic stage, Gillespie on a cell mesh) that runs to the end time.
+/// Pattern: Geant4 UHDR example, TimeStepAction::CompartmentBased.
+
 #ifndef ITACTION_H
 #define ITACTION_H
 
+#include "G4Timer.hh"
 #include "G4UserTimeStepAction.hh"
 #include "scoring/ReactionCounter.hh"
+
+#include <memory>
+
+class G4DNAEventScheduler;
+class G4VChemistryWorld;
 
 class TimeStepAction : public G4UserTimeStepAction
 {
 public:
-  TimeStepAction();
-  virtual ~TimeStepAction();
-  TimeStepAction(const TimeStepAction &other);
-  TimeStepAction &operator=(const TimeStepAction &other);
+  explicit TimeStepAction(const G4VChemistryWorld *chemistryWorld);
+  ~TimeStepAction() override;
+  TimeStepAction(const TimeStepAction &other) = delete;
+  TimeStepAction &operator=(const TimeStepAction &other) = delete;
 
-  virtual void StartProcessing();
+  void StartProcessing() override;
 
-  virtual void UserPreTimeStepAction();
-  virtual void UserPostTimeStepAction();
+  void UserPreTimeStepAction() override;
+  void UserPostTimeStepAction() override;
 
-  virtual void UserReactionAction(const G4Track &, const G4Track &, const std::vector<G4Track *> *);
+  void UserReactionAction(const G4Track &, const G4Track &, const std::vector<G4Track *> *) override;
 
-  virtual void EndProcessing();
+  void EndProcessing() override;
 
   ReactionCounter &GetReactionCounter() { return fReactionCounter; }
 
 private:
+  /// Hands the surviving molecules over to the mesoscopic stage and runs it.
+  void CompartmentBased();
+
+  /// Initial mesh pixel count per side: the power of 2 closest to
+  /// 2 * halfBox / 6.25 nm, capped at 65536 to avoid the 32-bit overflow in
+  /// G4DNAMesh::ConvertIndex (temporary; ticket 04 makes the cell size a command).
+  G4int InitialPixel() const;
+
   ReactionCounter fReactionCounter;
+  const G4VChemistryWorld *fpChemWorld = nullptr;
+  std::unique_ptr<G4DNAEventScheduler> fpEventScheduler;
+  /// True once this event's chemistry has been handed over.
+  G4bool fHandedOver = false;
+  /// Debug only: true when the hand-over changed the molecule total.
+  G4bool fHandOverDrift = false;
+  /// The molecule counter is muted from the hand-over to EndProcessing;
+  /// these restore its previous state.
+  G4bool fCounterMuted = false;
+  G4bool fCounterWasActive = true;
+  /// Per-event chemistry wall time, split at the hand-over.
+  G4Timer fChemTimer;
+  G4double fParticleStageWall = 0.;
 };
 
 #endif // ITACTION_H

@@ -9,6 +9,7 @@
 #include "actions/EventAction.hh"
 #include "actions/TrackingAction.hh"
 #include "actions/SteppingAction.hh"
+#include "geometry/DetectorConstruction.hh"
 
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
@@ -47,10 +48,15 @@ void ActionInitialization::Build() const
   {
     // G4Scheduler::Instance()->SetVerbose(1);
 
-    // Chemistry time stepping (granularity) and end time. 1 us is the usual
-    // cut-off for water-radiolysis G-value studies (chem1-chem6); the previous
-    // 1.3 ps only reached the pre-chemical stage.
-    G4Scheduler::Instance()->SetUserAction(new TimeStepAction());
+    // Chemistry end time. 1 us is the usual cut-off for water-radiolysis
+    // G-value studies (chem1-chem6); the previous 1.3 ps only reached the
+    // pre-chemical stage. The TimeStepAction hands over from the particle-based
+    // stage (IRT_syn) to the mesoscopic stage, whose mesh spans the chemistry
+    // world's boundary (UHDR example: ActionInitialization::Build).
+    const auto *detector = dynamic_cast<const DetectorConstruction *>(
+      G4RunManager::GetRunManager()->GetUserDetectorConstruction());
+    G4Scheduler::Instance()->SetUserAction(
+      new TimeStepAction(detector != nullptr ? detector->GetChemistryWorld() : nullptr));
     G4Scheduler::Instance()->SetEndTime(1. * microsecond);
     //==========================================================================
     // G4Scheduler::Instance()->SetMaxNbSteps(10);

@@ -63,9 +63,10 @@
 #include "G4DNAWaterDissociationDisplacer.hh"
 
 // Time-step model
-#include "G4DNAMolecularStepByStepModel.hh"
+#include "G4ChemTimeStepModel.hh"
+#include "G4DNAIndependentReactionTimeModel.hh"
 #include "G4DNAScavengerMaterial.hh"
-#include "G4Scheduler.hh"
+#include "G4EmParameters.hh"
 
 // Particles
 #include "G4Electron.hh"
@@ -258,10 +259,19 @@ void DnaChemistryList::ConstructReactionTable(G4DNAMolecularReactionTable* react
 
 void DnaChemistryList::ConstructTimeStepModel(G4DNAMolecularReactionTable* /*reactionTable*/)
 {
-  RegisterTimeStepModel(new G4DNAMolecularStepByStepModel(), 0);
+  // IRT_syn only (G4EmDNAChemistry_option3 / UHDR EmDNAChemistry IRT_syn
+  // branch): the particle-based stage before the mesoscopic hand-over.
+  if (G4EmParameters::Instance()->GetTimeStepModel() != G4ChemTimeStepModel::IRT_syn) {
+    G4Exception("DnaChemistryList::ConstructTimeStepModel", "UnsupportedTimeStepModel",
+                FatalException,
+                "/process/chem/TimeStepModel: IRT_syn is the only supported chemistry "
+                "time-step model (SBS and IRT are not).");
+    return;
+  }
+  RegisterTimeStepModel(new G4DNAIndependentReactionTimeModel(), 0);
 
   DnaLogger::Print(DnaLogger::Level::Info,
-                   "[DnaChemistryList] time-step model = SBS (hard-coded)");
+                   "[DnaChemistryList] time-step model = IRT_syn (hard-coded)");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -297,7 +307,7 @@ void DnaChemistryList::ConstructProcess()
     auto* moleculeDef = iterator.value();
 
     if (moleculeDef != G4H2O::Definition()) {
-      // SBS is the only supported time-step model; always transport.
+      // IRT_syn diffuses every molecule with Brownian transportation.
       ph->RegisterProcess(new G4DNABrownianTransportation(), moleculeDef);
     }
     else {

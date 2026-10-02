@@ -19,8 +19,9 @@
 /// DnaChemistryWorld) react through the Chemistry's bulk reactions
 /// (docs/adr/0004-scavenger-reactions-per-chemistry.md).
 ///
-/// Time-step model: SBS only (hard-coded; IRT and IRT_syn are not
-/// supported).
+/// Time-step model: IRT_syn only (hard-coded; SBS and IRT are not supported,
+/// any other /process/chem/TimeStepModel value is fatal). The particle-based
+/// stage hands over to the mesoscopic stage in TimeStepAction.
 
 #ifndef DnaChemistryList_h
 #define DnaChemistryList_h 1
