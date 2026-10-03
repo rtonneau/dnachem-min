@@ -19,7 +19,11 @@ resets all counters to empty/zero:
   `Species_nt_species.csv` (aggregate sumG/sumG2 per species/time); a second
   ntuple, `Species_nt_species_all.csv` (same, per event), is only written when
   `ScoreSpecies` is compiled with `_ScoreSpecies_FOR_ALL_EVENTS` (off by
-  default; see `header/scoring/ScoreSpecies.hh`).
+  default; see `header/scoring/ScoreSpecies.hh`). The species sample
+  times (snapshots) come from `/scoring/species/timesFixed`, `timesList` or
+  `timesPerDecade` (README "Species sample times"); the end time is always the
+  last one. The setting is recorded as `speciesTimes` in `Manifest.json`
+  (`mode`, `step_ns` or `perDecade` when relevant, `count`).
 - `PreChemical_run<R>_event<E>.txt`: one pre-chemical file per event (Serial
   and MT alike). Each event writes it into the staging folder
   `<outdir>/.pending_prechem/`; every dump then moves all staged files into
