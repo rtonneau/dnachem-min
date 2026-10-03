@@ -11,13 +11,66 @@
 #include "actions/Run.hh"
 #include "scoring/RunAccumulator.hh"
 #include "scoring/RunManifest.hh"
+#include "scoring/ScoreSpecies.hh"
+#include "scoring/SpeciesSampleTimes.hh"
+#include "scoring/SpeciesSampleTimesMessenger.hh"
 
 #include "G4DNAChemistryManager.hh"
 
 #include "G4AccumulableManager.hh"
+#include "G4MultiFunctionalDetector.hh"
 #include "G4Run.hh"
 #include "G4RunManager.hh"
+#include "G4Scheduler.hh"
+#include "G4SDManager.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4Threading.hh"
+
+#include <sstream>
+#include <vector>
+
+namespace
+{
+    // Installs the /scoring/species/... sample-time grid on this thread's
+    // ScoreSpecies. Built here, at run start, from this thread's chemistry
+    // end time, because /scheduler/endTime may be issued after
+    // /run/initialize.
+    void ApplySpeciesSampleTimes()
+    {
+        std::vector<double> dropped;
+        const std::vector<double> grid = SpeciesSampleTimes::BuildGrid(
+            SpeciesSampleTimesMessenger::Current(), G4Scheduler::Instance()->GetEndTime(),
+            &dropped);
+
+        // Same lookup as RunAccumulatorMessenger::WriteAllAndReset.
+        auto *mfdet = dynamic_cast<G4MultiFunctionalDetector *>(
+            G4SDManager::GetSDMpointer()->FindSensitiveDetector("mfDetector"));
+        if (mfdet == nullptr)
+            return;
+        G4int collectionId = G4SDManager::GetSDMpointer()->GetCollectionID("mfDetector/Species");
+        auto *scorer = dynamic_cast<ScoreSpecies *>(mfdet->GetPrimitive(collectionId));
+        if (scorer == nullptr)
+            return;
+
+        scorer->ClearTimeToRecord();
+        for (double t : grid)
+            scorer->AddTimeToRecord(t);
+        SpeciesSampleTimesMessenger::SetLastGridSize(grid.size());
+
+        // One copy of the warnings, not one per worker.
+        if (!G4Threading::IsMultithreadedApplication() || G4Threading::G4GetThreadId() == 0)
+        {
+            for (double t : dropped)
+            {
+                std::ostringstream msg;
+                msg << "[RunAction] /scoring/species/timesList: " << t / ns
+                    << " ns is after the chemistry end time ("
+                    << G4Scheduler::Instance()->GetEndTime() / ns << " ns), dropped";
+                DnaLogger::Print(DnaLogger::Level::Warning, msg.str());
+            }
+        }
+    }
+} // namespace
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -54,6 +107,11 @@ void RunAction::BeginOfRunAction(const G4Run *run)
     auto *thisRun = static_cast<const Run *>(run);
     thisRun->GetReactionCounter()->Clear();
     thisRun->GetInteractionCounter()->Clear();
+
+    // Species sample times, on the threads that fill the scorer (Serial
+    // master, MT workers); the MT master scorer only receives merged results.
+    if (!IsMaster() || !G4Threading::IsMultithreadedApplication())
+        ApplySpeciesSampleTimes();
 
     if (IsMaster())
     {
