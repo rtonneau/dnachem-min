@@ -183,14 +183,31 @@
         "ticket": "05-smoke-validation",
         "commit": "762cef3"
       }
+    },
+    {
+      "at": "2026-10-03T15:52:33.143Z",
+      "event": "pr_opened",
+      "phase": "finish-pending",
+      "detail": {
+        "url": "https://github.com/rtonneau/dnachem-min/pull/20"
+      }
+    },
+    {
+      "at": "2026-10-03T15:52:33.146Z",
+      "event": "session_finished",
+      "phase": "finished",
+      "files": [
+        "INDEX.md"
+      ]
     }
   ],
-  "current_phase": "finish-pending",
+  "current_phase": "finished",
   "git": {
     "branch": "feat/meso-spatial-snapshots",
     "base_branch": "Meso",
     "branch_created_at": "2026-10-03T15:31:31.027Z",
-    "pr_url": null
+    "pr_url": "https://github.com/rtonneau/dnachem-min/pull/20"
   },
-  "ship_mode": "subagent+inline"
+  "ship_mode": "subagent+inline",
+  "finished_at": "2026-10-03T15:52:33.146Z"
 }
