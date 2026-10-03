@@ -37,6 +37,7 @@ struct Values
   double handOverTime = 5.;     ///< ns
   double voxelSize = 6.25e-6;   ///< mm (6.25 nm)
   int timesPerDecade = 10;
+  bool spatialOutput = false;
 };
 
 Values& Current();

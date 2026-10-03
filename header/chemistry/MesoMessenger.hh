@@ -3,6 +3,7 @@
 ///   /chem/meso/handOverTime <value> <unit>   particle-based -> mesoscopic switch (default 5 ns)
 ///   /chem/meso/voxelSize <value> <unit>      target initial cell size (default 6.25 nm)
 ///   /chem/meso/timesPerDecade <int>          mesoscopic record times per decade (default 10)
+///   /chem/meso/spatialOutput <bool>          write Spatial snapshots to SpeciesMesoSpatial.h5 (default false)
 /// Values go to the process-wide MesoSettings::Current(); invalid values are a
 /// fatal G4Exception. A plain G4UImessenger: its commands create /chem/meso/
 /// under the /chem/ directory made by G4DNAChemistryManager.
@@ -13,6 +14,7 @@
 
 class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWithAnInteger;
+class G4UIcmdWithABool;
 
 class MesoMessenger : public G4UImessenger
 {
@@ -27,6 +29,7 @@ private:
   G4UIcmdWithADoubleAndUnit* fpHandOverCmd;
   G4UIcmdWithADoubleAndUnit* fpVoxelCmd;
   G4UIcmdWithAnInteger* fpPerDecadeCmd;
+  G4UIcmdWithABool* fpSpatialOutputCmd;
 };
 
 #endif  // MesoMessenger_h

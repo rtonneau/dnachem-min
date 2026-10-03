@@ -5,6 +5,7 @@
 
 #include "G4ApplicationState.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4UIcmdWithABool.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWithAnInteger.hh"
 
@@ -43,6 +44,14 @@ MesoMessenger::MesoMessenger()
     "end time). Must be >= 1. Default: 10. Issue before /run/initialize.");
   fpPerDecadeCmd->SetParameterName("timesPerDecade", false);
   fpPerDecadeCmd->AvailableForStates(G4State_PreInit);
+
+  fpSpatialOutputCmd = new G4UIcmdWithABool("/chem/meso/spatialOutput", this);
+  fpSpatialOutputCmd->SetGuidance(
+    "Whether to save spatial species distributions during the mesoscopic stage to an HDF5 file "
+    "(SpeciesMesoSpatial.h5). Note: this generates a heavy output file. Default: false. Issue "
+    "before /run/initialize.");
+  fpSpatialOutputCmd->SetParameterName("spatialOutput", false);
+  fpSpatialOutputCmd->AvailableForStates(G4State_PreInit);
 }
 
 MesoMessenger::~MesoMessenger()
@@ -50,6 +59,7 @@ MesoMessenger::~MesoMessenger()
   delete fpHandOverCmd;
   delete fpVoxelCmd;
   delete fpPerDecadeCmd;
+  delete fpSpatialOutputCmd;
 }
 
 void MesoMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
@@ -79,6 +89,9 @@ void MesoMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
     }
     settings.timesPerDecade = value;
   }
+  else if (command == fpSpatialOutputCmd) {
+    settings.spatialOutput = fpSpatialOutputCmd->GetNewBoolValue(newValue);
+  }
 }
 
 G4String MesoMessenger::GetCurrentValue(G4UIcommand* command)
@@ -92,6 +105,9 @@ G4String MesoMessenger::GetCurrentValue(G4UIcommand* command)
   }
   if (command == fpPerDecadeCmd) {
     return fpPerDecadeCmd->ConvertToString(settings.timesPerDecade);
+  }
+  if (command == fpSpatialOutputCmd) {
+    return fpSpatialOutputCmd->ConvertToString(settings.spatialOutput);
   }
   return "";
 }
