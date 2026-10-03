@@ -36,10 +36,17 @@ namespace
     return fs::temp_directory_path() / "MesoSpatialFileTest";
   }
 
+  H5::StrType Utf8String()
+  {
+    H5::StrType type(H5::PredType::C_S1, H5T_VARIABLE);
+    type.setCset(H5T_CSET_UTF8);
+    return type;
+  }
+
   std::string ReadStringAttr(const H5::H5Object& obj, const char* name)
   {
     H5::Attribute attr = obj.openAttribute(name);
-    H5::StrType type(H5::PredType::C_S1, H5T_VARIABLE);
+    H5::StrType type = Utf8String();
     char* ptr = nullptr;
     attr.read(type, &ptr);
     std::string value(ptr);
@@ -90,7 +97,8 @@ int main()
   CHECK(StagedPath("out") == "out/.pending_meso_spatial/SpeciesMesoSpatial.h5");
   CHECK(StagedPath("") == ".pending_meso_spatial/SpeciesMesoSpatial.h5");
 
-  const std::vector<std::string> species = {"H2O2", "e_aq", "OH"};
+  // "HO_2" + UTF-8 degree sign: Geant4 display names are not pure ASCII.
+  const std::vector<std::string> species = {"H2O2", "e_aq", "HO_2\xC2\xB0"};
   const std::string path = StagedPath(outDir);
   std::string err;
 
@@ -143,7 +151,7 @@ int main()
     sp.getSpace().getSimpleExtentDims(&nsp);
     CHECK(nsp == 3);
     std::vector<char*> ptrs(3, nullptr);
-    sp.read(H5::StrType(H5::PredType::C_S1, H5T_VARIABLE), ptrs.data());
+    sp.read(Utf8String(), ptrs.data());
     for (int i = 0; i < 3; ++i) {
       CHECK(species[i] == ptrs[i]);
       H5free_memory(ptrs[i]);
@@ -164,7 +172,9 @@ int main()
     H5::DataSet dpos = f.openDataSet("/run0/event1/snapshot0/position_nm");
     dpos.getSpace().getSimpleExtentDims(dims);
     CHECK(dims[0] == 2 && dims[1] == 3);
-    CHECK(dpos.getCreatePlist().getNfilters() == 1);
+    // gzip only where the deflate filter exists; contiguous otherwise.
+    CHECK(dpos.getCreatePlist().getNfilters() ==
+          (H5Zfilter_avail(H5Z_FILTER_DEFLATE) > 0 ? 1 : 0));
     dpos.read(pos.data(), H5::PredType::NATIVE_DOUBLE);
     CHECK(pos == a.position_nm);
     std::vector<std::uint32_t> cnt(6);

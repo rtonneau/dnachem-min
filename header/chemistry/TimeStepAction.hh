@@ -62,6 +62,11 @@ private:
   /// then resets that counter for the next event.
   void CollectMesoSpecies();
 
+  /// Appends this event's mesoscopic spatial snapshots to the staged
+  /// SpeciesMesoSpatial.h5 (only when /chem/meso/spatialOutput is on and
+  /// there are records), then clears them. A failure is a JustWarning.
+  void WriteSpatialSnapshots();
+
   ReactionCounter fReactionCounter;
   MesoSpeciesCounter fMesoSpeciesCounter;
   const G4VChemistryWorld *fpChemWorld = nullptr;

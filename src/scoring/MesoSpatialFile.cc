@@ -28,6 +28,7 @@ namespace
   void WriteStringAttr(H5::H5Object& obj, const char* name, const std::string& value)
   {
     H5::StrType type(H5::PredType::C_S1, H5T_VARIABLE);
+    type.setCset(H5T_CSET_UTF8);
     H5::DataSpace scalar(H5S_SCALAR);
     H5::Attribute attr = obj.createAttribute(name, type, scalar);
     const char* ptr = value.c_str();
@@ -37,6 +38,7 @@ namespace
   void WriteSpeciesAttr(H5::H5Object& obj, const std::vector<std::string>& species)
   {
     H5::StrType type(H5::PredType::C_S1, H5T_VARIABLE);
+    type.setCset(H5T_CSET_UTF8);
     hsize_t dim = species.size();
     H5::DataSpace space(1, &dim);
     H5::Attribute attr = obj.createAttribute("species", type, space);
@@ -54,6 +56,7 @@ namespace
     if (space.getSimpleExtentNdims() != 1) throw H5::Exception("species", "attribute is not 1-D");
     space.getSimpleExtentDims(&dim);
     H5::StrType type(H5::PredType::C_S1, H5T_VARIABLE);
+    type.setCset(H5T_CSET_UTF8);
     std::vector<char*> ptrs(dim, nullptr);
     if (dim > 0) attr.read(type, ptrs.data());
     for (char* p : ptrs) {
@@ -69,8 +72,11 @@ namespace
     const hsize_t dims[2] = {rows, cols};
     H5::DataSpace space(2, dims);
     H5::DSetCreatPropList props;
-    if (rows > 0 && cols > 0) {
-      // Chunk dims must be non-zero, so empty datasets stay contiguous.
+    // gzip only when this HDF5 build has the deflate filter (vcpkg's hdf5
+    // without its zlib feature lacks it, and setDeflate would then be a silent
+    // no-op whose padded chunks make the file larger than contiguous storage).
+    // Chunk dims must be non-zero, so empty datasets stay contiguous too.
+    if (rows > 0 && cols > 0 && H5Zfilter_avail(H5Z_FILTER_DEFLATE) > 0) {
       const hsize_t chunk[2] = {std::min<hsize_t>(rows, 4096), cols};
       props.setChunk(2, chunk);
       props.setDeflate(4);
