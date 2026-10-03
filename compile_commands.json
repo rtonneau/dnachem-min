@@ -442,5 +442,17 @@
   "command": "C:\\PROGRA~1\\MIB055~1\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DH5_BUILT_AS_DYNAMIC_LIB -IC:\\Users\\rtonneau\\DEV\\GEANT4\\SIM\\dnachem-min\\header /DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -std:c++20 -MDd -Zi /FoCMakeFiles\\MesoSpeciesCounterTest.dir\\src\\scoring\\MesoSpeciesCounter.cc.obj /FdCMakeFiles\\MesoSpeciesCounterTest.dir\\ /FS -c C:\\Users\\rtonneau\\DEV\\GEANT4\\SIM\\dnachem-min\\src\\scoring\\MesoSpeciesCounter.cc",
   "file": "C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/src/scoring/MesoSpeciesCounter.cc",
   "output": "C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/build-ninja/CMakeFiles/MesoSpeciesCounterTest.dir/src/scoring/MesoSpeciesCounter.cc.obj"
+},
+{
+  "directory": "C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/build-ninja",
+  "command": "C:\\PROGRA~1\\MIB055~1\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DH5_BUILT_AS_DYNAMIC_LIB -IC:\\Users\\rtonneau\\DEV\\GEANT4\\SIM\\dnachem-min\\header -external:IC:\\Users\\rtonneau\\DEV\\vcpkg\\installed\\x64-windows\\include -external:W0 /DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -std:c++20 -MDd -Zi /FoCMakeFiles\\MesoSpatialFileTest.dir\\test\\MesoSpatialFileTest.cc.obj /FdCMakeFiles\\MesoSpatialFileTest.dir\\ /FS -c C:\\Users\\rtonneau\\DEV\\GEANT4\\SIM\\dnachem-min\\test\\MesoSpatialFileTest.cc",
+  "file": "C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/test/MesoSpatialFileTest.cc",
+  "output": "C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/build-ninja/CMakeFiles/MesoSpatialFileTest.dir/test/MesoSpatialFileTest.cc.obj"
+},
+{
+  "directory": "C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/build-ninja",
+  "command": "C:\\PROGRA~1\\MIB055~1\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -DH5_BUILT_AS_DYNAMIC_LIB -IC:\\Users\\rtonneau\\DEV\\GEANT4\\SIM\\dnachem-min\\header -external:IC:\\Users\\rtonneau\\DEV\\vcpkg\\installed\\x64-windows\\include -external:W0 /DWIN32 /D_WINDOWS /EHsc /Ob0 /Od /RTC1 -std:c++20 -MDd -Zi /FoCMakeFiles\\MesoSpatialFileTest.dir\\src\\scoring\\MesoSpatialFile.cc.obj /FdCMakeFiles\\MesoSpatialFileTest.dir\\ /FS -c C:\\Users\\rtonneau\\DEV\\GEANT4\\SIM\\dnachem-min\\src\\scoring\\MesoSpatialFile.cc",
+  "file": "C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/src/scoring/MesoSpatialFile.cc",
+  "output": "C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/build-ninja/CMakeFiles/MesoSpatialFileTest.dir/src/scoring/MesoSpatialFile.cc.obj"
 }
 ]
