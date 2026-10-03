@@ -726,3 +726,11 @@ Skipped at 2026-09-30T14:31:30.3022584+02:00: C:\Users\rtonneau\DATA\Geant4\2609
 Skipped at 2026-09-30T14:31:30.7280890+02:00: C:\Users\rtonneau\DATA\Geant4\260930\run.ps1
 Skipped at 2026-09-30T14:31:31.1589559+02:00: C:\Users\rtonneau\DATA\Geant4\260930\run.ps1
 Skipped at 2026-09-30T14:31:31.5836443+02:00: C:\Users\rtonneau\DATA\Geant4\260930\run.ps1
+Skipped at 2026-10-01T18:47:21.0913495+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-01__boscolo-gvalues-vs-paper\.write-payload.md
+Skipped at 2026-10-01T18:50:26.8320396+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-01__boscolo-gvalues-vs-paper\.write-payload.md
+Skipped at 2026-10-01T18:54:00.7166235+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\chemistry\RateAwareReactionModel.hh
+Triggered at 2026-10-01T18:54:01.5483255+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\chemistry\RateAwareReactionModel.cc
+Completed at 2026-10-01T18:54:10.1838479+02:00: copied compile_commands.json
+Skipped at 2026-10-01T18:56:16.6755353+02:00: C:\DEV\GEANT4\SIM\dnachem-min\docs\adr\0006-opt-in-sbs-rate-aware-acceptance.md
+Skipped at 2026-10-01T18:56:25.5742984+02:00: C:\DEV\GEANT4\SIM\dnachem-min\docs\adr\0006-opt-in-sbs-rate-aware-acceptance.md
+Skipped at 2026-10-01T18:57:21.5162798+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-01__boscolo-gvalues-vs-paper\03-implement\02-rate-aware-reaction-model\commit-log.md

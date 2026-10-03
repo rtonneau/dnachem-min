@@ -75,3 +75,18 @@ position. One file per event, including an empty one when the event made none. I
 belongs to the **Dump** that covers its run and is listed in that dump's **Manifest**.
 _Avoid_: "output_event file", "chemistry output" (the chemical stage's own results are
 the species and reaction files).
+
+**Reaction acceptance**:
+The step-by-step (SBS) test deciding whether two tracked molecules react during a
+chemistry time step: either they end the step closer than the reaction radius, or
+their paths are judged to have met in between (the Brownian-bridge test). Geant4's
+default acceptance ignores the rate constant once the pair is outside the radius, so
+reactions far below the diffusion limit fire too often. **Rate-aware acceptance**
+(opt-in) makes the in-between test consistent with the reaction's rate constant.
+_Avoid_: "reaction model" alone (also names the Chemistry's reaction content).
+
+**Step cap**:
+An upper bound on the chemistry time step (opt-in; none by default). Without it, steps
+grow very large once the fast species are gone, and the in-between test accepts almost
+any nearby pair.
+_Avoid_: "time step" alone; the existing per-time-window table sets *minimum* steps.

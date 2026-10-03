@@ -1,28 +1,4 @@
 {
-  "runconfig-resolver": {
-    "strength": "Strong",
-    "files": [
-      "sim.cc"
-    ],
-    "problem": "The Serial-vs-MT decision and the \"macro/\" + argv[1]-or-beam.in fallback are plain statements interleaved with G4RunManagerFactory calls inside main, with no seam a test can enter through.",
-    "solution": "Extract a pure ResolveRunConfig(argc, argv) returning {type, threads, macroFile}; main calls it once, then wires Geant4 objects from the result.",
-    "benefits": "Leverage: first module in the project testable without a Geant4 runtime. Locality: the \"which macro, how many threads\" question moves from a scan of main to one function signature.",
-    "sourceDirection": "only review sim.cc",
-    "sourceReport": "scout-reports/architecture-review-2026-09-17T15-51-54-188Z.html",
-    "createdAt": "2026-09-17T15:51:54.188Z"
-  },
-  "gui-batch-seam": {
-    "strength": "Worth exploring",
-    "files": [
-      "sim.cc"
-    ],
-    "problem": "GUI and batch are two real adapters of how the run executes, but today they're an inline if/else in main with manual new/delete resource management duplicated only in the GUI branch.",
-    "solution": "Give them a shared Run(mode, UIManager) seam with an interactive adapter and a batch adapter, each owning its own resource lifetimes.",
-    "benefits": "Tension flagged: useGUI is a hardcoded compile-time flag with one caller per binary, a hypothetical seam per CLAUDE.md's no-extra-abstraction rule -- only worth it if GUI mode sees real use beyond occasional debugging.",
-    "sourceDirection": "only review sim.cc",
-    "sourceReport": "scout-reports/architecture-review-2026-09-17T15-51-54-188Z.html",
-    "createdAt": "2026-09-17T15:51:54.188Z"
-  },
   "remove-dead-out-global": {
     "strength": "Speculative",
     "files": [
@@ -34,23 +10,6 @@
     "sourceDirection": "only review sim.cc",
     "sourceReport": "scout-reports/architecture-review-2026-09-17T15-51-54-188Z.html",
     "createdAt": "2026-09-17T15:51:54.188Z"
-  },
-  "rooted-includes": {
-    "strength": "Worth exploring",
-    "severity": null,
-    "files": [
-      "CMakeLists.txt",
-      "src/",
-      "header/",
-      "sim.cc"
-    ],
-    "problem": "The CMake include path adds every header directory, so any file can include any header by bare name; new subdirectories would be cosmetic and nothing would stop scoring/ from reaching into chemistry/. Header placement (mirrored header/ vs co-located .hh) is also undecided.",
-    "solution": "Use cluster-prefixed includes (e.g. \"scoring/ReactionCounter.hh\") with one include root, and drop the per-directory include loop in CMakeLists.txt. Decide header placement first. Open decision: how the copy-paste-portable files (PureWaterReactions, PhysicsInteractionCounter, ...) keep working when copied to another project with different prefixes.",
-    "benefits": "Each include documents dependency direction; cross-cluster edges become greppable. Tension: touches ~100 include lines and may conflict with the portable-class convention.",
-    "sourceDirection": "clean the project code architecture. All files are in src/ and header/ with 30+ files. Let's think about adding subdirectories and also why not rename some files if needed. Idea is to cluster source files for easier maintenance",
-    "sourceReport": "scout-reports/architecture-review-2026-09-28T13-49-34-973Z.html",
-    "sourcePath": null,
-    "createdAt": "2026-09-28T13:49:34.973Z"
   },
   "core-library-targets": {
     "strength": "Worth exploring",
@@ -84,59 +43,6 @@
     "sourceReport": "scout-reports/architecture-review-2026-09-28T13-49-34-973Z.html",
     "sourcePath": null,
     "createdAt": "2026-09-28T13:49:34.973Z"
-  },
-  "file-renames": {
-    "strength": "Speculative",
-    "severity": null,
-    "files": [
-      "src/ChemUtils.cc",
-      "src/RunAccumulatorMessenger.cc",
-      "src/BuiltInChemistries.cc",
-      "header/PrimaryKiller.hh"
-    ],
-    "problem": "A few names hide their cluster: ChemUtils (only used by StackingAction to print the time-step model), RunAccumulatorMessenger (owns the dump/reset commands rather than accumulation), BuiltInChemistries vs ChemistryRegistry, generic Run, and PrimaryKiller.hh still guarded by CHEM6_PrimaryKiller_h.",
-    "solution": "After the subdirectory move, rename file and class together only where the directory does not already disambiguate; fix the stale header guard; consider folding ChemUtils into chemistry/ or StackingAction. Renames also touch macro docs and CLAUDE.md Key Files.",
-    "benefits": "Marginal on its own; directories remove most of the ambiguity.",
-    "sourceDirection": "clean the project code architecture. All files are in src/ and header/ with 30+ files. Let's think about adding subdirectories and also why not rename some files if needed. Idea is to cluster source files for easier maintenance",
-    "sourceReport": "scout-reports/architecture-review-2026-09-28T13-49-34-973Z.html",
-    "sourcePath": null,
-    "createdAt": "2026-09-28T13:49:34.973Z"
-  },
-  "diagnostic-output-files": {
-    "strength": "Strong",
-    "severity": "High",
-    "files": [
-      "src/chemistry/TimeStepAction.cc",
-      "header/chemistry/TimeStepAction.hh",
-      "src/actions/EventAction.cc",
-      "src/chemistry/DnaChemistryList.cc",
-      ".claude/.claude-project.json"
-    ],
-    "problem": "F-002, F-003: TimeStepAction::EndProcessing calls G4DNAChemistryManager::WriteInto(output_event_N.txt) at the END of event N; Geant4's FormattedText keeps the stream open (CloseFile returns early), so event N+1's physico-chemical data lands in output_event_N.txt, the next open() fails and no further file is ever written (one file per thread). The file also ignores dump prefix/subdir and is overwritten across Serial runs. F-003: /chem/reaction/dump is written from DnaChemistryList::ConstructProcess, which runs on the master and every worker in MT, so all threads write the same path concurrently. Open decision (Q1): is output_event_*.txt used by any analysis -- fix it or remove it?",
-    "solution": "Depending on Q1: either open the per-event file at begin of event N (EventAction::BeginOfEventAction), close it explicitly after the chemistry stage, include run ID in the name and route it through the dump subdir; or drop the WriteInto call and remove it from run.outputs in .claude-project.json. For F-003, guard the dump with !G4Threading::IsWorkerThread(). Verify: 3 events -> 3 files whose H2O record counts match each event's 'Size of pre chemical main list'; reaction dump byte-identical between Serial and --threads 4.",
-    "benefits": "Auxiliary diagnostic outputs become trustworthy and MT-safe.",
-    "sourceDirection": null,
-    "sourceReport": "scout-reports/review-2026-09-29-whole-project-review-2026-09-29T16-49-12-241Z.md",
-    "sourcePath": "docs/reviews/2026-09-29-whole-project-review.md",
-    "createdAt": "2026-09-29T16:49:12.241Z"
-  },
-  "primary-killer-controls": {
-    "strength": "Strong",
-    "severity": "Medium",
-    "files": [
-      "src/scoring/PrimaryKiller.cc",
-      "header/scoring/PrimaryKiller.hh",
-      "src/actions/SteppingAction.cc",
-      "src/actions/EventAction.cc",
-      "src/actions/Run.cc"
-    ],
-    "problem": "F-004, F-006: /primaryKiller/minKineticE is created but SetNewValue has no branch for it (silent no-op, command also leaked in destructor; inherited from chem4). F-006: events aborted by PrimaryKiller (eLossMax, default 1 MeV) are excluded from events/energy/species, but SteppingAction has already recorded their steps into PhysicsInteractions.",
-    "solution": "Handle fpMinKineticE in SetNewValue, delete it in the destructor, add SetUnitCategory(\"Energy\") to the energy commands. Record steps into a per-event scratch counter and merge into the live counter from EventAction::EndOfEventAction only when !event->IsAborted(). Depends on serial-counter-reset (same live-counter feed). Verify: minKineticE 90 keV at 100 keV lowers energyDeposit_eV per event; eLossMax 5 keV reduces events and interaction counts in proportion.",
-    "benefits": "All macro controls work and aborted events are excluded consistently.",
-    "sourceDirection": null,
-    "sourceReport": "scout-reports/review-2026-09-29-whole-project-review-2026-09-29T16-49-12-241Z.md",
-    "sourcePath": "docs/reviews/2026-09-29-whole-project-review.md",
-    "createdAt": "2026-09-29T16:49:12.241Z"
   },
   "cleanup-and-docs": {
     "strength": "Worth exploring",
