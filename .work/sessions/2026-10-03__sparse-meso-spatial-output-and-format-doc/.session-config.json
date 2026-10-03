@@ -85,6 +85,30 @@
         "ticket": "01-sparse-capture-format-v2",
         "commit": "4a3234e"
       }
+    },
+    {
+      "at": "2026-10-03T17:14:21.135Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/02-format-description-doc.md",
+        "03-implement/02-format-description-doc/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-format-description-doc"
+      }
+    },
+    {
+      "at": "2026-10-03T17:15:49.717Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/02-format-description-doc/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-format-description-doc",
+        "commit": "9a8724f"
+      }
     }
   ],
   "current_phase": "ship",
