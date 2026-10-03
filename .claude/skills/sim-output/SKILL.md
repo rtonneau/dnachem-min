@@ -29,6 +29,22 @@ resets all counters to empty/zero:
   are a log grid from the hand-over time to the end time
   (`/chem/meso/timesPerDecade`, default 10). Bulk species are not listed.
   `Species.*` stops at the hand-over time.
+- `SpeciesMesoSpatial.h5`: only with `/chem/meso/spatialOutput true`
+  (PreInit, default false). Spatial snapshots of the mesoscopic mesh, appended
+  per event by `TimeStepAction` into the staging folder
+  `<outdir>/.pending_meso_spatial/`; every dump (prefix, subfolder and the
+  `EndOfRun_` safety net alike) moves it to the dump and lists it in
+  `Manifest.json` `files` (`mesoSpatialOutput` records the switch). A failed
+  move is a `MesoSpatialMoveFailed` warning. Layout:
+  `/run<R>/event<E>/snapshot<k>/` with attributes `time_ns`, `cellSize_nm`
+  and datasets `position_nm` (N x 3 float64, cell centres) and `counts`
+  (N x S uint32). Columns of `counts` are every molecule-table configuration
+  except water (any state), `G4FakeMolecule` ("None") and `(B)` bulk species,
+  by display name (UTF-8, e.g. `HO_2°`), sorted. Every cell the mesh holds is
+  written, empty ones included. Datasets are gzip-compressed only when the
+  HDF5 build has the deflate filter; the current vcpkg build has none, so they
+  are contiguous and uncompressed (~30 MB per 10 keV event at a 1 ms end
+  time). Concentration in mol/L = `count / (N_A * (cellSize_nm * 1e-8 dm)^3)`.
 - `PreChemical_run<R>_event<E>.txt`: one pre-chemical file per event (Serial
   and MT alike). Each event writes it into the staging folder
   `<outdir>/.pending_prechem/`; every dump then moves all staged files into
