@@ -169,6 +169,7 @@ bool MesoSpatialFile::AppendEvent(const std::string& path, const std::vector<std
       root.createAttribute("formatVersion", H5::PredType::NATIVE_INT, scalar)
         .write(H5::PredType::NATIVE_INT, &version);
       WriteStringAttr(root, "units", kUnits);
+      WriteStringAttr(root, "formatDoc", kFormatDoc);
     }
     else {
       H5::Group root = h5.openGroup("/");
