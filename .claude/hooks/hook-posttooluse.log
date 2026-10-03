@@ -832,3 +832,28 @@ Skipped at 2026-10-02T21:31:59.6322551+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\d
 Skipped at 2026-10-02T21:32:15.5805269+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-02__irt-syn-mesoscopic\03-implement\07-validation\commit-log.md
 Skipped at 2026-10-02T23:02:37.2228559+02:00: C:\Users\rtonneau\.claude\projects\C--Users-rtonneau-DEV-GEANT4-SIM-dnachem-min\memory\analysis-scripts-tracked.md
 Skipped at 2026-10-02T23:02:38.5496721+02:00: C:\Users\rtonneau\.claude\projects\C--Users-rtonneau-DEV-GEANT4-SIM-dnachem-min\memory\MEMORY.md
+Skipped at 2026-10-03T17:29:41.4729744+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-03__export-mesoscopic-species-concentrations\.write-payload.md
+Skipped at 2026-10-03T17:31:21.8839039+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-03__export-mesoscopic-species-concentrations\.write-payload.md
+Skipped at 2026-10-03T17:32:09.2221136+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\MesoSettings.hh
+Skipped at 2026-10-03T17:32:16.6333837+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\MesoMessenger.hh
+Skipped at 2026-10-03T17:32:19.3004261+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\MesoMessenger.hh
+Triggered at 2026-10-03T17:32:22.7663657+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\MesoMessenger.cc
+Completed at 2026-10-03T17:32:26.7881116+02:00: copied compile_commands.json
+Triggered at 2026-10-03T17:32:31.6789650+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\MesoMessenger.cc
+Completed at 2026-10-03T17:32:33.9322213+02:00: copied compile_commands.json
+Triggered at 2026-10-03T17:32:36.2532247+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\MesoMessenger.cc
+Completed at 2026-10-03T17:32:38.4987779+02:00: copied compile_commands.json
+Triggered at 2026-10-03T17:32:44.3782057+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\MesoMessenger.cc
+Completed at 2026-10-03T17:32:46.6830076+02:00: copied compile_commands.json
+Triggered at 2026-10-03T17:32:50.3653844+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\MesoMessenger.cc
+Completed at 2026-10-03T17:32:52.6142979+02:00: copied compile_commands.json
+Triggered at 2026-10-03T17:32:56.8626134+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\MesoSettingsTest.cc
+Completed at 2026-10-03T17:32:59.1079991+02:00: copied compile_commands.json
+Triggered at 2026-10-03T17:33:02.6751382+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\MesoSettingsTest.cc
+Completed at 2026-10-03T17:33:04.9203752+02:00: copied compile_commands.json
+Skipped at 2026-10-03T17:35:22.0135300+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\scoring\MesoSpatialFile.hh
+Triggered at 2026-10-03T17:35:22.4259646+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\scoring\MesoSpatialFile.cc
+Completed at 2026-10-03T17:35:24.7785354+02:00: copied compile_commands.json
+Triggered at 2026-10-03T17:35:46.7744000+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\MesoSpatialFileTest.cc
+Completed at 2026-10-03T17:35:49.1477268+02:00: copied compile_commands.json
+Skipped at 2026-10-03T17:38:33.4284825+02:00: C:\Users\rtonneau\AppData\Local\Temp\claude\C--Users-rtonneau-DEV-GEANT4-SIM-dnachem-min\7d059294-25c2-44b1-bbaa-a7e4a7a9b756\scratchpad\patch.py
