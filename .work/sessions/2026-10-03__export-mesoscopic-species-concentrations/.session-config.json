@@ -111,6 +111,30 @@
         "ticket": "02-meso-spatial-file-writer",
         "commit": "376afd4"
       }
+    },
+    {
+      "at": "2026-10-03T15:36:41.666Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/03-capture-spatial-snapshots.md",
+        "03-implement/03-capture-spatial-snapshots/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "03-capture-spatial-snapshots"
+      }
+    },
+    {
+      "at": "2026-10-03T15:46:57.812Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/03-capture-spatial-snapshots/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "03-capture-spatial-snapshots",
+        "commit": "6f3d14b"
+      }
     }
   ],
   "current_phase": "ship",
