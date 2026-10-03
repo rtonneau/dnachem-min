@@ -87,6 +87,30 @@
         "ticket": "01-spatial-output-switch",
         "commit": "1a7b32e"
       }
+    },
+    {
+      "at": "2026-10-03T15:34:11.298Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/02-meso-spatial-file-writer.md",
+        "03-implement/02-meso-spatial-file-writer/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-meso-spatial-file-writer"
+      }
+    },
+    {
+      "at": "2026-10-03T15:36:36.675Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/02-meso-spatial-file-writer/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-meso-spatial-file-writer",
+        "commit": "376afd4"
+      }
     }
   ],
   "current_phase": "ship",
