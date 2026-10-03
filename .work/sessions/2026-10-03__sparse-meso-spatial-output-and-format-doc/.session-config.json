@@ -109,9 +109,33 @@
         "ticket": "02-format-description-doc",
         "commit": "9a8724f"
       }
+    },
+    {
+      "at": "2026-10-03T17:15:50.094Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/03-sparse-smoke-validation.md",
+        "03-implement/03-sparse-smoke-validation/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "03-sparse-smoke-validation"
+      }
+    },
+    {
+      "at": "2026-10-03T17:16:46.064Z",
+      "event": "ticket_done",
+      "phase": "finish-pending",
+      "files": [
+        "03-implement/03-sparse-smoke-validation/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "03-sparse-smoke-validation",
+        "commit": "6a9fcb8"
+      }
     }
   ],
-  "current_phase": "ship",
+  "current_phase": "finish-pending",
   "git": {
     "branch": "feat/meso-spatial-sparse",
     "base_branch": "feat/meso-spatial-snapshots",
