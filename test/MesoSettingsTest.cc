@@ -58,6 +58,12 @@ void TestInvalid()
   assert(Throws([] { MesoSettings::PixelCount(0., 1.); }));
   assert(Throws([] { MesoSettings::PixelCount(1., 0.); }));
 }
+
+void TestDefaults()
+{
+  const auto& settings = MesoSettings::Current();
+  assert(settings.spatialOutput == false);
+}
 }  // namespace
 
 int main()
@@ -70,6 +76,7 @@ int main()
   TestPixelCount();
   TestLogTimeGrid();
   TestInvalid();
+  TestDefaults();
   std::cout << "MesoSettingsTest: all tests passed\n";
   return 0;
 }

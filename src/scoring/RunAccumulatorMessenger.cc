@@ -4,6 +4,7 @@
 #include "core/OutputDir.hh"
 #include "core/DnaLogger.hh"
 #include "scoring/PreChemicalFiles.hh"
+#include "scoring/MesoSpatialFile.hh"
 #include "scoring/ScoreSpecies.hh"
 
 #include "G4UIcmdWithAString.hh"
@@ -217,6 +218,27 @@ void RunAccumulatorMessenger::WriteAllAndReset(const G4String &prefix, const G4S
     DnaLogger::Print(DnaLogger::Level::Info,
                      "[RunAccumulatorMessenger] moved " + std::to_string(moveResult.moved.size()) +
                          " pre-chemical file(s) into the dump");
+
+    // Meso spatial snapshots (/chem/meso/spatialOutput): move the staged HDF5
+    // file into this dump (Resolve applies the prefix and subdir).
+    {
+        bool spatialMoved = false;
+        std::string spatialErr;
+        if (MesoSpatialFile::MoveStaged(OutputDir::GetDirectory(),
+                                        OutputDir::Resolve(MesoSpatialFile::FileName()),
+                                        spatialMoved, spatialErr))
+        {
+            if (spatialMoved)
+            {
+                files.push_back(prefix + MesoSpatialFile::FileName());
+            }
+        }
+        else
+        {
+            G4Exception("RunAccumulatorMessenger::WriteAllAndReset", "MesoSpatialMoveFailed",
+                        JustWarning, spatialErr.c_str());
+        }
+    }
 
     // Energy deposit, beam and everything else that describes this dump.
     RunManifest::Write(prefix, subdir, files);

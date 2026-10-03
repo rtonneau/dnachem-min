@@ -48,6 +48,7 @@
       "Species.Txt",
       "SpeciesMeso.Txt",
       "SpeciesMeso.csv",
+      "SpeciesMesoSpatial.h5 (only with /chem/meso/spatialOutput true)",
       "Species_nt_species.csv",
       "Reactions.Txt",
       "Reactions_nt_reactions.csv",
