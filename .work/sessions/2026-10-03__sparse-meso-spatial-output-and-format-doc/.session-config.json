@@ -61,6 +61,30 @@
       "detail": {
         "tickets": 3
       }
+    },
+    {
+      "at": "2026-10-03T17:12:42.715Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/01-sparse-capture-format-v2.md",
+        "03-implement/01-sparse-capture-format-v2/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "01-sparse-capture-format-v2"
+      }
+    },
+    {
+      "at": "2026-10-03T17:14:20.725Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/01-sparse-capture-format-v2/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "01-sparse-capture-format-v2",
+        "commit": "4a3234e"
+      }
     }
   ],
   "current_phase": "ship",
@@ -69,5 +93,6 @@
     "base_branch": "feat/meso-spatial-snapshots",
     "branch_created_at": "2026-10-03T17:12:42.193Z",
     "pr_url": null
-  }
+  },
+  "ship_mode": "subagent+inline"
 }
