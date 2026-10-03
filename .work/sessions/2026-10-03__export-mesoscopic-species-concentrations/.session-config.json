@@ -159,9 +159,33 @@
         "ticket": "04-dump-integration-and-docs",
         "commit": "99629c9"
       }
+    },
+    {
+      "at": "2026-10-03T15:49:46.674Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/05-smoke-validation.md",
+        "03-implement/05-smoke-validation/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "05-smoke-validation"
+      }
+    },
+    {
+      "at": "2026-10-03T15:52:20.645Z",
+      "event": "ticket_done",
+      "phase": "finish-pending",
+      "files": [
+        "03-implement/05-smoke-validation/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "05-smoke-validation",
+        "commit": "762cef3"
+      }
     }
   ],
-  "current_phase": "ship",
+  "current_phase": "finish-pending",
   "git": {
     "branch": "feat/meso-spatial-snapshots",
     "base_branch": "Meso",

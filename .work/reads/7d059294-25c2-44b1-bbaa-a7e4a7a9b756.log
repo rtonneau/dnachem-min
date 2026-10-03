@@ -46,3 +46,6 @@
 2026-10-03 17:47:35	18b47a10-e41b-4fcd-8a09-581a9d404756	general-purpose	Bash	C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/CLAUDE.md, C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/CLAUDE.md (bash)	4	1303
 2026-10-03 17:48:49	18b47a10-e41b-4fcd-8a09-581a9d404756	general-purpose	Bash	C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/.scratch/tests/2026-10-03__export-mesoscopic-species-concentrations/t04.log, C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/.scratch/tests/2026-10-03__export-mesoscopic-species-concentrations/t04.log (bash)	12	581
 2026-10-03 17:49:00	c29b2863-fb7e-4213-a554-dc2868e21b20	main	Bash	C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/macro/beam_meso_spatial.in (bash)	141	16863
+2026-10-03 17:49:47	c29b2863-fb7e-4213-a554-dc2868e21b20	main	Bash	C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/.scratch/tests/2026-10-03__export-mesoscopic-species-concentrations/t04r/SpeciesMeso.csv:1-5 (bash)	7	195
+2026-10-03 17:50:01	c29b2863-fb7e-4213-a554-dc2868e21b20	general-purpose	Read	C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/.work/sessions/2026-10-03__export-mesoscopic-species-concentrations/02-plan/tickets/05-smoke-validation.md	28	1784
+2026-10-03 17:50:02	c29b2863-fb7e-4213-a554-dc2868e21b20	general-purpose	Bash	C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/macro/beam_meso_spatial.in (bash)	43	1952
