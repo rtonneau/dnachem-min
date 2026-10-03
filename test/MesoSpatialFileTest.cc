@@ -144,7 +144,9 @@ int main()
           "time_ns: ns; counts: molecules per cell");
     int version = 0;
     root.openAttribute("formatVersion").read(H5::PredType::NATIVE_INT, &version);
+    CHECK(version == 2);
     CHECK(version == kFormatVersion);
+    CHECK(ReadStringAttr(root, "formatDoc") == kFormatDoc);
 
     H5::Attribute sp = root.openAttribute("species");
     hsize_t nsp = 0;

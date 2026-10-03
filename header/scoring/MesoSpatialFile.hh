@@ -8,7 +8,8 @@
 /// MoveStaged() moves it to a target chosen by the caller.
 ///
 /// Layout: /run<R>/event<E>/snapshot<k>/ with attributes time_ns and cellSize_nm
-/// and datasets position_nm (N x 3 float64) and counts (N x S uint32). Records
+/// and datasets position_nm (N x 3 float64) and counts (N x S uint32), sparse:
+/// only cells holding at least one molecule are listed (N may be 0). Records
 /// that share a mesh state share the datasets through HDF5 hard links.
 
 #ifndef MesoSpatialFile_hh
@@ -44,7 +45,10 @@ namespace MesoSpatialFile
     std::vector<Record> records;     ///< one per record time, ascending
   };
 
-  constexpr int kFormatVersion = 1;
+  constexpr int kFormatVersion = 2;
+
+  /// Path of the format description, written as the root attribute formatDoc.
+  constexpr const char* kFormatDoc = "docs/output/SpeciesMesoSpatial-h5.md";
 
   /// "SpeciesMesoSpatial.h5"
   std::string FileName();

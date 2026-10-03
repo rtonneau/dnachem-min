@@ -80,8 +80,8 @@ homogeneous water box; the cells exist only inside the chemistry.
 
 **Spatial snapshot**:
 The state of one event's **Mesoscopic stage** mesh at one record time: every cell
-the mesh holds (empty ones included), with its centre, its side (which grows as the
-mesh coarsens) and its molecule count per tracked species. Opt-in output, one per
+holding at least one molecule, with its centre, its side (which grows as the mesh
+coarsens) and its molecule count per tracked species. Opt-in output, one per
 record time of the mesoscopic log grid.
 _Avoid_: "voxel dump", "concentration map" (counts are stored; concentration is
 derived from count and cell side).

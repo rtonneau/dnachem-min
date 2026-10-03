@@ -300,29 +300,30 @@ private:
     return column;
   }
 
-  /// Appends one spatial snapshot of the whole mesh (every cell, empty ones
-  /// included) and returns its index.
+  /// Appends one sparse spatial snapshot of the mesh (only cells whose
+  /// species-column counts sum to > 0; none gives N = 0) and returns its index.
   std::size_t TakeSnapshot(const G4DNAMesh &mesh)
   {
     if (!fSpeciesBuilt) BuildSpecies();
     const std::size_t nSpecies = fSpecies.size();
-    const auto nCells = static_cast<std::size_t>(mesh.const_end() - mesh.const_begin());
     MesoSpatialFile::Snapshot snapshot;
     snapshot.cellSize_nm = mesh.GetResolution() / nm;
-    snapshot.position_nm.reserve(3 * nCells);
-    snapshot.counts.assign(nCells * nSpecies, 0);
-    std::size_t cell = 0;
-    for (auto it = mesh.const_begin(); it != mesh.const_end(); ++it, ++cell) {
+    std::vector<std::uint32_t> row(nSpecies, 0);
+    for (auto it = mesh.const_begin(); it != mesh.const_end(); ++it) {
+      std::fill(row.begin(), row.end(), 0u);
+      std::uint64_t sum = 0;
+      for (const auto &[molType, count] : std::get<2>(*it)) {
+        const long column = Column(molType);
+        if (column < 0) continue;
+        row[static_cast<std::size_t>(column)] += static_cast<std::uint32_t>(count);
+        sum += static_cast<std::uint32_t>(count);
+      }
+      if (sum == 0) continue;
       const G4ThreeVector centre = std::get<1>(*it).middlePoint() / nm;
       snapshot.position_nm.push_back(centre.x());
       snapshot.position_nm.push_back(centre.y());
       snapshot.position_nm.push_back(centre.z());
-      for (const auto &[molType, count] : std::get<2>(*it)) {
-        const long column = Column(molType);
-        if (column < 0) continue;
-        snapshot.counts[cell * nSpecies + static_cast<std::size_t>(column)] +=
-          static_cast<std::uint32_t>(count);
-      }
+      snapshot.counts.insert(snapshot.counts.end(), row.begin(), row.end());
     }
     fSpatial.snapshots.push_back(std::move(snapshot));
     return fSpatial.snapshots.size() - 1;
