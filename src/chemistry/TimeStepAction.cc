@@ -4,12 +4,16 @@
 #include "chemistry/TimeStepAction.hh"
 
 #include "core/DnaLogger.hh"
+#include "core/OutputDir.hh"
 #include "chemistry/MesoSettings.hh"
 #include "chemistry/ReactionTableDump.hh"
+#include "scoring/MesoSpatialFile.hh"
 
 #include "G4DNABoundingBox.hh"
 #include "G4DNAEventScheduler.hh"
 #include "G4DNAMesh.hh"
+#include "G4FakeMolecule.hh"
+#include "G4H2O.hh"
 #include "G4DNAMolecularReactionTable.hh"
 #include "G4DNAScavengerMaterial.hh"
 #include "G4Event.hh"
@@ -18,15 +22,20 @@
 #include "G4MolecularConfiguration.hh"
 #include "G4Molecule.hh"
 #include "G4MoleculeCounterManager.hh"
+#include "G4MoleculeTable.hh"
+#include "G4Run.hh"
+#include "G4RunManager.hh"
 #include "G4Scheduler.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4Timer.hh"
 #include "G4UserMeshAction.hh"
 #include "G4VChemistryWorld.hh"
 
+#include <algorithm>
 #include <cmath>
 #include <map>
 #include <sstream>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -117,12 +126,15 @@ public:
     fFirstMesh = true;
   }
 
-  /// Record times of this event (sorted ascending); clears earlier records.
+  /// Record times of this event (sorted ascending); clears earlier records
+  /// and the spatial snapshots. Reads /chem/meso/spatialOutput (PreInit).
   void StartRecording(std::vector<G4double> recordTimes)
   {
     fRecordTimes = std::move(recordTimes);
     fNextRecord = 0;
     fRecords.clear();
+    fSpatialOn = MesoSettings::Current().spatialOutput;
+    ClearSpatial();
   }
 
   /// Fills every record time not yet passed with the final state of the
@@ -131,12 +143,28 @@ public:
   {
     if (mesh == nullptr || fNextRecord >= fRecordTimes.size()) return;
     const MeshCounts counts = MeshSpeciesCounts(*mesh);
+    const std::size_t snapshot = fSpatialOn ? TakeSnapshot(*mesh) : 0;
     for (; fNextRecord < fRecordTimes.size(); ++fNextRecord) {
       fRecords[fRecordTimes[fNextRecord]] = counts;
+      if (fSpatialOn) fSpatial.records.push_back({fRecordTimes[fNextRecord] / ns, snapshot});
     }
   }
 
   const std::map<G4double, MeshCounts> &Records() const { return fRecords; }
+
+  /// Spatial snapshots of this event (empty unless /chem/meso/spatialOutput).
+  MesoSpatialFile::EventData &SpatialData() { return fSpatial; }
+  void ClearSpatial() { fSpatial = MesoSpatialFile::EventData{}; }
+
+  /// Species columns of the spatial file: every molecular configuration but
+  /// water and the bulk species (as in SpeciesMeso.*), by display name,
+  /// sorted. Built once per thread, on first use (the molecule table is
+  /// complete after /run/initialize).
+  const std::vector<std::string> &SpatialSpecies()
+  {
+    if (!fSpeciesBuilt) BuildSpecies();
+    return fSpecies;
+  }
 
   void BeginOfMesh(const G4VDNAMesh *aMesh, G4double time) override
   {
@@ -204,19 +232,115 @@ public:
 
 private:
   /// Snapshots the mesh for every record time the stage time has reached.
+  /// Several record times passed in one call share one spatial snapshot.
   void Record(const G4DNAMesh &mesh, G4double time)
   {
     if (fNextRecord >= fRecordTimes.size() || time < fRecordTimes[fNextRecord]) return;
     const MeshCounts counts = MeshSpeciesCounts(mesh);
+    const std::size_t snapshot = fSpatialOn ? TakeSnapshot(mesh) : 0;
     for (; fNextRecord < fRecordTimes.size() && time >= fRecordTimes[fNextRecord];
          ++fNextRecord) {
       fRecords[fRecordTimes[fNextRecord]] = counts;
+      if (fSpatialOn) fSpatial.records.push_back({fRecordTimes[fNextRecord] / ns, snapshot});
     }
+  }
+
+  /// A species column: not water (any state: H2O, and the excited/ionised
+  /// H2O^-1/^0/^1 of the dissociation channels, which never reach the mesh),
+  /// not G4FakeMolecule ("None"), not a bulk "(B)" pseudo-species.
+  static bool IsSpatialSpecies(const G4MolecularConfiguration *conf)
+  {
+    const auto *definition = conf->GetDefinition();
+    if (definition == G4H2O::Definition() || definition == G4FakeMolecule::Definition()) {
+      return false;
+    }
+    return !G4StrUtil::ends_with(conf->GetUserID(), "(B)");
+  }
+
+  void BuildSpecies()
+  {
+    fSpeciesBuilt = true;
+    fSpecies.clear();
+    fColumnByName.clear();
+    fColumnByConf.clear();
+    auto *table = G4MoleculeTable::Instance();
+    // G4MoleculeIterator::operator() returns true once even on an empty map.
+    if (table->GetNumberOfDefinedSpecies() > 0) {
+      auto it = table->GetConfigurationIterator();
+      while (it()) {
+        if (!IsSpatialSpecies(it.value())) continue;
+        fSpecies.push_back(it.value()->GetName());
+      }
+    }
+    std::sort(fSpecies.begin(), fSpecies.end());
+    // Two configurations with one display name share a column (as in SpeciesMeso.*).
+    fSpecies.erase(std::unique(fSpecies.begin(), fSpecies.end()), fSpecies.end());
+    for (std::size_t i = 0; i < fSpecies.size(); ++i) fColumnByName[fSpecies[i]] = i;
+  }
+
+  /// Column of a mesh species, or -1 (logged once per species and thread)
+  /// when it is not in the column list.
+  long Column(const G4MolecularConfiguration *conf)
+  {
+    const auto cached = fColumnByConf.find(conf);
+    if (cached != fColumnByConf.end()) return cached->second;
+    long column = -1;
+    const G4String &userID = conf->GetUserID();
+    if (IsSpatialSpecies(conf)) {
+      const auto byName = fColumnByName.find(conf->GetName());
+      if (byName != fColumnByName.end()) column = static_cast<long>(byName->second);
+    }
+    if (column < 0) {
+      DnaLogger::Print(DnaLogger::Level::Warning,
+                       "[meso] spatial output: mesh species '" + conf->GetName() +
+                         "' (user ID '" + userID +
+                         "') is not in the species column list; skipped");
+    }
+    fColumnByConf[conf] = column;
+    return column;
+  }
+
+  /// Appends one sparse spatial snapshot of the mesh (only cells whose
+  /// species-column counts sum to > 0; none gives N = 0) and returns its index.
+  std::size_t TakeSnapshot(const G4DNAMesh &mesh)
+  {
+    if (!fSpeciesBuilt) BuildSpecies();
+    const std::size_t nSpecies = fSpecies.size();
+    MesoSpatialFile::Snapshot snapshot;
+    snapshot.cellSize_nm = mesh.GetResolution() / nm;
+    std::vector<std::uint32_t> row(nSpecies, 0);
+    for (auto it = mesh.const_begin(); it != mesh.const_end(); ++it) {
+      std::fill(row.begin(), row.end(), 0u);
+      std::uint64_t sum = 0;
+      for (const auto &[molType, count] : std::get<2>(*it)) {
+        const long column = Column(molType);
+        if (column < 0) continue;
+        row[static_cast<std::size_t>(column)] += static_cast<std::uint32_t>(count);
+        sum += static_cast<std::uint32_t>(count);
+      }
+      if (sum == 0) continue;
+      const G4ThreeVector centre = std::get<1>(*it).middlePoint() / nm;
+      snapshot.position_nm.push_back(centre.x());
+      snapshot.position_nm.push_back(centre.y());
+      snapshot.position_nm.push_back(centre.z());
+      snapshot.counts.insert(snapshot.counts.end(), row.begin(), row.end());
+    }
+    fSpatial.snapshots.push_back(std::move(snapshot));
+    return fSpatial.snapshots.size() - 1;
   }
 
   std::vector<G4double> fRecordTimes;
   std::size_t fNextRecord = 0;
   std::map<G4double, MeshCounts> fRecords;
+
+  /// Spatial snapshots (/chem/meso/spatialOutput), one per Record() /
+  /// FinishRecording() call that passes at least one record time.
+  G4bool fSpatialOn = false;
+  MesoSpatialFile::EventData fSpatial;
+  G4bool fSpeciesBuilt = false;
+  std::vector<std::string> fSpecies;
+  std::map<std::string, std::size_t> fColumnByName;
+  std::map<const G4MolecularConfiguration *, long> fColumnByConf;
 
   long long fLastTotal = 0;
   long long fMeshStartTotal = 0;
@@ -444,7 +568,10 @@ void TimeStepAction::CompartmentBased()
 
   fpEventScheduler->Run();
   // The state after the last Gillespie step holds up to the end time.
-  if (tMeshAction != nullptr) tMeshAction->FinishRecording(fpEventScheduler->GetMesh());
+  if (tMeshAction != nullptr) {
+    tMeshAction->FinishRecording(fpEventScheduler->GetMesh());
+    WriteSpatialSnapshots();
+  }
 
   if (debug) {
     // Net change of each bulk species over the mesoscopic stage (reactions
@@ -463,6 +590,31 @@ void TimeStepAction::CompartmentBased()
                          ")");
     }
   }
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+// Appends this event's spatial snapshots (/chem/meso/spatialOutput) to the
+// staged SpeciesMesoSpatial.h5 (<outdir>/.pending_meso_spatial/).
+void TimeStepAction::WriteSpatialSnapshots()
+{
+  if (tMeshAction == nullptr) return;
+  auto &data = tMeshAction->SpatialData();
+  if (data.records.empty()) return;
+  const G4Run *run = G4RunManager::GetRunManager()->GetCurrentRun();
+  const G4Event *event = G4EventManager::GetEventManager()->GetConstCurrentEvent();
+  data.runId = run != nullptr ? run->GetRunID() : 0;
+  data.eventId = event != nullptr ? event->GetEventID() : 0;
+  std::string err;
+  if (!MesoSpatialFile::AppendEvent(MesoSpatialFile::StagedPath(OutputDir::GetDirectory()),
+                                    tMeshAction->SpatialSpecies(), data, err)) {
+    G4Exception("TimeStepAction::WriteSpatialSnapshots", "MesoSpatialWriteFailed",
+                JustWarning,
+                ("Spatial snapshots of run " + std::to_string(data.runId) + ", event " +
+                 std::to_string(data.eventId) + " not written: " + err)
+                  .c_str());
+  }
+  tMeshAction->ClearSpatial();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

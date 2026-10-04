@@ -29,6 +29,18 @@ resets all counters to empty/zero:
   are a log grid from the hand-over time to the end time
   (`/chem/meso/timesPerDecade`, default 10). Bulk species are not listed.
   `Species.*` stops at the hand-over time.
+- `SpeciesMesoSpatial.h5`: only with `/chem/meso/spatialOutput true`
+  (PreInit, default false). Spatial snapshots of the mesoscopic mesh, appended
+  per event by `TimeStepAction` into the staging folder
+  `<outdir>/.pending_meso_spatial/`; every dump (prefix, subfolder and the
+  `EndOfRun_` safety net alike) moves it to the dump and lists it in
+  `Manifest.json` `files` (`mesoSpatialOutput` records the switch). A failed
+  move is a `MesoSpatialMoveFailed` warning. Layout:
+  `/run<R>/event<E>/snapshot<k>/` with attributes `time_ns`, `cellSize_nm`
+  and datasets `position_nm` (N x 3 float64, cell centres) and `counts`
+  (N x S uint32); only non-empty cells are written (format version 2). Full
+  format (attributes, species columns, concentration formula, h5py example,
+  version history): `docs/output/SpeciesMesoSpatial-h5.md`.
 - `PreChemical_run<R>_event<E>.txt`: one pre-chemical file per event (Serial
   and MT alike). Each event writes it into the staging folder
   `<outdir>/.pending_prechem/`; every dump then moves all staged files into

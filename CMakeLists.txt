@@ -116,6 +116,13 @@ add_executable(MesoSpeciesCounterTest test/MesoSpeciesCounterTest.cc src/scoring
 target_include_directories(MesoSpeciesCounterTest PRIVATE ${project_include_dirs})
 add_test(NAME MesoSpeciesCounterTest COMMAND MesoSpeciesCounterTest)
 
+# Standalone unit test for MesoSpatialFile (HDF5 writer of the mesoscopic
+# spatial snapshots -- std + HDF5 only, no Geant4).
+add_executable(MesoSpatialFileTest test/MesoSpatialFileTest.cc src/scoring/MesoSpatialFile.cc)
+target_link_libraries(MesoSpatialFileTest hdf5::hdf5-shared hdf5::hdf5_cpp-shared)
+target_include_directories(MesoSpatialFileTest PRIVATE ${project_include_dirs})
+add_test(NAME MesoSpatialFileTest COMMAND MesoSpatialFileTest)
+
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but
 # CMAKE_BUILD_TYPE is known at build time with MSVC.

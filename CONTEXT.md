@@ -78,6 +78,14 @@ which reaction fired is not recorded.
 _Avoid_: "voxel geometry" or "voxelization" for its cells — the geometry stays one
 homogeneous water box; the cells exist only inside the chemistry.
 
+**Spatial snapshot**:
+The state of one event's **Mesoscopic stage** mesh at one record time: every cell
+holding at least one molecule, with its centre, its side (which grows as the mesh
+coarsens) and its molecule count per tracked species. Opt-in output, one per
+record time of the mesoscopic log grid.
+_Avoid_: "voxel dump", "concentration map" (counts are stored; concentration is
+derived from count and cell side).
+
 **Hand-over time**:
 The moment of an event's chemistry at which the **Particle-based stage** stops and
 the **Mesoscopic stage** takes over, carrying every remaining molecule into the
