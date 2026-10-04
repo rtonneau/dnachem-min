@@ -10,3 +10,4 @@ specification lives in the dotfiles repo:
 Spec commits in dotfiles:
 
 - ticket 01, core (scope, config, storage, schema, lifecycle, enqueue, selectors): `5b45bfc`
+- ticket 02, execution (dispatcher, admission, run wrapper, failures & requeue, cancel, prune, notifications): `2cd37f9`
