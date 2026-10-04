@@ -76,6 +76,30 @@
         "ticket": "01-spec-core",
         "commit": "194f27c"
       }
+    },
+    {
+      "at": "2026-10-04T09:46:41.692Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/02-spec-execution.md",
+        "03-implement/02-spec-execution/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-spec-execution"
+      }
+    },
+    {
+      "at": "2026-10-04T09:52:49.099Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/02-spec-execution/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-spec-execution",
+        "commit": "8a634ff"
+      }
     }
   ],
   "current_phase": "ship",

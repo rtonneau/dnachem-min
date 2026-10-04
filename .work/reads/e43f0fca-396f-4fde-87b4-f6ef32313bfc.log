@@ -12,3 +12,7 @@
 2026-10-04 10:54:07	2fef39b0-2bdc-45a0-89d9-cbf19e3246d1	general-purpose	Bash	C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/macro/sub_run.mac, C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/macro/beamon.mac (bash)	11	398
 2026-10-04 10:56:30	b9f91ad7-19eb-492a-abe0-f44e1765233d	main	Read	C:/Users/rtonneau/dotfiles/claude/skills/g4run/SPEC.md:77-165	89	5433
 2026-10-04 10:56:42	b9f91ad7-19eb-492a-abe0-f44e1765233d	main	Read	C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/.work/sessions/2026-10-04__sim-runner-skill-spec/03-implement/01-spec-core/commit-log.md	23	435
+2026-10-04 11:46:59	b9f91ad7-19eb-492a-abe0-f44e1765233d	general-purpose	Read	C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/.work/sessions/2026-10-04__sim-runner-skill-spec/02-plan/tickets/02-spec-execution.md	28	1481
+2026-10-04 11:46:59	b9f91ad7-19eb-492a-abe0-f44e1765233d	general-purpose	Read	C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/.work/sessions/2026-10-04__sim-runner-skill-spec/01-grill/resume.md	67	9358
+2026-10-04 11:47:00	b9f91ad7-19eb-492a-abe0-f44e1765233d	general-purpose	Read	C:/Users/rtonneau/DEV/GEANT4/SIM/dnachem-min/.work/sessions/2026-10-04__sim-runner-skill-spec/02-plan/plan.md	31	2273
+2026-10-04 11:47:01	b9f91ad7-19eb-492a-abe0-f44e1765233d	general-purpose	Read	C:/Users/rtonneau/dotfiles/claude/skills/g4run/SPEC.md	544	30775
