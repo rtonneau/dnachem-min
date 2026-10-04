@@ -124,9 +124,33 @@
         "ticket": "03-spec-analysis-cli",
         "commit": "22d06e7"
       }
+    },
+    {
+      "at": "2026-10-04T09:57:22.068Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/04-commit-and-pointer.md",
+        "03-implement/04-commit-and-pointer/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "04-commit-and-pointer"
+      }
+    },
+    {
+      "at": "2026-10-04T09:58:09.380Z",
+      "event": "ticket_done",
+      "phase": "finish-pending",
+      "files": [
+        "03-implement/04-commit-and-pointer/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "04-commit-and-pointer",
+        "commit": "f57ba5e"
+      }
     }
   ],
-  "current_phase": "ship",
+  "current_phase": "finish-pending",
   "git": {
     "branch": "docs/g4run-spec",
     "base_branch": "Meso",
