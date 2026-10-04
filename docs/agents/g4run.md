@@ -11,3 +11,4 @@ Spec commits in dotfiles:
 
 - ticket 01, core (scope, config, storage, schema, lifecycle, enqueue, selectors): `5b45bfc`
 - ticket 02, execution (dispatcher, admission, run wrapper, failures & requeue, cancel, prune, notifications): `2cd37f9`
+- ticket 03, analysis contract, subcommand reference, installation, build milestones: `bc73b8a`
