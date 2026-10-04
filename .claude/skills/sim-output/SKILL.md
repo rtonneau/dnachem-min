@@ -38,13 +38,9 @@ resets all counters to empty/zero:
   move is a `MesoSpatialMoveFailed` warning. Layout:
   `/run<R>/event<E>/snapshot<k>/` with attributes `time_ns`, `cellSize_nm`
   and datasets `position_nm` (N x 3 float64, cell centres) and `counts`
-  (N x S uint32). Columns of `counts` are every molecule-table configuration
-  except water (any state), `G4FakeMolecule` ("None") and `(B)` bulk species,
-  by display name (UTF-8, e.g. `HO_2°`), sorted. Every cell the mesh holds is
-  written, empty ones included. Datasets are gzip-compressed only when the
-  HDF5 build has the deflate filter; the current vcpkg build has none, so they
-  are contiguous and uncompressed (~30 MB per 10 keV event at a 1 ms end
-  time). Concentration in mol/L = `count / (N_A * (cellSize_nm * 1e-8 dm)^3)`.
+  (N x S uint32); only non-empty cells are written (format version 2). Full
+  format (attributes, species columns, concentration formula, h5py example,
+  version history): `docs/output/SpeciesMesoSpatial-h5.md`.
 - `PreChemical_run<R>_event<E>.txt`: one pre-chemical file per event (Serial
   and MT alike). Each event writes it into the staging folder
   `<outdir>/.pending_prechem/`; every dump then moves all staged files into
