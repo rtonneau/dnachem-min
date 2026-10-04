@@ -100,6 +100,30 @@
         "ticket": "02-spec-execution",
         "commit": "8a634ff"
       }
+    },
+    {
+      "at": "2026-10-04T09:52:49.493Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/03-spec-analysis-cli.md",
+        "03-implement/03-spec-analysis-cli/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "03-spec-analysis-cli"
+      }
+    },
+    {
+      "at": "2026-10-04T09:57:21.672Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/03-spec-analysis-cli/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "03-spec-analysis-cli",
+        "commit": "22d06e7"
+      }
     }
   ],
   "current_phase": "ship",
