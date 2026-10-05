@@ -867,3 +867,11 @@ Triggered at 2026-10-03T19:13:17.5035736+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM
 Completed at 2026-10-03T19:13:19.7540193+02:00: copied compile_commands.json
 Triggered at 2026-10-03T19:13:20.1389580+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\MesoSpatialFileTest.cc
 Completed at 2026-10-03T19:13:22.4510708+02:00: copied compile_commands.json
+Skipped at 2026-10-04T10:48:29.6541336+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-04__sim-runner-skill-spec\.write-payload.md
+Skipped at 2026-10-04T10:51:37.7018264+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-04__sim-runner-skill-spec\.write-payload.md
+Skipped at 2026-10-04T10:56:05.9180447+02:00: C:\Users\rtonneau\dotfiles\claude\skills\g4run\SPEC.md
+Skipped at 2026-10-04T11:50:05.3210360+02:00: C:\Users\rtonneau\AppData\Local\Temp\claude\C--Users-rtonneau-DEV-GEANT4-SIM-dnachem-min\e43f0fca-396f-4fde-87b4-f6ef32313bfc\scratchpad\edit1.py
+Skipped at 2026-10-04T11:51:55.4679786+02:00: C:\Users\rtonneau\AppData\Local\Temp\claude\C--Users-rtonneau-DEV-GEANT4-SIM-dnachem-min\e43f0fca-396f-4fde-87b4-f6ef32313bfc\scratchpad\sections.md
+Skipped at 2026-10-04T11:56:49.1272179+02:00: C:\Users\rtonneau\AppData\Local\Temp\claude\C--Users-rtonneau-DEV-GEANT4-SIM-dnachem-min\e43f0fca-396f-4fde-87b4-f6ef32313bfc\scratchpad\part.md
+Skipped at 2026-10-04T11:57:49.3429936+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-10-04T13:56:58.3797778+02:00: C:\Users\rtonneau\dotfiles\claude\skills\g4run\SPEC.md
