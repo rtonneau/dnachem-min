@@ -123,6 +123,12 @@ target_link_libraries(MesoSpatialFileTest hdf5::hdf5-shared hdf5::hdf5_cpp-share
 target_include_directories(MesoSpatialFileTest PRIVATE ${project_include_dirs})
 add_test(NAME MesoSpatialFileTest COMMAND MesoSpatialFileTest)
 
+# Standalone unit test for Tonneau2025Table (Table 2 of Tonneau et al. 2025 as
+# plain data -- std only, no Geant4).
+add_executable(Tonneau2025TableTest test/Tonneau2025TableTest.cc src/chemistry/catalog/Tonneau2025Table.cc)
+target_include_directories(Tonneau2025TableTest PRIVATE ${project_include_dirs})
+add_test(NAME Tonneau2025TableTest COMMAND Tonneau2025TableTest)
+
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but
 # CMAKE_BUILD_TYPE is known at build time with MSVC.
