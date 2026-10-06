@@ -146,6 +146,30 @@
         "ticket": "03-extra-molecules-hook",
         "commit": "fbbfeb2"
       }
+    },
+    {
+      "at": "2026-10-06T18:11:47.269Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/04-tonneau2025-chemistry.md",
+        "03-implement/04-tonneau2025-chemistry/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "04-tonneau2025-chemistry"
+      }
+    },
+    {
+      "at": "2026-10-06T18:37:25.298Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/04-tonneau2025-chemistry/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "04-tonneau2025-chemistry",
+        "commit": "00b2024"
+      }
     }
   ],
   "current_phase": "ship",
