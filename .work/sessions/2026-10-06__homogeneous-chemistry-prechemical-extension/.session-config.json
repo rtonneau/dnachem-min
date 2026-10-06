@@ -122,6 +122,30 @@
         "ticket": "02-ho3-data",
         "commit": "89fdac4"
       }
+    },
+    {
+      "at": "2026-10-06T18:10:13.726Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/03-extra-molecules-hook.md",
+        "03-implement/03-extra-molecules-hook/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "03-extra-molecules-hook"
+      }
+    },
+    {
+      "at": "2026-10-06T18:11:42.620Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/03-extra-molecules-hook/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "03-extra-molecules-hook",
+        "commit": "fbbfeb2"
+      }
     }
   ],
   "current_phase": "ship",
@@ -131,5 +155,5 @@
     "branch_created_at": "2026-10-06T17:28:54.856Z",
     "pr_url": null
   },
-  "ship_mode": "inline"
+  "ship_mode": "subagent+inline"
 }
