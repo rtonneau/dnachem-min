@@ -170,9 +170,33 @@
         "ticket": "04-tonneau2025-chemistry",
         "commit": "00b2024"
       }
+    },
+    {
+      "at": "2026-10-06T18:37:35.062Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/05-macro-validation-docs.md",
+        "03-implement/05-macro-validation-docs/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "05-macro-validation-docs"
+      }
+    },
+    {
+      "at": "2026-10-06T18:41:00.191Z",
+      "event": "ticket_done",
+      "phase": "finish-pending",
+      "files": [
+        "03-implement/05-macro-validation-docs/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "05-macro-validation-docs",
+        "commit": "1e83821"
+      }
     }
   ],
-  "current_phase": "ship",
+  "current_phase": "finish-pending",
   "git": {
     "branch": "feat/tonneau2025-chemistry",
     "base_branch": "Meso",
