@@ -62,6 +62,30 @@
       "detail": {
         "tickets": 5
       }
+    },
+    {
+      "at": "2026-10-06T17:29:00.467Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/01-table2-data.md",
+        "03-implement/01-table2-data/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "01-table2-data"
+      }
+    },
+    {
+      "at": "2026-10-06T17:33:58.614Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/01-table2-data/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "01-table2-data",
+        "commit": "5893788"
+      }
     }
   ],
   "current_phase": "ship",
@@ -70,5 +94,6 @@
     "base_branch": "Meso",
     "branch_created_at": "2026-10-06T17:28:54.856Z",
     "pr_url": null
-  }
+  },
+  "ship_mode": "subagent+inline"
 }
