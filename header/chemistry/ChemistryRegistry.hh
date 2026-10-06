@@ -22,8 +22,9 @@ namespace ChemistryRegistry
     void (*buildReactions)(G4DNAMolecularReactionTable*);
     ChemistryTypes::BulkReactionList (*buildBulkReactions)();
     /// Optional: creates molecules this Chemistry needs beyond the shared set.
-    /// Null = none. Runs on the master thread from DnaChemistryList::ConstructMolecule,
-    /// so an implementation must be idempotent (never `new G4MoleculeDefinition`
+    /// Null = none. Runs on the master thread from DnaChemistryList::ConstructMolecule
+    /// and from /chem/select (ChemistrySelectMessenger), so an implementation must be
+    /// idempotent (never `new G4MoleculeDefinition`
     /// for a name that may already exist). See ADR 0007.
     void (*constructMolecules)() = nullptr;
   };

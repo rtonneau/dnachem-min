@@ -6,6 +6,8 @@ status: accepted
 
 A **Chemistry** can now carry an optional `constructMolecules` hook, a plain function pointer on `ChemistryRegistry::Chemistry` (null by default). `DnaChemistryList::ConstructMolecule` calls the selected Chemistry's hook, when set, after the shared molecule set and the `H2O` configuration. The Tonneau2025 network needs HO3, which no stock Geant4 molecule set defines.
 
+`ConstructMolecule` runs when the physics list is handed to the run manager (`SetUserInitialization`), before any macro command, so it cannot see a `/chem/select` from a macro. `/chem/select` therefore also calls the hook (`ChemistrySelectMessenger`, master thread, still PreInit), which is before `/run/initialize` gives every particle its process manager. Found by the first Chemistry using the hook (Tonneau2025).
+
 This relaxes [[0002-named-chemistries]], which kept molecules shared by all Chemistries. Dissociation channels remain shared. `PureWater` and `BoscoloChem` leave the hook null and are unchanged.
 
 ## Why this is hard to reverse
