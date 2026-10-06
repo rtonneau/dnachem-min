@@ -880,3 +880,50 @@ Skipped at 2026-10-06T08:15:32.6630365+02:00: C:\Users\rtonneau\DATA\Geant4\2610
 Skipped at 2026-10-06T08:15:33.0850207+02:00: C:\Users\rtonneau\DATA\Geant4\261006\run.ps1
 Skipped at 2026-10-06T08:15:33.5025504+02:00: C:\Users\rtonneau\DATA\Geant4\261006\run.ps1
 Skipped at 2026-10-06T17:53:20.4630193+02:00: C:\Users\rtonneau\.claude\plugins\claude-hud\config.json
+Skipped at 2026-10-06T19:24:48.1125921+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CONTEXT.md
+Skipped at 2026-10-06T19:24:48.5615357+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CONTEXT.md
+Skipped at 2026-10-06T19:27:46.9500056+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-06__homogeneous-chemistry-prechemical-extension\.write-payload.md
+Skipped at 2026-10-06T19:28:47.1491401+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-06__homogeneous-chemistry-prechemical-extension\.write-payload.md
+Skipped at 2026-10-06T19:31:16.1344971+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\catalog\Tonneau2025Table.hh
+Skipped at 2026-10-06T19:31:54.0257740+02:00: C:\Users\rtonneau\AppData\Local\Temp\claude\C--Users-rtonneau-DEV-GEANT4-SIM-dnachem-min\e08713d0-1c9e-45bd-8cf7-bf693fabe00b\scratchpad\gen.py
+Skipped at 2026-10-06T19:32:04.0976994+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\catalog\Tonneau2025Table.hh
+Triggered at 2026-10-06T19:32:19.7754480+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\Tonneau2025TableTest.cc
+Completed at 2026-10-06T19:32:24.3196669+02:00: copied compile_commands.json
+Skipped at 2026-10-06T19:32:24.7487360+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CMakeLists.txt
+Skipped at 2026-10-06T19:33:57.2204884+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-06__homogeneous-chemistry-prechemical-extension\03-implement\01-table2-data\commit-log.md
+Skipped at 2026-10-06T19:33:57.6570468+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-06__homogeneous-chemistry-prechemical-extension\03-implement\01-table2-data\commit-log.md
+Skipped at 2026-10-06T19:33:58.0970334+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-06__homogeneous-chemistry-prechemical-extension\03-implement\01-table2-data\commit-log.md
+Skipped at 2026-10-06T20:10:01.7832210+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\docs\literature\ho3-parameters.md
+Skipped at 2026-10-06T20:10:47.8502771+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\ChemistryRegistry.hh
+Triggered at 2026-10-06T20:10:48.2397596+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\DnaChemistryList.cc
+Completed at 2026-10-06T20:10:52.4075206+02:00: copied compile_commands.json
+Triggered at 2026-10-06T20:10:52.8206086+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\ChemistryRegistryTest.cc
+Completed at 2026-10-06T20:10:55.2064446+02:00: copied compile_commands.json
+Triggered at 2026-10-06T20:10:55.6172048+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\ChemistryRegistryTest.cc
+Completed at 2026-10-06T20:10:57.9282389+02:00: copied compile_commands.json
+Triggered at 2026-10-06T20:10:58.3414790+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\ChemistryRegistryTest.cc
+Completed at 2026-10-06T20:11:00.7207679+02:00: copied compile_commands.json
+Skipped at 2026-10-06T20:11:01.1233403+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\docs\adr\0007-extra-molecules-per-chemistry.md
+Skipped at 2026-10-06T20:24:17.8026919+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\catalog\Tonneau2025Reactions.hh
+Skipped at 2026-10-06T20:24:46.0163637+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\catalog\Tonneau2025Reactions.hh
+Skipped at 2026-10-06T20:24:46.4121050+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\catalog\Tonneau2025Reactions.hh
+Triggered at 2026-10-06T20:26:04.6182074+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\catalog\Tonneau2025Reactions.cc
+Completed at 2026-10-06T20:26:08.7749350+02:00: copied compile_commands.json
+Triggered at 2026-10-06T20:26:15.0993274+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\catalog\Tonneau2025Reactions.cc
+Completed at 2026-10-06T20:26:17.4683011+02:00: copied compile_commands.json
+Triggered at 2026-10-06T20:27:19.1332500+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\Tonneau2025TableTest.cc
+Completed at 2026-10-06T20:27:21.5219924+02:00: copied compile_commands.json
+Triggered at 2026-10-06T20:27:21.9331409+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\Tonneau2025TableTest.cc
+Completed at 2026-10-06T20:27:24.2367715+02:00: copied compile_commands.json
+Triggered at 2026-10-06T20:27:34.4436424+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\Tonneau2025TableTest.cc
+Completed at 2026-10-06T20:27:36.7991632+02:00: copied compile_commands.json
+Triggered at 2026-10-06T20:30:25.7646967+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\DnaChemistryList.cc
+Completed at 2026-10-06T20:30:28.1689027+02:00: copied compile_commands.json
+Skipped at 2026-10-06T20:30:28.5644775+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\docs\adr\0007-extra-molecules-per-chemistry.md
+Skipped at 2026-10-06T20:30:36.0707753+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\ChemistryRegistry.hh
+Triggered at 2026-10-06T20:32:16.0163379+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\catalog\Tonneau2025Reactions.cc
+Completed at 2026-10-06T20:32:18.4395288+02:00: copied compile_commands.json
+Triggered at 2026-10-06T20:33:31.0351257+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\chemistry\catalog\Tonneau2025Reactions.cc
+Completed at 2026-10-06T20:33:33.4972557+02:00: copied compile_commands.json
+Skipped at 2026-10-06T20:35:51.1452416+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\catalog\Tonneau2025Reactions.hh
+Skipped at 2026-10-06T20:41:16.5250243+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-06__homogeneous-chemistry-prechemical-extension\.changelog-payload.md
