@@ -86,6 +86,42 @@
         "ticket": "01-table2-data",
         "commit": "5893788"
       }
+    },
+    {
+      "at": "2026-10-06T17:34:03.133Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/02-ho3-data.md",
+        "03-implement/02-ho3-data/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-ho3-data"
+      }
+    },
+    {
+      "at": "2026-10-06T17:36:31.107Z",
+      "event": "ticket_blocked",
+      "phase": "ship",
+      "files": [
+        "03-implement/02-ho3-data/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-ho3-data",
+        "reason": "No literature diffusion coefficient for HO3 found (paper, Geant4 source and examples, arXiv 2601.02132, MPEXS2.1-DNA main text, web); needs a user decision on a source or an analogue D"
+      }
+    },
+    {
+      "at": "2026-10-06T18:10:09.531Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/02-ho3-data/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-ho3-data",
+        "commit": "89fdac4"
+      }
     }
   ],
   "current_phase": "ship",
@@ -95,5 +131,5 @@
     "branch_created_at": "2026-10-06T17:28:54.856Z",
     "pr_url": null
   },
-  "ship_mode": "subagent+inline"
+  "ship_mode": "inline"
 }
