@@ -4,6 +4,7 @@
 #include "chemistry/ChemistryRegistry.hh"
 
 #include "G4ApplicationState.hh"
+#include "G4Threading.hh"
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithoutParameter.hh"
 
@@ -37,6 +38,17 @@ void ChemistrySelectMessenger::SetNewValue(G4UIcommand* command, G4String newVal
     if (!ChemistryRegistry::Select(newValue, err)) {
       G4Exception("ChemistrySelectMessenger::SetNewValue", "InvalidChemistrySelection",
                   FatalException, err.c_str());
+    }
+    // Molecules of the selected Chemistry (ADR 0007). The shared molecule set
+    // is built by DnaChemistryList::ConstructMolecule when the physics list is
+    // handed to the run manager, before any macro command, so a Chemistry
+    // selected here adds its own molecules now: still PreInit, on the master,
+    // before /run/initialize gives every particle a process manager. The hook
+    // is idempotent, so selecting the same name again is harmless.
+    const auto* selected = ChemistryRegistry::Selected();
+    if (selected != nullptr && selected->constructMolecules != nullptr &&
+        !G4Threading::IsWorkerThread()) {
+      selected->constructMolecules();
     }
   }
   else if (command == fpListCmd) {

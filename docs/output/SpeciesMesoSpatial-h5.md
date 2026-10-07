@@ -74,6 +74,15 @@ Names are the Geant4 display names (for example `HO_2°^0`), stored as UTF-8
 the writer refuses to append an event with a different list. A species in the
 list may never appear in the counts. The set depends on the selected Chemistry.
 
+Caveat when mixing files from different Chemistries: an **Extra molecule** (for
+example `HO3` under `Tonneau2025`) is a column only in files written with that
+Chemistry selected. A `Tonneau2025` file has one more column than a `PureWater`
+or `BoscoloChem` file, so `counts` arrays of different Chemistries cannot be
+stacked or compared by column index. Always match columns by name through the
+root attribute `species` (and the file's `chemistry` entry in the dump's
+`Manifest.json`), never by position. A process uses one Chemistry only, so a
+single file never mixes them.
+
 ## Snapshot times
 
 Snapshots follow the mesoscopic log time grid: from the hand-over time (default

@@ -9,8 +9,9 @@ discussions; it is not a spec or implementation log.
 **Chemistry**:
 A named, selectable definition of the reaction network (including its bulk
 reactions: acid-base buffer and scavenger rates), chosen once per process before initialization. Names are PascalCase
-and matched case-insensitively (`PureWater`, `BoscoloChem`, ...). All Chemistries
-share the same molecule set and dissociation channels. `PureWater` is the default.
+and matched case-insensitively (`PureWater`, `BoscoloChem`, `Tonneau2025`, ...). All Chemistries
+share the same dissociation channels and a common base molecule set; a Chemistry may
+add **Extra molecules** of its own. `PureWater` is the default.
 A Chemistry reproduces the network of a given paper or library; it is a variant of
 the reaction content only, not of the time-step model, physics, or scoring.
 _Avoid_: "chemistry model" (collides with the **Particle-based stage** /
@@ -25,6 +26,23 @@ species. Active regardless of whether dissolved O2 is present — the network ca
 produce O2 purely from water radiolysis (e.g. H2O2 + °OH → HO2° → [pH equilibrium]
 → O2⁻, then O2⁻ + °OH → O2).
 _Avoid_: "water chemistry" alone (ambiguous with the O2-scavenger addition below).
+
+**Extra molecule**:
+A molecule that exists only while a given **Chemistry** is selected, because its
+reaction network needs a species the common base set lacks (e.g. HO3 under
+`Tonneau2025`). It is a tracked molecule like any other (diffusion, species and
+mesoscopic output) and is absent from every other Chemistry's output.
+_Avoid_: "custom species" and "scavenger" (a **Scavenger** is a bulk background, not a
+tracked molecule).
+
+**Tonneau2025** (Chemistry):
+The Chemistry reproducing the 73-reaction homogeneous pure-water network of Table 2 of
+Tonneau et al., Phys. Med. Biol. 70 (2025) 235021, including its acid-base block and
+the dissolved-O2 reactions. The paper solves that network as a homogeneous ODE from
+100 ns; here the same reactions act on tracked molecules from the pre-chemical stage,
+so the network is exercised at the earlier times the paper does not reach.
+_Avoid_: "homogeneous chemistry" for the Chemistry itself (that is the paper's phase,
+not a selectable name).
 
 **Scavenger**:
 An *exogenous* dissolved species present in the sample as a bulk component (e.g.

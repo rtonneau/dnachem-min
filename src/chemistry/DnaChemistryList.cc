@@ -250,6 +250,15 @@ void DnaChemistryList::ConstructMolecule()
 
   // Required by G4DNAScavengerProcess (member init: GetConfiguration("H2O")).
   G4MoleculeTable::Instance()->CreateConfiguration("H2O", G4H2O::Definition());
+
+  // Molecules only the selected Chemistry needs (ADR 0007). This runs when the
+  // physics list is handed to the run manager, before any macro, so it only
+  // sees a Chemistry selected in code; /chem/select calls the hook itself
+  // (ChemistrySelectMessenger).
+  const auto* chemistry = SelectedChemistry("ConstructMolecule");
+  if (chemistry->constructMolecules != nullptr) {
+    chemistry->constructMolecules();
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
