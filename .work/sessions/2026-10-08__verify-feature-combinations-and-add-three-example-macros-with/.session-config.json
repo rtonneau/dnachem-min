@@ -55,6 +55,39 @@
       "detail": {
         "tickets": 7
       }
+    },
+    {
+      "at": "2026-10-08T19:07:42.699Z",
+      "event": "auto_started",
+      "phase": "ship",
+      "detail": {
+        "target": "finish",
+        "steps": "ship → finish"
+      }
+    },
+    {
+      "at": "2026-10-08T19:07:51.084Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/01-sbs-mode-and-meso-switch.md",
+        "03-implement/01-sbs-mode-and-meso-switch/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "01-sbs-mode-and-meso-switch"
+      }
+    },
+    {
+      "at": "2026-10-08T19:19:16.129Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/01-sbs-mode-and-meso-switch/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "01-sbs-mode-and-meso-switch",
+        "commit": "e5cdbd5"
+      }
     }
   ],
   "current_phase": "ship",
@@ -63,5 +96,6 @@
     "base_branch": "integration",
     "branch_created_at": "2026-10-08T19:06:16.456Z",
     "pr_url": null
-  }
+  },
+  "ship_mode": "subagent+inline"
 }
