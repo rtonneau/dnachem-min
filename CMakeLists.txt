@@ -78,7 +78,7 @@ add_test(NAME JsonWriterTest COMMAND JsonWriterTest)
 # bookkeeping logic, no Geant4 kernel dependency -- DumpAndReset's
 # file-writing/species lookup lives in RunAccumulatorMessenger instead,
 # which is not unit-tested, matching this project's existing convention).
-add_executable(RunAccumulatorTest test/RunAccumulatorTest.cc src/scoring/RunAccumulator.cc src/scoring/ReactionCounter.cc src/scoring/PhysicsInteractionCounter.cc src/scoring/DataNode.cc src/core/OutputDir.cc)
+add_executable(RunAccumulatorTest test/RunAccumulatorTest.cc src/scoring/RunAccumulator.cc src/scoring/ReactionCounter.cc src/scoring/PhysicsInteractionCounter.cc src/scoring/MesoSpeciesCounter.cc src/scoring/DataNode.cc src/core/OutputDir.cc)
 target_link_libraries(RunAccumulatorTest ${Geant4_LIBRARIES})
 target_include_directories(RunAccumulatorTest PRIVATE ${project_include_dirs})
 add_test(NAME RunAccumulatorTest COMMAND RunAccumulatorTest)
@@ -103,6 +103,33 @@ add_executable(ScavengerSpecTest test/ScavengerSpecTest.cc src/geometry/Scavenge
 target_link_libraries(ScavengerSpecTest ${Geant4_LIBRARIES})
 target_include_directories(ScavengerSpecTest PRIVATE ${project_include_dirs})
 add_test(NAME ScavengerSpecTest COMMAND ScavengerSpecTest)
+
+# Standalone unit test for MesoSettings (pixel count, log time grid -- pure
+# logic, std only).
+add_executable(MesoSettingsTest test/MesoSettingsTest.cc src/chemistry/MesoSettings.cc)
+target_include_directories(MesoSettingsTest PRIVATE ${project_include_dirs})
+add_test(NAME MesoSettingsTest COMMAND MesoSettingsTest)
+
+# Standalone unit test for MesoSpeciesCounter (per-time species counts of the
+# mesoscopic stage -- pure logic, std only).
+add_executable(MesoSpeciesCounterTest test/MesoSpeciesCounterTest.cc src/scoring/MesoSpeciesCounter.cc)
+target_include_directories(MesoSpeciesCounterTest PRIVATE ${project_include_dirs})
+add_test(NAME MesoSpeciesCounterTest COMMAND MesoSpeciesCounterTest)
+
+# Standalone unit test for MesoSpatialFile (HDF5 writer of the mesoscopic
+# spatial snapshots -- std + HDF5 only, no Geant4).
+add_executable(MesoSpatialFileTest test/MesoSpatialFileTest.cc src/scoring/MesoSpatialFile.cc)
+target_link_libraries(MesoSpatialFileTest hdf5::hdf5-shared hdf5::hdf5_cpp-shared)
+target_include_directories(MesoSpatialFileTest PRIVATE ${project_include_dirs})
+add_test(NAME MesoSpatialFileTest COMMAND MesoSpatialFileTest)
+
+# Standalone unit test for Tonneau2025Table (Table 2 of Tonneau et al. 2025 as
+# plain data) and the Geant4-free part of Tonneau2025Reactions (routing, types,
+# bulk-reaction list). Links Geant4 but needs no Geant4 kernel.
+add_executable(Tonneau2025TableTest test/Tonneau2025TableTest.cc src/chemistry/catalog/Tonneau2025Table.cc src/chemistry/catalog/Tonneau2025Reactions.cc)
+target_link_libraries(Tonneau2025TableTest ${Geant4_LIBRARIES})
+target_include_directories(Tonneau2025TableTest PRIVATE ${project_include_dirs})
+add_test(NAME Tonneau2025TableTest COMMAND Tonneau2025TableTest)
 
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but

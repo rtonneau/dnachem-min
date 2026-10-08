@@ -18,7 +18,7 @@
 
 #include <map>
 
-Run::Run() : G4Run(), fSumEne(0), fScorerRun(0), fReactionCounter(nullptr), fInteractionCounter(nullptr)
+Run::Run() : G4Run(), fSumEne(0), fScorerRun(0), fReactionCounter(nullptr), fInteractionCounter(nullptr), fMesoSpeciesCounter(nullptr)
 {
     G4MultiFunctionalDetector *mfdet = dynamic_cast<G4MultiFunctionalDetector *>(
         G4SDManager::GetSDMpointer()->FindSensitiveDetector("mfDetector"));
@@ -30,6 +30,8 @@ Run::Run() : G4Run(), fSumEne(0), fScorerRun(0), fReactionCounter(nullptr), fInt
         dynamic_cast<TimeStepAction *>(G4Scheduler::Instance()->GetUserTimeStepAction());
     fReactionCounter =
         (timeStepAction != nullptr) ? &timeStepAction->GetReactionCounter() : &fOwnedReactionCounter;
+    fMesoSpeciesCounter = (timeStepAction != nullptr) ? &timeStepAction->GetMesoSpeciesCounter()
+                                                      : &fOwnedMesoSpeciesCounter;
 
     auto *steppingAction = const_cast<SteppingAction *>(
         dynamic_cast<const SteppingAction *>(G4RunManager::GetRunManager()->GetUserSteppingAction()));
@@ -97,6 +99,7 @@ void Run::Merge(const G4Run *aRun)
     // cleared at the worker's next RunAction::BeginOfRunAction, not here.
     fReactionCounter->Merge(*localRun->fReactionCounter);
     fInteractionCounter->Merge(*localRun->fInteractionCounter);
+    fMesoSpeciesCounter->Merge(*localRun->fMesoSpeciesCounter);
 
     G4Run::Merge(aRun);
 }

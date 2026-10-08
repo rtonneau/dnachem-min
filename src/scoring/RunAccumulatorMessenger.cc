@@ -4,6 +4,7 @@
 #include "core/OutputDir.hh"
 #include "core/DnaLogger.hh"
 #include "scoring/PreChemicalFiles.hh"
+#include "scoring/MesoSpatialFile.hh"
 #include "scoring/ScoreSpecies.hh"
 
 #include "G4UIcmdWithAString.hh"
@@ -20,7 +21,7 @@ RunAccumulatorMessenger::RunAccumulatorMessenger()
 {
     fpDumpCmd = new G4UIcmdWithAString("/run/dumpDataAndReset", this);
     fpDumpCmd->SetGuidance(
-        "Write Species/Reactions/PhysicsInteractions output files and a "
+        "Write Species/SpeciesMeso/Reactions/PhysicsInteractions output files and a "
         "Manifest.json for everything accumulated since the last dump (or program "
         "start), then reset all counters. Optional prefix is prepended "
         "literally to every output filename (no separator inserted). Fatal "
@@ -191,6 +192,18 @@ void RunAccumulatorMessenger::WriteAllAndReset(const G4String &prefix, const G4S
     interactionsCsv.close();
     files.push_back(prefix + "PhysicsInteractions.csv");
 
+    // Species counts of the mesoscopic stage (hand-over to end time).
+    const MesoSpeciesCounter &mesoSpeciesCounter = RunAccumulator::GetAccumulatedMesoSpeciesCounter();
+    std::ofstream mesoOut(OutputDir::Resolve("SpeciesMeso.Txt"));
+    mesoSpeciesCounter.WriteAscii(mesoOut, RunAccumulator::GetAccumulatedEvents());
+    mesoOut.close();
+    files.push_back(prefix + "SpeciesMeso.Txt");
+
+    std::ofstream mesoCsv(OutputDir::Resolve("SpeciesMeso.csv"));
+    mesoSpeciesCounter.WriteCsv(mesoCsv);
+    mesoCsv.close();
+    files.push_back(prefix + "SpeciesMeso.csv");
+
     // Pre-chemical files: move the per-event files staged since the last dump
     // into this dump (target = prefix/subdir applied by OutputDir::Resolve).
     const PreChemicalFiles::MoveResult moveResult = PreChemicalFiles::MoveStaged(
@@ -205,6 +218,27 @@ void RunAccumulatorMessenger::WriteAllAndReset(const G4String &prefix, const G4S
     DnaLogger::Print(DnaLogger::Level::Info,
                      "[RunAccumulatorMessenger] moved " + std::to_string(moveResult.moved.size()) +
                          " pre-chemical file(s) into the dump");
+
+    // Meso spatial snapshots (/chem/meso/spatialOutput): move the staged HDF5
+    // file into this dump (Resolve applies the prefix and subdir).
+    {
+        bool spatialMoved = false;
+        std::string spatialErr;
+        if (MesoSpatialFile::MoveStaged(OutputDir::GetDirectory(),
+                                        OutputDir::Resolve(MesoSpatialFile::FileName()),
+                                        spatialMoved, spatialErr))
+        {
+            if (spatialMoved)
+            {
+                files.push_back(prefix + MesoSpatialFile::FileName());
+            }
+        }
+        else
+        {
+            G4Exception("RunAccumulatorMessenger::WriteAllAndReset", "MesoSpatialMoveFailed",
+                        JustWarning, spatialErr.c_str());
+        }
+    }
 
     // Energy deposit, beam and everything else that describes this dump.
     RunManifest::Write(prefix, subdir, files);

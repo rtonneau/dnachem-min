@@ -44,7 +44,6 @@ try {
 /tracking/verbose 0
 /dnaLogger/verbose Info
 /process/dna/e-SolvationSubType Ritchie1994
-/process/chem/TimeStepModel SBS
 /chem/select $Chemistry
 /chem/env/scavenger O2 $o2Text %
 /run/initialize

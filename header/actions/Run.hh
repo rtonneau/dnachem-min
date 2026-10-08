@@ -4,6 +4,7 @@
 #include "geometry/DetectorConstruction.hh"
 #include "scoring/ReactionCounter.hh"
 #include "scoring/PhysicsInteractionCounter.hh"
+#include "scoring/MesoSpeciesCounter.hh"
 
 #include "G4Run.hh"
 #include "globals.hh"
@@ -39,6 +40,7 @@ public:
     G4VPrimitiveScorer *GetPrimitiveScorer() const { return fScorerRun; }
     ReactionCounter *GetReactionCounter() const { return fReactionCounter; }
     PhysicsInteractionCounter *GetInteractionCounter() const { return fInteractionCounter; }
+    MesoSpeciesCounter *GetMesoSpeciesCounter() const { return fMesoSpeciesCounter; }
 
     // Beam sampled by PrimaryGeneratorAction from its gun on the first event of
     // this run (on a worker thread in MT mode); Merge() carries it to the
@@ -71,6 +73,9 @@ private:
     // SteppingAction's live PhysicsInteractionCounter.
     PhysicsInteractionCounter *fInteractionCounter;
     PhysicsInteractionCounter fOwnedInteractionCounter;
+    // Same pattern again, for TimeStepAction's live MesoSpeciesCounter.
+    MesoSpeciesCounter *fMesoSpeciesCounter;
+    MesoSpeciesCounter fOwnedMesoSpeciesCounter;
 
     G4bool fHasBeam = false;
     Beam fBeam;

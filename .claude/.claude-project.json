@@ -42,10 +42,13 @@
     "smoke": {
       "gun": "/gun/particle e-, /gun/energy 25 keV",
       "beamOn": 10,
-      "note": "Write a scratch macro into <runBuildDir>/macro (untracked). Do not edit macro/beam.in (100 keV: about 30 min Serial for 6 events). End the macro with '/run/dumpDataAndReset' (no prefix) so the files in run.outputs are produced with their bare names -- omitting it falls back to the EndOfRun_-prefixed safety-net dump at process exit instead."
+      "note": "Write a scratch macro into <runBuildDir>/macro (untracked). Do not edit macro/beam.in (100 keV, 1 s end time by default: long). For a quick run issue '/scheduler/endTime 1 ms' after /run/initialize. End the macro with '/run/dumpDataAndReset' (no prefix) so the files in run.outputs are produced with their bare names -- omitting it falls back to the EndOfRun_-prefixed safety-net dump at process exit instead."
     },
     "outputs": [
       "Species.Txt",
+      "SpeciesMeso.Txt",
+      "SpeciesMeso.csv",
+      "SpeciesMesoSpatial.h5 (only with /chem/meso/spatialOutput true)",
       "Species_nt_species.csv",
       "Reactions.Txt",
       "Reactions_nt_reactions.csv",

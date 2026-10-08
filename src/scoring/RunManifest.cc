@@ -5,6 +5,7 @@
 
 #include "actions/Run.hh"
 #include "chemistry/ChemistryRegistry.hh"
+#include "chemistry/MesoSettings.hh"
 #include "core/OutputDir.hh"
 #include "geometry/DetectorConstruction.hh"
 #include "geometry/DnaChemistryWorld.hh"
@@ -132,6 +133,14 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
                           .Add("molarity_M", entry.molarity));
   }
 
+  // Initial mesh pixel count per side (same formula as TimeStepAction; the
+  // cell size actually used is voxelSize_nm unless the 65536 cap applied,
+  // ADR 0006). Needs the chemistry world for the box size.
+  DataNode mesoPixels;
+  if (chemistryWorld != nullptr)
+    mesoPixels = DataNode(MesoSettings::PixelCount(2. * chemistryWorld->GetHalfBox(),
+                                                   MesoSettings::Current().voxelSize * mm));
+
   const std::string dir = OutputDir::GetDirectory();
   std::error_code ec;
   const std::filesystem::path absolute =
@@ -160,6 +169,12 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   manifest.Add("halfBox_um",
                (chemistryWorld != nullptr) ? DataNode(chemistryWorld->GetHalfBox() / um) : DataNode());
   manifest.Add("chemistryEndTime_ns", G4Scheduler::Instance()->GetEndTime() / ns);
+  manifest.Add("chemistryModel", "IRT_syn+mesoscopic");
+  manifest.Add("handOverTime_ns", MesoSettings::Current().handOverTime);
+  manifest.Add("voxelSize_nm", MesoSettings::Current().voxelSize * mm / nm);
+  manifest.Add("mesoPixels", mesoPixels);
+  manifest.Add("mesoTimesPerDecade", MesoSettings::Current().timesPerDecade);
+  manifest.Add("mesoSpatialOutput", MesoSettings::Current().spatialOutput);
   manifest.Add("runMode", (mtRunManager != nullptr) ? "MT" : "Serial");
   manifest.Add("threads", (mtRunManager != nullptr) ? mtRunManager->GetNumberOfThreads() : 1);
   manifest.Add("outputDirAsConfigured", dir);

@@ -4,6 +4,7 @@
 #include "chemistry/catalog/BoscoloChemReactions.hh"
 #include "chemistry/ChemistryRegistry.hh"
 #include "chemistry/catalog/PureWaterReactions.hh"
+#include "chemistry/catalog/Tonneau2025Reactions.hh"
 
 #include "globals.hh"
 
@@ -29,4 +30,7 @@ void BuiltInChemistries::Register()
        &PureWaterReactions::BuildPureWaterBulkReactions});
   add({"BoscoloChem", &BoscoloChemReactions::BuildBoscoloChemReactions,
        &BoscoloChemReactions::BuildBoscoloChemBulkReactions});
+  add({"Tonneau2025", &Tonneau2025Reactions::BuildTonneau2025Reactions,
+       &Tonneau2025Reactions::BuildTonneau2025BulkReactions,
+       &Tonneau2025Reactions::ConstructTonneau2025Molecules});
 }

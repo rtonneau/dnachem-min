@@ -59,14 +59,10 @@ compile_commands.json
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
 .claude/hooks/*.log
-<<<<<<< HEAD
+
+# Python bytecode (analysis scripts)
+__pycache__/
 .work/sessions/.current-session
 .work/sessions/.pending-seeds.json*
 .work/sessions/*/.write-payload.md
 .work/sessions/*/.changelog-payload.md
-=======
-
-.work/sessions/.current-session
-.work/sessions/.pending-seeds.json*
-.work/sessions/*/.write-payload.md
->>>>>>> ee5b9afd647ed3db739252e31cf9eb3e35119b95

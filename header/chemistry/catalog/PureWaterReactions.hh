@@ -23,12 +23,18 @@
 /// H3Op(B)/OHm(B)/H2O pseudo-species and the dissolved-O2 scavenger
 /// reactions e_aq/H/O- + O2 (bulk) as plain data, the bulk-reaction list
 /// (BuildPureWaterBulkReactions);
-/// the driver turns that list into G4DNAScavengerProcess registrations.
+/// the driver turns that list into G4DNAScavengerProcess registrations
+/// (particle stage) and reaction-table entries (mesoscopic stage).
 /// Needs ChemistryTypes.hh -- copy both files to port this unit.
 ///
-/// Hard-coded SBS assumption: no G4ChemTimeStepModel branching, no
-/// conditional SetReactionType(1) (that existed only for IRT_syn support,
-/// dropped project-wide).
+/// Reaction types (IRT_syn): every tracked pair that G4EmDNAChemistry_option3
+/// lists as Type II or Type IV calls SetReactionType(1) unconditionally
+/// (partially diffusion-controlled); the others stay type 0 (fully
+/// diffusion-controlled). The bulk-reaction list keeps its own types (the
+/// acid-base equilibria 6/7/8). The driver also adds every bulk reaction to
+/// the reaction table, for the mesoscopic stage; a bulk reaction whose pair
+/// is already in the table (e.g. e_aq + O2, tracked and bulk O2 share one
+/// configuration) must have the same rate and products and shares that entry.
 
 #ifndef PureWaterReactions_h
 #define PureWaterReactions_h 1
