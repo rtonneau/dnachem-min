@@ -112,6 +112,30 @@
         "ticket": "02-end-time-default-and-manifest-mode",
         "commit": "20e9373"
       }
+    },
+    {
+      "at": "2026-10-08T19:22:11.710Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/03-macro-resolver.md",
+        "03-implement/03-macro-resolver/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "03-macro-resolver"
+      }
+    },
+    {
+      "at": "2026-10-08T19:23:51.568Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/03-macro-resolver/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "03-macro-resolver",
+        "commit": "7403243"
+      }
     }
   ],
   "current_phase": "ship",
