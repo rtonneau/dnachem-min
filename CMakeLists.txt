@@ -141,3 +141,8 @@ add_custom_command(
     "$<TARGET_FILE_DIR:sim>/macro"
     COMMENT "Copying macro files to output directory..."
 )
+
+# Standalone unit test for MacroResolver (standard library only).
+add_executable(MacroResolverTest test/MacroResolverTest.cc src/core/MacroResolver.cc)
+target_include_directories(MacroResolverTest PRIVATE ${project_include_dirs})
+add_test(NAME MacroResolverTest COMMAND MacroResolverTest)
