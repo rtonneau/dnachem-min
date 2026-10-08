@@ -38,9 +38,24 @@ struct Values
   double voxelSize = 6.25e-6;   ///< mm (6.25 nm)
   int timesPerDecade = 10;
   bool spatialOutput = false;
+  /// /chem/meso/enable: whether the particle-based stage hands over to the
+  /// mesoscopic stage. Read through StageEnabled(), never directly.
+  bool enabled = true;
+  /// True once /chem/meso/enable was issued (either value), so that the
+  /// default can be told apart from an explicit "true".
+  bool enabledExplicitly = false;
 };
 
 Values& Current();
+
+/// Whether the mesoscopic stage runs: `values.enabled`, except under the SBS
+/// time-step model (`sbsModel`), which has no hand-over; there the default
+/// (true) silently means off.
+bool StageEnabled(const Values& values, bool sbsModel);
+
+/// True when the stage was enabled explicitly (/chem/meso/enable true) while
+/// the time-step model is SBS: a configuration error the caller reports.
+bool ExplicitlyEnabledWithSbs(const Values& values, bool sbsModel);
 }  // namespace MesoSettings
 
 #endif  // MesoSettings_h

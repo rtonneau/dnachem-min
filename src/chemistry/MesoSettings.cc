@@ -62,4 +62,14 @@ Values& Current()
   static Values values;
   return values;
 }
+
+bool StageEnabled(const Values& values, bool sbsModel)
+{
+  return values.enabled && !sbsModel;
+}
+
+bool ExplicitlyEnabledWithSbs(const Values& values, bool sbsModel)
+{
+  return sbsModel && values.enabled && values.enabledExplicitly;
+}
 }  // namespace MesoSettings

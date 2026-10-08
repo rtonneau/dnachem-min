@@ -19,10 +19,15 @@
 /// docs/adr/0001-baseline-acid-base-buffer.md. The same list holds the
 /// scavenger reactions against exogenous bulk species set with
 /// /chem/env/scavenger (docs/adr/0004-scavenger-reactions-per-chemistry.md).
+///
+/// Time-step model (/process/chem/TimeStepModel): IRT_syn (default, may hand
+/// over to the mesoscopic stage, /chem/meso/enable) or SBS (step-by-step,
+/// particle-based stage only, no mesoscopic stage). IRT is not supported.
 
 #include "chemistry/DnaChemistryList.hh"
 
 #include "chemistry/BuiltInChemistries.hh"
+#include "chemistry/ChemUtils.hh"
 #include "chemistry/ChemistryRegistry.hh"
 #include "chemistry/ChemistrySelectMessenger.hh"
 #include "chemistry/MesoMessenger.hh"
@@ -67,6 +72,7 @@
 // Time-step model
 #include "G4ChemTimeStepModel.hh"
 #include "G4DNAIndependentReactionTimeModel.hh"
+#include "G4DNAMolecularStepByStepModel.hh"
 #include "G4DNAScavengerMaterial.hh"
 #include "G4EmParameters.hh"
 
@@ -304,27 +310,71 @@ void DnaChemistryList::ConstructReactionTable(G4DNAMolecularReactionTable* react
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void DnaChemistryList::ConstructTimeStepModel(G4DNAMolecularReactionTable* /*reactionTable*/)
+void DnaChemistryList::CheckTimeStepModel() const
 {
-  // IRT_syn only (G4EmDNAChemistry_option3 / UHDR EmDNAChemistry IRT_syn
-  // branch): the particle-based stage before the mesoscopic hand-over.
-  if (G4EmParameters::Instance()->GetTimeStepModel() != G4ChemTimeStepModel::IRT_syn) {
-    G4Exception("DnaChemistryList::ConstructTimeStepModel", "UnsupportedTimeStepModel",
+  const G4ChemTimeStepModel model = G4EmParameters::Instance()->GetTimeStepModel();
+  if (model != G4ChemTimeStepModel::IRT_syn && model != G4ChemTimeStepModel::SBS) {
+    G4Exception("DnaChemistryList::CheckTimeStepModel", "UnsupportedTimeStepModel",
                 FatalException,
-                "/process/chem/TimeStepModel: IRT_syn is the only supported chemistry "
-                "time-step model (SBS and IRT are not).");
+                (G4String("/process/chem/TimeStepModel ") + ChemUtils::ToString(model) +
+                 ": only IRT_syn (default) and SBS are supported (IRT is not).")
+                  .c_str());
     return;
   }
-  RegisterTimeStepModel(new G4DNAIndependentReactionTimeModel(), 0);
+  const G4bool sbs = (model == G4ChemTimeStepModel::SBS);
+  const auto& meso = MesoSettings::Current();
+  if (MesoSettings::ExplicitlyEnabledWithSbs(meso, sbs)) {
+    G4Exception("DnaChemistryList::CheckTimeStepModel", "MesoWithSbs", FatalException,
+                "/chem/meso/enable true was given with /process/chem/TimeStepModel SBS: the "
+                "SBS model has no mesoscopic stage. Drop the command or set it to false.");
+    return;
+  }
+  // G4cout, not DnaLogger: the run configuration is printed at any logger
+  // level (DnaLogger is Quiet by default).
+  G4cout << "[DnaChemistryList] time-step model = " << ChemUtils::ToString(model)
+         << ", mesoscopic stage " << (MesoSettings::StageEnabled(meso, sbs) ? "on" : "off")
+         << G4endl;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DnaChemistryList::ConstructTimeStepModel(G4DNAMolecularReactionTable* /*reactionTable*/)
+{
+  // Validated earlier by CheckTimeStepModel (ConstructProcess, master); this
+  // runs per thread, at the first event in Serial mode.
+  switch (G4EmParameters::Instance()->GetTimeStepModel()) {
+    case G4ChemTimeStepModel::IRT_syn:
+      // G4EmDNAChemistry_option3 / UHDR EmDNAChemistry IRT_syn branch; may
+      // hand over to the mesoscopic stage (TimeStepAction).
+      RegisterTimeStepModel(new G4DNAIndependentReactionTimeModel(), 0);
+      break;
+    case G4ChemTimeStepModel::SBS:
+      // Step-by-step Brownian dynamics (chem1-chem6); particle-based stage
+      // only, up to the end time.
+      RegisterTimeStepModel(new G4DNAMolecularStepByStepModel(), 0);
+      break;
+    default:
+      G4Exception("DnaChemistryList::ConstructTimeStepModel", "UnsupportedTimeStepModel",
+                  FatalException,
+                  "/process/chem/TimeStepModel: only IRT_syn (default) and SBS are supported.");
+      return;
+  }
 
   DnaLogger::Print(DnaLogger::Level::Info,
-                   "[DnaChemistryList] time-step model = IRT_syn (hard-coded)");
+                   G4String("[DnaChemistryList] time-step model registered: ") +
+                     ChemUtils::GetCurrentTimeStepModelName());
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void DnaChemistryList::ConstructProcess()
 {
+  // At /run/initialize, once all PreInit commands are in: an unsupported
+  // model or /chem/meso/enable true with SBS stops the run here.
+  if (!G4Threading::IsWorkerThread()) {
+    CheckTimeStepModel();
+  }
+
   auto* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   // Extend the Sanche vibrational-excitation model down to thermal energies.
@@ -354,7 +404,8 @@ void DnaChemistryList::ConstructProcess()
     auto* moleculeDef = iterator.value();
 
     if (moleculeDef != G4H2O::Definition()) {
-      // IRT_syn diffuses every molecule with Brownian transportation.
+      // Both models (IRT_syn, SBS) diffuse every molecule with Brownian
+      // transportation.
       ph->RegisterProcess(new G4DNABrownianTransportation(), moleculeDef);
     }
     else {
@@ -389,9 +440,10 @@ void DnaChemistryList::ConstructProcess()
   }
 
   // The initial mesh pixel count is capped (ADR 0006): say so once, from the
-  // master, with the cell size the cap leaves.
-  if (!G4Threading::IsWorkerThread()) {
-    const auto& meso = MesoSettings::Current();
+  // master, with the cell size the cap leaves (only when there is a mesh).
+  const auto& meso = MesoSettings::Current();
+  const G4bool sbs = G4EmParameters::Instance()->GetTimeStepModel() == G4ChemTimeStepModel::SBS;
+  if (!G4Threading::IsWorkerThread() && MesoSettings::StageEnabled(meso, sbs)) {
     const G4double side = 2. * chemWorld->GetHalfBox();
     if (MesoSettings::PixelCountCapped(side, meso.voxelSize * mm)) {
       const G4double used = side / MesoSettings::PixelCount(side, meso.voxelSize * mm);
