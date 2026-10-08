@@ -28,6 +28,8 @@ O2 21 % (SBS N = 1500, new N = 1500; SBS statistical error 0.3 to 2.3 %):
 | H2O2 | 0.5387 | 0.7374 | +36.9 % |
 | H2 | 0.4518 | 0.5916 | +30.9 % |
 
+Regression of the current SBS mode against these same references: `docs/sbs-regression.md` (it agrees with them once SBS keeps every reaction type 0; the SBS column above is type 0, the IRT_syn columns use type 1 for the partially diffusion-controlled pairs).
+
 Plots (solid: new model, dashed: SBS): `docs/irt-syn-meso-water.png`, `docs/irt-syn-meso-o2.png`.
 
 Wall times: water, SBS 104.6 s vs new 28.5 s (ratio 0.27); O2, SBS 5217.8 s vs new 1184.5 s (ratio 0.23). Both are MT x10 runs; the SBS timings are from the reference manifests.

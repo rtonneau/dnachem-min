@@ -82,7 +82,9 @@ How an event's chemistry is run, chosen in the macro before initialisation: **SB
 (step-by-step, particle-based all the way to the end time), **IRT_syn** (particle-based
 only, no hand-over) or **IRT_syn + mesoscopic** (particle-based stage, then the
 **Mesoscopic stage**; the default). The mesoscopic stage is only available after
-IRT_syn. Independent of the **Chemistry** (reaction content) and of the **Scavenger**.
+IRT_syn. Independent of the **Chemistry** (reaction content) and of the **Scavenger**,
+except that SBS treats every reaction as fully diffusion-controlled while IRT_syn
+treats the catalogue's Type II/IV pairs as partially diffusion-controlled.
 _Avoid_: "model" alone (also names physics models), "time-step model" in user-facing text.
 
 **Particle-based stage**:

@@ -4,6 +4,8 @@
 
 #include "chemistry/catalog/Tonneau2025Reactions.hh"
 
+#include "chemistry/ChemistryTypes.hh"
+
 #include "chemistry/catalog/Tonneau2025Table.hh"
 
 #include "G4DNAMolecularReactionTable.hh"
@@ -185,7 +187,8 @@ std::vector<std::string> Tonneau2025Reactions::TypeOneSpecies()
 void Tonneau2025Reactions::BuildTonneau2025Reactions(G4DNAMolecularReactionTable* reactionTable)
 {
   // type 0: fully diffusion-controlled (the default). type 1: partially
-  // diffusion-controlled, SetReactionType(1) -- the IRT stepper then samples
+  // diffusion-controlled, SetReactionType(1) unless
+  // ChemistryTypes::PartialReactionsEnabled() is false (SBS: stays type 0) -- the IRT stepper then samples
   // an activation step with the vdW reaction radius, so both reactants need one.
   auto add = [reactionTable](const Reaction& r, MolConf a, MolConf b,
                              const std::vector<std::string>& products, int type) {
@@ -193,7 +196,7 @@ void Tonneau2025Reactions::BuildTonneau2025Reactions(G4DNAMolecularReactionTable
     for (const auto& p : products) {
       rd->AddProduct(Conf(p));
     }
-    if (type == 1) {
+    if (type == 1 && ChemistryTypes::PartialReactionsEnabled()) {
       for (MolConf reactant : {a, b}) {
         if (reactant->GetVanDerVaalsRadius() <= 0.) {
           G4Exception(kCaller, "MissingVdWRadius", FatalException,

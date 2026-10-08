@@ -3,6 +3,8 @@
 
 #include "chemistry/catalog/PureWaterReactions.hh"
 
+#include "chemistry/ChemistryTypes.hh"
+
 #include "G4DNAMolecularReactionTable.hh"
 #include "G4MolecularConfiguration.hh"
 #include "G4MoleculeTable.hh"
@@ -38,7 +40,8 @@ MolConf Conf(const G4String& name)
 void PureWaterReactions::BuildPureWaterReactions(G4DNAMolecularReactionTable* reactionTable)
 {
   // add(): fully diffusion-controlled (reaction type 0, the default).
-  // partial(): partially diffusion-controlled, SetReactionType(1) -- the IRT
+  // partial(): partially diffusion-controlled, SetReactionType(1) unless
+  // ChemistryTypes::PartialReactionsEnabled() is false (SBS: stays type 0) -- the IRT
   // stepper then samples an activation step with the vdW reaction radius
   // (Type II neutral pair, Type IV ionic pair: G4DNAMolecularReactionData.cc).
   auto add = [reactionTable](MolConf a, MolConf b, G4double k,
@@ -52,7 +55,10 @@ void PureWaterReactions::BuildPureWaterReactions(G4DNAMolecularReactionTable* re
   };
   auto partial = [&add](MolConf a, MolConf b, G4double k,
                         std::initializer_list<MolConf> products) {
-    add(a, b, k, products)->SetReactionType(1);
+    auto* rd = add(a, b, k, products);
+    if (ChemistryTypes::PartialReactionsEnabled()) {
+      rd->SetReactionType(1);
+    }
   };
 
   auto* e_aq = Conf("e_aq");

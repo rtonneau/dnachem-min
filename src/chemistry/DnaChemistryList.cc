@@ -114,7 +114,10 @@ G4DNAMolecularReactionData* MakeBulkReactionData(MolConf molecule,
   for (const auto& product : reaction.products) {
     rd->AddProduct(Conf(product, caller));
   }
-  if (reaction.reactionType != 0) {
+  // Type 1 (partially diffusion-controlled) is skipped under SBS; the acid-base
+  // types 6/7/8 are not diffusion classes and always apply.
+  if (reaction.reactionType != 0 &&
+      (reaction.reactionType != 1 || ChemistryTypes::PartialReactionsEnabled())) {
     rd->SetReactionType(reaction.reactionType);
   }
   return rd;
@@ -322,6 +325,11 @@ void DnaChemistryList::CheckTimeStepModel() const
     return;
   }
   const G4bool sbs = (model == G4ChemTimeStepModel::SBS);
+  // SBS keeps every reaction fully diffusion-controlled (type 0, as in chem1-chem6
+  // and the SBS reference); IRT_syn applies the catalogue's type 1. Read by the
+  // Chemistry builders and MakeBulkReactionData, which run after this
+  // (RegisterBulkReactionProcesses, then Initialize -> ConstructReactionTable).
+  ChemistryTypes::SetPartialReactionsEnabled(!sbs);
   const auto& meso = MesoSettings::Current();
   if (MesoSettings::ExplicitlyEnabledWithSbs(meso, sbs)) {
     G4Exception("DnaChemistryList::CheckTimeStepModel", "MesoWithSbs", FatalException,
@@ -555,12 +563,23 @@ void DnaChemistryList::WarnOnNegativeActivationRates(
   // SetReactionType(1) derives k_act = k_diff * k_obs / (k_diff - k_obs) from
   // the vdW radius (G4DNAMolecularReactionData::SetReactionType); k_obs at or
   // above that k_diff gives k_act <= 0, an ill-defined partial reaction.
+  G4int nType0 = 0;
+  G4int nType1 = 0;
+  G4int nOther = 0;
   for (const auto* rd : reactionTable->GetVectorOfReactionData()) {
-    if (rd->GetReactionType() == 1 && rd->GetActivationRateConstant() <= 0.) {
+    const G4int type = rd->GetReactionType();
+    (type == 0 ? nType0 : type == 1 ? nType1 : nOther)++;
+    if (type == 1 && rd->GetActivationRateConstant() <= 0.) {
       DnaLogger::Print(DnaLogger::Level::Warning,
                        "[DnaChemistryList] partially diffusion-controlled reaction " +
                          rd->GetReactant1()->GetName() + " + " + rd->GetReactant2()->GetName() +
                          " has k_obs >= k_diff (vdW radius): activation rate <= 0");
     }
   }
+  // Type 1 only with IRT_syn (ChemistryTypes::PartialReactionsEnabled); SBS has none.
+  DnaLogger::Print(DnaLogger::Level::Info,
+                   "[DnaChemistryList] reaction types: " + std::to_string(nType0) +
+                     " fully diffusion-controlled (0), " + std::to_string(nType1) +
+                     " partially diffusion-controlled (1), " + std::to_string(nOther) +
+                     " other");
 }
