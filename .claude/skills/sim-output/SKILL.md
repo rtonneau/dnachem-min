@@ -28,7 +28,11 @@ resets all counters to empty/zero:
   `.csv` rows are `time_ns,species,count` (summed over events). Record times
   are a log grid from the hand-over time to the end time
   (`/chem/meso/timesPerDecade`, default 10). Bulk species are not listed.
-  `Species.*` stops at the hand-over time.
+  `Species.*` stops at the hand-over time. Neither file is written when the
+  mesoscopic stage is off: `mesoEnabled: false` in the manifest, which is the
+  case under SBS (`/process/chem/TimeStepModel SBS`) and with
+  `/chem/meso/enable false` under IRT_syn. There `Species.*` covers the whole
+  chemistry run.
 - `SpeciesMesoSpatial.h5`: only with `/chem/meso/spatialOutput true`
   (PreInit, default false). Spatial snapshots of the mesoscopic mesh, appended
   per event by `TimeStepAction` into the staging folder
@@ -69,8 +73,10 @@ resets all counters to empty/zero:
   in the keys). Top level: `timestamp`, `elapsedSinceStart_s` (main start → dump),
   `elapsedSincePreviousDump_s` (previous dump or process start → dump),
   `geant4Version`, `macro`, `chemistry`, `scavengers` (`species`, `molarity_M`), `pH`,
-  `chemistryEndTime_ns` (default 1e9 for the 1 s end time), `chemistryModel`
-  (`"IRT_syn+mesoscopic"`), `handOverTime_ns`, `voxelSize_nm` (requested cell
+  `chemistryEndTime_ns` (1e9 for the 1 s end time with meso; 1000 for the 1 us
+  default without it), `timeStepModel` (`"IRT_syn"` or `"SBS"`), `mesoEnabled`
+  (bool; false = no `SpeciesMeso*` files), `chemistryModel` (`"IRT_syn+mesoscopic"`,
+  `"IRT_syn"` or `"SBS"`), `handOverTime_ns` (null without the mesoscopic stage), `voxelSize_nm` (requested cell
   size), `mesoPixels` (initial mesh pixels per side, capped at 65536, so on the
   default 1 mm box the cell actually used is 15.26 nm; null without a chemistry
   world), `mesoTimesPerDecade`, `runMode` (`Serial`/`MT`), `threads`,
