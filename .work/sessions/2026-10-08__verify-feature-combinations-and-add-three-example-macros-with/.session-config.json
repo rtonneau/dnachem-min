@@ -88,6 +88,30 @@
         "ticket": "01-sbs-mode-and-meso-switch",
         "commit": "e5cdbd5"
       }
+    },
+    {
+      "at": "2026-10-08T19:19:19.661Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/02-end-time-default-and-manifest-mode.md",
+        "03-implement/02-end-time-default-and-manifest-mode/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-end-time-default-and-manifest-mode"
+      }
+    },
+    {
+      "at": "2026-10-08T19:22:10.862Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/02-end-time-default-and-manifest-mode/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-end-time-default-and-manifest-mode",
+        "commit": "20e9373"
+      }
     }
   ],
   "current_phase": "ship",
