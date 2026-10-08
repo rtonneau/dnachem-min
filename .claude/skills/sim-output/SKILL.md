@@ -133,9 +133,21 @@ reset...` line is a plain, always-visible `G4cout` line (unlike most of this
 project's diagnostics, which go through `DnaLogger` and are silent by
 default) — see `RunAccumulatorMessenger.cc`.
 
+Without `--dir` or `/run/outputDir`, output goes to `<exeDir>/results`
+(`OutputDir::SetDefaultDir` from `sim.cc`, created lazily at the first output,
+so a run that sets either never creates it; a `/run/outputDir` issued after the
+default was already used is refused). `<outdir>/Manifest.json` is also the
+**results index** (`ResultsIndex`, rewritten at every dump, the `EndOfRun_`
+flush included): top level `kind: "resultsIndex"`, `outputDirAbsolute` and
+`dumps[]` (`folder`, `prefix`, `manifest` = relative path of that dump's own
+manifest, `timestamp`, `events`, `runs[]` with run/events/seed/beam). Each
+sub-folder or prefixed dump keeps its own manifest unchanged. Collision: a flat
+dump with an empty prefix has its manifest at the index's path, so that file
+is that dump's manifest plus a top-level `dumps` array (no `kind`).
+
 Pass `--dir <path>` to redirect every output file above (plus the
 `/chem/reaction/dump` target, if the macro sets one) into `<path>` instead of
-cwd — useful for isolating each run's output when scripting many `sim.exe`
+the default directory — useful for isolating each run's output when scripting many `sim.exe`
 invocations. `<path>` itself is created if missing; its parent must already
 exist. `--dir` can appear anywhere on the command line, but the macro
 filename must still come first (`argv[1]`):

@@ -107,6 +107,14 @@ int main(int argc, char **argv)
     DnaLogger::Print(DnaLogger::Level::Error, outputDirError);
     exit(1);
   }
+  // With neither --dir nor /run/outputDir, output goes to <exeDir>/results.
+  // The default is applied lazily (created at the first output), so
+  // "/run/outputDir" in the macro still replaces it.
+  {
+    const std::string exeDir = ExecutableDir();
+    if (!exeDir.empty())
+      OutputDir::SetDefaultDir((std::filesystem::path(exeDir) / "results").string());
+  }
   G4int requestedThreads = argParser.GetInt("--threads");
   G4RunManagerType runManagerType =
       (requestedThreads > 0) ? G4RunManagerType::MT : G4RunManagerType::Serial;

@@ -12,6 +12,7 @@
 #include "geometry/DnaChemistryWorld.hh"
 #include "scoring/DataNode.hh"
 #include "scoring/JsonWriter.hh"
+#include "scoring/ResultsIndex.hh"
 #include "scoring/RunAccumulator.hh"
 
 #include "G4Exception.hh"
@@ -27,6 +28,7 @@
 #include <fstream>
 #include <iomanip>
 #include <optional>
+#include <vector>
 #include <sstream>
 
 namespace
@@ -34,6 +36,26 @@ namespace
   G4String gMacroName;
   std::chrono::steady_clock::time_point gProcessStart = std::chrono::steady_clock::now();
   std::optional<std::chrono::steady_clock::time_point> gPreviousDump;
+
+  // Results index (<outdir>/Manifest.json): one entry per dump so far, and
+  // the manifest of the empty-prefix flat dump if there was one (it shares
+  // the index's path, so the index is written on top of it, see ResultsIndex).
+  std::vector<DataNode> gDumpEntries;
+  std::optional<DataNode> gRootDumpManifest;
+
+  // Writes `tree` as JSON to `path`; a failed open is a JustWarning.
+  void WriteTree(const G4String &path, const DataNode &tree, const char *code,
+                 const std::string &consequence)
+  {
+    std::ofstream out(path);
+    if (!out)
+    {
+      G4Exception("RunManifest::Write", code, JustWarning,
+                  ("could not open '" + path + "' for writing; " + consequence).c_str());
+      return;
+    }
+    JsonWriter::Write(out, tree);
+  }
 
   std::string Timestamp()
   {
@@ -194,15 +216,31 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   manifest.Add("files", fileList);
   manifest.Add("runs", runs);
 
+  // Results index: this dump joins the list. A flat dump with an empty prefix
+  // has its per-dump manifest at the index's path (<outdir>/Manifest.json);
+  // that file is then written once, as the per-dump manifest plus the
+  // top-level "dumps" array, here and by every later dump. Any other dump
+  // writes its own manifest (unchanged) and the index beside/above it.
+  gDumpEntries.push_back(ResultsIndex::MakeDumpEntry(
+      prefix, subdir, Timestamp(), RunAccumulator::GetAccumulatedEvents(),
+      RunAccumulator::GetRunEntries()));
+  if (prefix.empty() && subdir.empty())
+    gRootDumpManifest = manifest;
+
+  const std::string absoluteDir = ec ? dir : absolute.lexically_normal().string();
+  const DataNode *rootBase = gRootDumpManifest ? &*gRootDumpManifest : nullptr;
+
   const G4String path = OutputDir::Resolve("Manifest.json");
-  std::ofstream out(path);
-  if (!out)
+  if (prefix.empty() && subdir.empty())
   {
-    G4Exception("RunManifest::Write", "ManifestWriteFailed", JustWarning,
-                ("could not open '" + path + "' for writing; the dump's data files are "
-                 "written but it has no manifest")
-                    .c_str());
+    WriteTree(path, ResultsIndex::Build(gDumpEntries, rootBase, absoluteDir), "ManifestWriteFailed",
+              "the dump's data files are written but it has no manifest");
     return;
   }
-  JsonWriter::Write(out, manifest);
+
+  WriteTree(path, manifest, "ManifestWriteFailed",
+            "the dump's data files are written but it has no manifest");
+  WriteTree(OutputDir::ResolveInRoot(ResultsIndex::FileName()),
+            ResultsIndex::Build(gDumpEntries, rootBase, absoluteDir), "IndexWriteFailed",
+            "the dump's data files and manifest are written but the results index is not updated");
 }
