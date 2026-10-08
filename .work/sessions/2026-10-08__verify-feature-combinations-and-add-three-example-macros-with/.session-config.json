@@ -184,6 +184,30 @@
         "ticket": "05-example-macros-and-docs",
         "commit": "f4003ef"
       }
+    },
+    {
+      "at": "2026-10-08T19:51:36.124Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/06-smoke-matrix.md",
+        "03-implement/06-smoke-matrix/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "06-smoke-matrix"
+      }
+    },
+    {
+      "at": "2026-10-08T20:05:54.049Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/06-smoke-matrix/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "06-smoke-matrix",
+        "commit": "acfa422"
+      }
     }
   ],
   "current_phase": "ship",
