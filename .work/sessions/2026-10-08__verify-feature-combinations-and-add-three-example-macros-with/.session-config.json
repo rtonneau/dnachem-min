@@ -208,9 +208,33 @@
         "ticket": "06-smoke-matrix",
         "commit": "acfa422"
       }
+    },
+    {
+      "at": "2026-10-08T20:05:54.889Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/07-sbs-regression.md",
+        "03-implement/07-sbs-regression/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "07-sbs-regression"
+      }
+    },
+    {
+      "at": "2026-10-08T21:17:11.437Z",
+      "event": "ticket_done",
+      "phase": "finish-pending",
+      "files": [
+        "03-implement/07-sbs-regression/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "07-sbs-regression",
+        "commit": "620f77f"
+      }
     }
   ],
-  "current_phase": "ship",
+  "current_phase": "finish-pending",
   "git": {
     "branch": "feat/chemistry-modes-and-results-layout",
     "base_branch": "integration",
