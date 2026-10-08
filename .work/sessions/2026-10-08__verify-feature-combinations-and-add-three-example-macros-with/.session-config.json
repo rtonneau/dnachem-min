@@ -136,6 +136,30 @@
         "ticket": "03-macro-resolver",
         "commit": "7403243"
       }
+    },
+    {
+      "at": "2026-10-08T19:23:52.415Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/04-results-dir-and-index.md",
+        "03-implement/04-results-dir-and-index/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "04-results-dir-and-index"
+      }
+    },
+    {
+      "at": "2026-10-08T19:45:35.148Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/04-results-dir-and-index/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "04-results-dir-and-index",
+        "commit": "0bb1bf3"
+      }
     }
   ],
   "current_phase": "ship",
