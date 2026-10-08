@@ -53,14 +53,20 @@ compile_commands.json
 !/build-ninja/update-compile-cmd.ps1
 
 /.scratch/**
-.work/
 .scratch/
 
 # Claude Code: per-machine and generated files (see dotfiles/scripts/init-claude-project.ps1)
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
 .claude/hooks/*.log
+<<<<<<< HEAD
 .work/sessions/.current-session
 .work/sessions/.pending-seeds.json*
 .work/sessions/*/.write-payload.md
 .work/sessions/*/.changelog-payload.md
+=======
+
+.work/sessions/.current-session
+.work/sessions/.pending-seeds.json*
+.work/sessions/*/.write-payload.md
+>>>>>>> ee5b9afd647ed3db739252e31cf9eb3e35119b95

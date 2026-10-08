@@ -720,5 +720,9 @@ Skipped at 2026-09-29T19:04:55.5943415+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\d
 Skipped at 2026-09-30T13:14:31.6042808+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-09-30__boscolochem-table1\.write-payload.md
 Triggered at 2026-09-30T13:14:59.7274062+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\chemistry\catalog\BoscoloChemReactions.cc
 Completed at 2026-09-30T13:15:03.8532439+02:00: copied compile_commands.json
-Skipped at 2026-09-30T21:59:42.3827642+02:00: C:\Users\rtonneau\DEV\RUST\radiolysis-db\README.md
-Skipped at 2026-09-30T22:00:27.1294060+02:00: C:\Users\rtonneau\DEV\RUST\radiolysis-db\CLAUDE.md
+Skipped at 2026-09-30T14:31:29.4318100+02:00: C:\Users\rtonneau\DATA\Geant4\260930\run.ps1
+Skipped at 2026-09-30T14:31:29.8563909+02:00: C:\Users\rtonneau\DATA\Geant4\260930\run.ps1
+Skipped at 2026-09-30T14:31:30.3022584+02:00: C:\Users\rtonneau\DATA\Geant4\260930\run.ps1
+Skipped at 2026-09-30T14:31:30.7280890+02:00: C:\Users\rtonneau\DATA\Geant4\260930\run.ps1
+Skipped at 2026-09-30T14:31:31.1589559+02:00: C:\Users\rtonneau\DATA\Geant4\260930\run.ps1
+Skipped at 2026-09-30T14:31:31.5836443+02:00: C:\Users\rtonneau\DATA\Geant4\260930\run.ps1
