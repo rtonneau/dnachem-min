@@ -5,6 +5,7 @@
 
 #include "actions/Run.hh"
 #include "chemistry/ChemistryRegistry.hh"
+#include "chemistry/ChemUtils.hh"
 #include "chemistry/MesoSettings.hh"
 #include "core/OutputDir.hh"
 #include "geometry/DetectorConstruction.hh"
@@ -136,8 +137,10 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   // Initial mesh pixel count per side (same formula as TimeStepAction; the
   // cell size actually used is voxelSize_nm unless the 65536 cap applied,
   // ADR 0006). Needs the chemistry world for the box size.
+  const bool sbs = ChemUtils::GetCurrentTimeStepModel() == G4ChemTimeStepModel::SBS;
+  const bool mesoOn = MesoSettings::StageEnabled(MesoSettings::Current(), sbs);
   DataNode mesoPixels;
-  if (chemistryWorld != nullptr)
+  if (mesoOn && chemistryWorld != nullptr)
     mesoPixels = DataNode(MesoSettings::PixelCount(2. * chemistryWorld->GetHalfBox(),
                                                    MesoSettings::Current().voxelSize * mm));
 
@@ -169,12 +172,17 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   manifest.Add("halfBox_um",
                (chemistryWorld != nullptr) ? DataNode(chemistryWorld->GetHalfBox() / um) : DataNode());
   manifest.Add("chemistryEndTime_ns", G4Scheduler::Instance()->GetEndTime() / ns);
-  manifest.Add("chemistryModel", "IRT_syn+mesoscopic");
-  manifest.Add("handOverTime_ns", MesoSettings::Current().handOverTime);
-  manifest.Add("voxelSize_nm", MesoSettings::Current().voxelSize * mm / nm);
+  manifest.Add("timeStepModel", std::string(ChemUtils::GetCurrentTimeStepModelName()));
+  manifest.Add("mesoEnabled", mesoOn);
+  manifest.Add("chemistryModel", mesoOn ? "IRT_syn+mesoscopic" : (sbs ? "SBS" : "IRT_syn"));
+  manifest.Add("handOverTime_ns",
+               mesoOn ? DataNode(MesoSettings::Current().handOverTime) : DataNode());
+  manifest.Add("voxelSize_nm",
+               mesoOn ? DataNode(MesoSettings::Current().voxelSize * mm / nm) : DataNode());
   manifest.Add("mesoPixels", mesoPixels);
-  manifest.Add("mesoTimesPerDecade", MesoSettings::Current().timesPerDecade);
-  manifest.Add("mesoSpatialOutput", MesoSettings::Current().spatialOutput);
+  manifest.Add("mesoTimesPerDecade",
+               mesoOn ? DataNode(MesoSettings::Current().timesPerDecade) : DataNode());
+  manifest.Add("mesoSpatialOutput", mesoOn && MesoSettings::Current().spatialOutput);
   manifest.Add("runMode", (mtRunManager != nullptr) ? "MT" : "Serial");
   manifest.Add("threads", (mtRunManager != nullptr) ? mtRunManager->GetNumberOfThreads() : 1);
   manifest.Add("outputDirAsConfigured", dir);

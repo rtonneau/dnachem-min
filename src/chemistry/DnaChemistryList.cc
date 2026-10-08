@@ -329,6 +329,11 @@ void DnaChemistryList::CheckTimeStepModel() const
                 "SBS model has no mesoscopic stage. Drop the command or set it to false.");
     return;
   }
+  // Default chemistry end time: 1 s with the mesoscopic stage, 1 us without.
+  // ActionInitialization::Build() does the same, but in Serial mode it runs
+  // before the macro, so this is the value that counts there; a
+  // /scheduler/endTime after /run/initialize overrides it.
+  G4Scheduler::Instance()->SetEndTime(MesoSettings::StageEnabled(meso, sbs) ? 1. * s : 1. * us);
   // G4cout, not DnaLogger: the run configuration is printed at any logger
   // level (DnaLogger is Quiet by default).
   G4cout << "[DnaChemistryList] time-step model = " << ChemUtils::ToString(model)
