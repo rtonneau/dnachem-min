@@ -160,6 +160,30 @@
         "ticket": "04-results-dir-and-index",
         "commit": "0bb1bf3"
       }
+    },
+    {
+      "at": "2026-10-08T19:45:35.988Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/05-example-macros-and-docs.md",
+        "03-implement/05-example-macros-and-docs/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "05-example-macros-and-docs"
+      }
+    },
+    {
+      "at": "2026-10-08T19:51:35.241Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/05-example-macros-and-docs/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "05-example-macros-and-docs",
+        "commit": "f4003ef"
+      }
     }
   ],
   "current_phase": "ship",
