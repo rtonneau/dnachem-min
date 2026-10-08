@@ -232,14 +232,39 @@
         "ticket": "07-sbs-regression",
         "commit": "620f77f"
       }
+    },
+    {
+      "at": "2026-10-08T21:17:20.344Z",
+      "event": "changelog_written",
+      "phase": "finish-pending",
+      "detail": {
+        "bump": "minor"
+      }
+    },
+    {
+      "at": "2026-10-08T21:17:25.271Z",
+      "event": "session_finished",
+      "phase": "finished",
+      "files": [
+        "INDEX.md"
+      ]
     }
   ],
-  "current_phase": "finish-pending",
+  "current_phase": "finished",
   "git": {
     "branch": "feat/chemistry-modes-and-results-layout",
     "base_branch": "integration",
     "branch_created_at": "2026-10-08T19:06:16.456Z",
     "pr_url": null
   },
-  "ship_mode": "subagent+inline"
+  "ship_mode": "subagent+inline",
+  "changelog": {
+    "bump": "minor",
+    "floor": "minor",
+    "reason": null,
+    "bullets": 5,
+    "path": ".work/changelog/2026-10-08__verify-feature-combinations-and-add-three-example-macros-with.md",
+    "written_at": "2026-10-08T21:17:20.336Z"
+  },
+  "finished_at": "2026-10-08T21:17:25.271Z"
 }
