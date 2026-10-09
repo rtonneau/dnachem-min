@@ -5,6 +5,7 @@
 
 #include "G4ChemTimeStepModel.hh"
 #include "G4EmDNAPhysics.hh"
+#include "G4EmDNAPhysics_option2.hh"
 #include "G4EmParameters.hh"
 #include "G4ProductionCutsTable.hh"
 #include "G4SystemOfUnits.hh"
@@ -13,7 +14,9 @@
 
 PhysicsList::PhysicsList()
   : G4VModularPhysicsList(),
-    fEmDNAPhysicsList(new G4EmDNAPhysics(/*verbose*/ 0)),
+    // Pre-2026-10 default was G4EmDNAPhysics; kept here as reference.
+    // fEmDNAPhysicsList(new G4EmDNAPhysics(/*verbose*/ 0)),
+    fEmDNAPhysicsList(new G4EmDNAPhysics_option2(/*verbose*/ 0)),
     fEmDNAChemistryList(new DnaChemistryList)
 {
   const G4double defaultCut = 1. * nanometer;
