@@ -128,10 +128,12 @@ named **Chemistry**. Pick one in the macro, before `/run/initialize`:
 
 `macro/beam_boscolo.in` is a ready-to-run example.
 
-Only SBS is supported as the chemistry time-step model
-(`/process/chem/TimeStepModel SBS`); IRT is rejected with a fatal exception.
+The chemistry is IRT_syn (particle-based stage) up to the hand-over time,
+then a mesoscopic stage (`/chem/meso/handOverTime`, `/chem/meso/voxelSize`,
+`/chem/meso/timesPerDecade`, all before `/run/initialize`); SBS and IRT are no
+longer supported and `/process/chem/TimeStepModel` must not be used.
 
-The chemistry time limit defaults to 1 µs
+The chemistry time limit defaults to 1 s
 (`G4Scheduler::Instance()->SetEndTime()` in `ActionInitialization::Build()`,
 applied on `/run/initialize`). To override it, issue
 `/scheduler/endTime <value> <unit>` *after* `/run/initialize` — anything
@@ -182,12 +184,12 @@ verbose) is set.
 /dnaLogger/verbose Info
 
 /process/dna/e-SolvationSubType Ritchie1994
-/process/chem/TimeStepModel SBS
 
 # Bin reaction counts at a fixed 100 ps step (PreInit, before /run/initialize).
 /chem/reaction/timeBinsFixed 100 picosecond
 
 /run/initialize
+/scheduler/endTime 1 us
 
 /gun/particle e-
 /gun/energy 100 keV
@@ -203,7 +205,9 @@ Run it with:
 
 This produces `Reactions.Txt`, `Reactions_nt_reactions.csv`, and
 `ReactionsMetadata.csv` with counts binned every 100 ps out to the 1 µs
-scheduler end time (~10 bins), plus the usual `Species.*` output.
+scheduler end time the macro sets, plus the usual `Species.*` and
+`SpeciesMeso.*` output. Reactions are only counted in the particle-based
+stage, so every bin after the hand-over time (5 ns by default) is empty.
 
 To use explicit bin edges instead, comment out `timeBinsFixed` and use, e.g.:
 

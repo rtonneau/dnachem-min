@@ -20,7 +20,13 @@ namespace ChemistryRegistry
   {
     std::string name;
     void (*buildReactions)(G4DNAMolecularReactionTable*);
-    ChemistryTypes::AcidBaseList (*buildAcidBase)();
+    ChemistryTypes::BulkReactionList (*buildBulkReactions)();
+    /// Optional: creates molecules this Chemistry needs beyond the shared set.
+    /// Null = none. Runs on the master thread from DnaChemistryList::ConstructMolecule
+    /// and from /chem/select (ChemistrySelectMessenger), so an implementation must be
+    /// idempotent (never `new G4MoleculeDefinition`
+    /// for a name that may already exist). See ADR 0007.
+    void (*constructMolecules)() = nullptr;
   };
 
   /// Chemistry used when no /chem/select was issued.

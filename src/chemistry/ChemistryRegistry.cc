@@ -57,7 +57,7 @@ bool ChemistryRegistry::Register(const Chemistry& chemistry, std::string& err)
     err = "Chemistry name must not be empty.";
     return false;
   }
-  if (chemistry.buildReactions == nullptr || chemistry.buildAcidBase == nullptr) {
+  if (chemistry.buildReactions == nullptr || chemistry.buildBulkReactions == nullptr) {
     err = "Chemistry '" + chemistry.name + "' has a null builder.";
     return false;
   }

@@ -11,6 +11,7 @@
 #include "core/OutputDirMessenger.hh"
 #include "physics/PhysicsList.hh"
 #include "scoring/RunAccumulatorMessenger.hh"
+#include "scoring/RunManifest.hh"
 
 #include "G4ScoringManager.hh"
 #include "G4DNAChemistryManager.hh"
@@ -41,6 +42,7 @@ constexpr long kDefaultSeed = 12345;
 int main(int argc, char **argv)
 {
   DnaLogger::SetLevel(DnaLogger::Level::Quiet);
+  RunManifest::MarkProcessStart();
 
   G4Random::setTheSeed(kDefaultSeed);
 
@@ -144,6 +146,7 @@ int main(int argc, char **argv)
     // ------------------------
     G4String macroFile = "macro/" + ((argc > 1) ? G4String(argv[1]) : G4String("beam.in"));
     G4cout << "starting batch mode with macro file: " << macroFile << G4endl;
+    RunManifest::SetMacroName(macroFile);
     // Batch mode execution
     // rem: Initialize is performed in beam.in macro!
 

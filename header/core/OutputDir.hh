@@ -31,6 +31,11 @@ namespace OutputDir
   /// unchanged if the configured directory is empty.
   G4String Resolve(const G4String &filename);
 
+  /// The configured output directory exactly as it was given to Configure()
+  /// or ConfigureFromMacro(); empty if none is configured. Ignores the prefix
+  /// and the subfolder.
+  G4String GetDirectory();
+
   /// Sets the configured output directory from a macro command, for use
   /// alongside (never together with a differing value from) Configure().
   /// If no directory is configured yet, behaves exactly like Configure(dir,

@@ -33,3 +33,7 @@ the acid-base network no longer depends on it.
 
 **Superseded in part by [[0002-named-chemistries]]**: the network stays unconditional
 for the default `PureWater` Chemistry, but other named Chemistries may omit it.
+
+**Superseded in part by [[0004-scavenger-reactions-per-chemistry]]**: the exogenous
+dissolved-O2 population is not a separate scavenger file; its reactions are
+per-Chemistry bulk reactions, its concentration is set by `/chem/env/scavenger`.

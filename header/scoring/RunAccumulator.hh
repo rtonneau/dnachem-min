@@ -4,8 +4,8 @@
 ///
 /// Species yields don't need this -- the ScoreSpecies scorer is itself a
 /// persistent, SD-registered object and accumulates on its own. Energy
-/// deposit and the two counters (ReactionCounter, PhysicsInteractionCounter)
-/// live on the per-run Run object today, which is destroyed every beamOn --
+/// deposit and the three counters (ReactionCounter, PhysicsInteractionCounter,
+/// MesoSpeciesCounter) live on the per-run Run object today, which is destroyed every beamOn --
 /// RunAccumulator gives them a persistent home instead, fed once per run
 /// from RunAction::EndOfRunAction.
 ///
@@ -17,30 +17,45 @@
 #ifndef RunAccumulator_h
 #define RunAccumulator_h 1
 
+#include "scoring/DataNode.hh"
+#include "scoring/MesoSpeciesCounter.hh"
 #include "scoring/ReactionCounter.hh"
 #include "scoring/PhysicsInteractionCounter.hh"
 
 #include "globals.hh"
 
+#include <vector>
+
 namespace RunAccumulator
 {
-  /// Merges energy/reactions/interactions into the persistent totals
-  /// (reactions and interactions are merged via ReactionCounter::Merge /
-  /// PhysicsInteractionCounter::Merge -- their arguments are left
-  /// unmodified) and marks pending data. Called once per run from
-  /// RunAction::EndOfRunAction (master thread only).
-  void Accumulate(G4double energy, const ReactionCounter &reactions,
-                   const PhysicsInteractionCounter &interactions);
+  /// Merges energy/events/reactions/interactions/mesoscopic species counts
+  /// into the persistent totals (the counters are merged via their Merge()
+  /// -- the arguments are left unmodified) and marks pending data. Called
+  /// once per run from RunAction::EndOfRunAction (master thread only).
+  void Accumulate(G4double energy, long events, const ReactionCounter &reactions,
+                   const PhysicsInteractionCounter &interactions,
+                   const MesoSpeciesCounter &mesoSpecies);
 
   /// True if Accumulate() has added data since the last ClearAccumulated().
   G4bool HasPendingData();
 
   G4double GetAccumulatedEnergy();
+  long GetAccumulatedEvents();
   const ReactionCounter &GetAccumulatedReactionCounter();
   const PhysicsInteractionCounter &GetAccumulatedInteractionCounter();
+  const MesoSpeciesCounter &GetAccumulatedMesoSpeciesCounter();
 
-  /// Resets energy to 0 and both counters to empty, and clears the
-  /// pending-data flag. Does not touch the prefix-uniqueness set.
+  /// Appends one run's manifest entry (built by RunManifest::RecordRun) for
+  /// the manifest of the next dump. Called once per run (master thread only),
+  /// next to Accumulate(); does not set the pending-data flag.
+  void AddRunEntry(const DataNode &entry);
+
+  /// The entries added since the last ClearAccumulated(), in call order.
+  const std::vector<DataNode> &GetRunEntries();
+
+  /// Resets energy and events to 0, the three counters to empty and the run
+  /// entries to none, and clears the pending-data flag. Does not touch the
+  /// prefix-uniqueness set.
   void ClearAccumulated();
 
   /// If enforceUniqueness is false, or prefix hasn't been reserved before,

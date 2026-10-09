@@ -8,19 +8,25 @@
 namespace
 {
   G4double gAccumulatedEnergy = 0.;
+  long gAccumulatedEvents = 0;
   ReactionCounter gAccumulatedReactionCounter;
   PhysicsInteractionCounter gAccumulatedInteractionCounter;
+  MesoSpeciesCounter gAccumulatedMesoSpeciesCounter;
+  std::vector<DataNode> gRunEntries;
   G4bool gHasPendingData = false;
   std::set<G4String> gUsedPrefixes;
   std::set<G4String> gUsedSubdirs;
 }
 
-void RunAccumulator::Accumulate(G4double energy, const ReactionCounter &reactions,
-                                 const PhysicsInteractionCounter &interactions)
+void RunAccumulator::Accumulate(G4double energy, long events, const ReactionCounter &reactions,
+                                 const PhysicsInteractionCounter &interactions,
+                                 const MesoSpeciesCounter &mesoSpecies)
 {
   gAccumulatedEnergy += energy;
+  gAccumulatedEvents += events;
   gAccumulatedReactionCounter.Merge(reactions);
   gAccumulatedInteractionCounter.Merge(interactions);
+  gAccumulatedMesoSpeciesCounter.Merge(mesoSpecies);
   gHasPendingData = true;
 }
 
@@ -34,6 +40,11 @@ G4double RunAccumulator::GetAccumulatedEnergy()
   return gAccumulatedEnergy;
 }
 
+long RunAccumulator::GetAccumulatedEvents()
+{
+  return gAccumulatedEvents;
+}
+
 const ReactionCounter &RunAccumulator::GetAccumulatedReactionCounter()
 {
   return gAccumulatedReactionCounter;
@@ -44,11 +55,29 @@ const PhysicsInteractionCounter &RunAccumulator::GetAccumulatedInteractionCounte
   return gAccumulatedInteractionCounter;
 }
 
+const MesoSpeciesCounter &RunAccumulator::GetAccumulatedMesoSpeciesCounter()
+{
+  return gAccumulatedMesoSpeciesCounter;
+}
+
+void RunAccumulator::AddRunEntry(const DataNode &entry)
+{
+  gRunEntries.push_back(entry);
+}
+
+const std::vector<DataNode> &RunAccumulator::GetRunEntries()
+{
+  return gRunEntries;
+}
+
 void RunAccumulator::ClearAccumulated()
 {
   gAccumulatedEnergy = 0.;
+  gAccumulatedEvents = 0;
   gAccumulatedReactionCounter.Clear();
   gAccumulatedInteractionCounter.Clear();
+  gAccumulatedMesoSpeciesCounter.Clear();
+  gRunEntries.clear();
   gHasPendingData = false;
 }
 

@@ -6,8 +6,9 @@
 class G4UIcmdWithAString;
 
 /** \file RunAccumulatorMessenger.hh
-    UI command to flush the accumulated species/reaction/interaction/energy
-    data to disk and reset the underlying counters, from a macro file:
+    UI command to flush the accumulated species/reaction/interaction data to
+    disk (plus a Manifest.json describing the dump, see RunManifest) and reset
+    the underlying counters, from a macro file:
     /run/dumpDataAndReset [prefix]
 
     Idle-state only (issue it between /run/beamOn calls). prefix (optional,
