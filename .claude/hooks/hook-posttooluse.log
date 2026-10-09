@@ -927,3 +927,8 @@ Triggered at 2026-10-06T20:33:31.0351257+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM
 Completed at 2026-10-06T20:33:33.4972557+02:00: copied compile_commands.json
 Skipped at 2026-10-06T20:35:51.1452416+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\chemistry\catalog\Tonneau2025Reactions.hh
 Skipped at 2026-10-06T20:41:16.5250243+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-06__homogeneous-chemistry-prechemical-extension\.changelog-payload.md
+Skipped at 2026-10-09T09:24:59.6094030+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__add-a-md-file-in-docs-output-describing-the-directory-tree-and\.write-payload.md
+Skipped at 2026-10-09T09:25:26.3960077+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__add-a-md-file-in-docs-output-describing-the-directory-tree-and\.write-payload.md
+Skipped at 2026-10-09T09:29:02.7713519+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\build\macro\g01_plain.in
+Skipped at 2026-10-09T09:29:03.2319402+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\build\macro\g01_spatial.in
+Skipped at 2026-10-09T09:30:26.8150790+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\docs\output\README.md
