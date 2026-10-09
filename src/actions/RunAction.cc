@@ -10,12 +10,14 @@
 #include "actions/PrimaryGeneratorAction.hh"
 #include "actions/Run.hh"
 #include "scoring/RunAccumulator.hh"
+#include "scoring/RunManifest.hh"
 
 #include "G4DNAChemistryManager.hh"
 
 #include "G4AccumulableManager.hh"
 #include "G4Run.hh"
 #include "G4RunManager.hh"
+#include "G4SystemOfUnits.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -38,9 +40,21 @@ G4Run *RunAction::GenerateRun()
 
 void RunAction::BeginOfRunAction(const G4Run *run)
 {
+    if (IsMaster())
+        fRunStart = std::chrono::steady_clock::now();
+
     // ensure that the chemistry is notified!
     if (G4DNAChemistryManager::GetInstanceIfExists() != nullptr)
         G4DNAChemistryManager::GetInstanceIfExists()->BeginOfRunAction(run);
+
+    // Give the reaction/interaction/meso-species counters a per-run lifetime. On a thread
+    // that owns the TimeStepAction/SteppingAction (Serial master, MT worker)
+    // the new Run points at their live, persistent counters; on the MT master
+    // it points at its own, already empty ones. This is the only reset.
+    auto *thisRun = static_cast<const Run *>(run);
+    thisRun->GetReactionCounter()->Clear();
+    thisRun->GetInteractionCounter()->Clear();
+    thisRun->GetMesoSpeciesCounter()->Clear();
 
     if (IsMaster())
     {
@@ -85,8 +99,16 @@ void RunAction::EndOfRunAction(const G4Run *run)
         // persistent, cross-run storage instead. Nothing is written to disk
         // here: issue /run/dumpDataAndReset (or let the exit-time safety net
         // in sim.cc fire) to flush everything.
-        RunAccumulator::Accumulate(masterRun->GetSumDose(), *masterRun->GetReactionCounter(),
-                                    *masterRun->GetInteractionCounter());
+        RunAccumulator::Accumulate(masterRun->GetSumDose(), nofEvents,
+                                    *masterRun->GetReactionCounter(),
+                                    *masterRun->GetInteractionCounter(),
+                                    *masterRun->GetMesoSpeciesCounter());
+
+        // One entry per run for the dump's manifest (beam, events, seed,
+        // this run's energy deposit, Begin->EndOfRunAction wall time).
+        RunManifest::RecordRun(
+            *masterRun,
+            std::chrono::duration<double>(std::chrono::steady_clock::now() - fRunStart).count());
 
         DnaLogger::Print(DnaLogger::Level::Info,
                           "[RunAction] accumulated this run's energy/reaction/interaction data -- "

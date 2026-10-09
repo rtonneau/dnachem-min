@@ -4,6 +4,7 @@
 
 #include "geometry/DetectorConstruction.hh"
 
+#include "core/DnaLogger.hh"
 #include "geometry/DnaChemistryWorld.hh"
 #include "scoring/PrimaryKiller.hh"
 #include "scoring/ScoreSpecies.hh"
@@ -91,6 +92,9 @@ G4VPhysicalVolume *DetectorConstruction::ConstructDetector()
   this->fWorldSizeX = 2. * boundary->halfSideLengthInX();
   this->fWorldSizeY = 2. * boundary->halfSideLengthInY();
   this->fWorldSizeZ = 2. * boundary->halfSideLengthInZ();
+  DnaLogger::Print(DnaLogger::Level::Info,
+                   "[DetectorConstruction] world = water box of side " +
+                     std::to_string(this->fWorldSizeX / um) + " um (/chem/env/halfBox)");
 
   G4Box *solidWorld = new G4Box("World",               // its name
                                 this->fWorldSizeX / 2, // its size

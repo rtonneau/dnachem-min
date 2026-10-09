@@ -1,13 +1,14 @@
 /// \file BoscoloChemReactions.cc
 /// \brief Implementation of the BoscoloChemReactions reaction-table builder
 ///
-/// WORK IN PROGRESS: the reaction rates, products and acid-base list in this
-/// Chemistry are a verbatim copy of the PureWater Chemistry. Edit them here to
-/// reproduce the BoscoloChem network. If this Chemistry omits the acid-base
-/// buffer (return an empty list from BuildBoscoloChemAcidBase), say so here:
-/// the buffer is then absent by design, see docs/adr/0002-named-chemistries.md.
+/// Reproduces Table 1 of Boscolo et al., "Impact of Target Oxygenation on the
+/// Chemical Track Evolution of Ion and Electron Radiation", Int. J. Mol. Sci.
+/// 2020, 21, 424. No acid-base buffer, by design (the paper has none, see
+/// docs/adr/0002-named-chemistries.md).
 
 #include "chemistry/catalog/BoscoloChemReactions.hh"
+
+#include "chemistry/ChemistryTypes.hh"
 
 #include "G4DNAMolecularReactionTable.hh"
 #include "G4MolecularConfiguration.hh"
@@ -43,6 +44,14 @@ MolConf Conf(const G4String& name)
 
 void BoscoloChemReactions::BuildBoscoloChemReactions(G4DNAMolecularReactionTable* reactionTable)
 {
+  // add(): fully diffusion-controlled (reaction type 0, the default).
+  // partial(): partially diffusion-controlled, SetReactionType(1) unless
+  // ChemistryTypes::PartialReactionsEnabled() is false (SBS: stays type 0) -- the IRT
+  // stepper then samples an activation step with the vdW reaction radius
+  // (Type II neutral pair, Type IV ionic pair: G4DNAMolecularReactionData.cc).
+  // The paper gives no reaction types; they follow G4EmDNAChemistry_option3
+  // (and UHDR ChemOxygenWaterBuilder, which agrees for every pair below
+  // except (xiv)/(xv)).
   auto add = [reactionTable](MolConf a, MolConf b, G4double k,
                              std::initializer_list<MolConf> products) {
     auto* rd = new G4DNAMolecularReactionData(k * (1e-3 * m3 / (mole * s)), a, b);
@@ -50,6 +59,14 @@ void BoscoloChemReactions::BuildBoscoloChemReactions(G4DNAMolecularReactionTable
       rd->AddProduct(p);
     }
     reactionTable->SetReaction(rd);
+    return rd;
+  };
+  auto partial = [&add](MolConf a, MolConf b, G4double k,
+                        std::initializer_list<MolConf> products) {
+    auto* rd = add(a, b, k, products);
+    if (ChemistryTypes::PartialReactionsEnabled()) {
+      rd->SetReactionType(1);
+    }
   };
 
   auto* e_aq = Conf("e_aq");
@@ -60,90 +77,64 @@ void BoscoloChemReactions::BuildBoscoloChemReactions(G4DNAMolecularReactionTable
   auto* H3Op = Conf("H3Op");
   auto* H2O2 = Conf("H2O2");
   auto* O2 = Conf("O2");
-  auto* Om = Conf("Om");
   auto* HO2 = Conf(kHO2);
   auto* HO2m = Conf("HO2m");
   auto* O2m = Conf("O2m");
-  auto* O3m = Conf("O3m");
 
-  // Pure-water radiolysis (project values -- not UHDR's SecondOrderReactionExtended
-  // "Type I" block, which covers the same 9 pairs with different rate constants
-  // for 7 of them; keeping these avoids overwriting/duplicating SetReaction
-  // calls for the same reactant pair).
-  add(H, H, 1.2e10, {H2});
-  add(e_aq, H, 2.65e10, {H2, OHm});
-  add(e_aq, e_aq, 0.5e10, {H2, OHm, OHm});
-  add(H3Op, OHm, 1.43e11, {});
-  add(e_aq, OH, 2.95e10, {OHm});
-  add(OH, OH, 0.44e10, {H2O2});
-  add(e_aq, H2O2, 1.41e10, {OHm, OH});
-  add(e_aq, H3Op, 2.11e10, {H});
-  add(OH, H, 1.44e10, {});
-
-  // Bulk-O2 scavenging, against the real diffusing O2 species, not O2(B)
-  // (UHDR: ChemOxygenWaterBuilder::OxygenScavengerReaction).
-  add(e_aq, O2, 1.74e10, {O2m});
-  add(H, O2, 2.1e10, {HO2});
-  add(Om, O2, 3.7e9, {O3m});
-
-  // O2-/HO2/HO2-/O-/O3- second-order network (UHDR:
-  // ChemOxygenWaterBuilder::SecondOrderReactionExtended, "extended" block
-  // only; NO2-/CO2/HCO3-/N2O/MeOH lines excluded -- out of project scope).
-  add(H, Om, 2.00e10, {OHm});
-  add(H3Op, O3m, 9.0e10, {OH, O2});
-  add(H, HO2, 1.00e10, {H2O2});
-  add(H, O2m, 1.00e10, {HO2m});
-  add(OH, O2m, 1.07e10, {O2, OHm});
-  add(e_aq, O2m, 1.3e10, {H2O2, OHm, OHm});
-  add(e_aq, HO2m, 3.51e9, {Om, OHm});
-  add(e_aq, Om, 2.31e10, {OHm, OHm});
-  add(H3Op, O2m, 4.78e10, {HO2});
-  add(H3Op, HO2m, 4.78e10, {H2O2});
-  add(H3Op, Om, 4.78e10, {OH});
-  add(e_aq, HO2, 1.29e10, {HO2m});
-  add(OH, OHm, 1.27e10, {Om});
-  add(OH, HO2, 7.90e9, {O2});
-  add(OH, HO2m, 8.32e9, {HO2, OHm});
-  add(OH, Om, 1.00e9, {HO2m});
-  add(OH, O3m, 8.50e9, {O2m, HO2});
-  add(OHm, HO2, 1.27e10, {O2m});
-  add(H2O2, OHm, 1.3e10, {HO2m});
-  add(H2O2, Om, 5.55e8, {HO2, OHm});
-  add(H2, Om, 1.21e8, {H, OHm});
-  add(O2m, Om, 6.00e8, {O2, OHm, OHm});
-  add(HO2m, Om, 3.50e8, {O2m, OHm});
-  add(Om, Om, 1.00e8, {H2O2, OHm, OHm});
-  add(Om, O3m, 7.00e8, {O2m, O2m});
-  add(H, OHm, 2.51e7, {e_aq});
-  add(H, H2O2, 3.50e7, {OH});
-  add(OH, H2O2, 2.88e7, {HO2});
-  add(OH, H2, 3.28e7, {H});
-  add(HO2, HO2, 9.80e5, {H2O2, O2});
-  add(HO2, O2m, 9.70e7, {HO2m, O2});
-  add(O2m, O2m, 1.0e2, {H2O2, O2, OHm, OHm});
+  // Boscolo et al. 2020, Table 1, reactions (i)-(xxvi), in table order.
+  // Rates are the table's k (10^10 dm3 mol-1 s-1) times 1e10; H2O reactants
+  // and products are dropped (water is not tracked).
+  // Type 1: option3 Type II (i)-(v) / Type IV (viii is ionic, e_aq + H3O+).
+  partial(OH, OH, 0.6e10, {H2O2});               // (i)
+  partial(OH, e_aq, 2.2e10, {OHm});              // (ii)
+  partial(OH, H, 2.0e10, {});                    // (iii)
+  partial(OH, H2, 0.0045e10, {H});               // (iv)
+  partial(OH, H2O2, 0.0023e10, {HO2});           // (v)
+  // Type 0: option3 Type III (vi) / Type I (vii).
+  add(e_aq, e_aq, 0.55e10, {H2, OHm, OHm});      // (vi)
+  add(e_aq, H, 2.5e10, {H2, OHm});               // (vii)
+  // Type 1: option3 Type IV (viii) / Type II (ix).
+  partial(e_aq, H3Op, 1.7e10, {H});              // (viii)
+  partial(e_aq, H2O2, 1.0e10, {OH, OHm});        // (ix)
+  // Type 0: option3 Type I.
+  add(H, H, 1.0e10, {H2});                       // (x)
+  // Type 1: option3 Type II.
+  partial(H, H2O2, 0.01e10, {OH});               // (xi)
+  partial(H, OHm, 0.002e10, {e_aq});             // (xii)
+  // Type 0: option3 Type III.
+  add(H3Op, OHm, 10.0e10, {});                   // (xiii)
+  // (xiv)/(xv) against *tracked* radiolytic O2; the same reactions against
+  // the dissolved-O2 background are bulk reactions, see the list below; they
+  // share these entries (same pair).
+  // Type 1: option3 Type II; UHDR leaves them 0 as bulk-only reactions.
+  partial(e_aq, O2, 1.9e10, {O2m});              // (xiv)
+  partial(H, O2, 2.0e10, {HO2});                 // (xv)
+  // Type 1: option3 Type II (xvi)-(xix), (xxi), (xxii), (xxv), (xxvi) /
+  // Type IV (xx), (xxiii), (xxiv); UHDR same.
+  partial(OH, HO2, 1.0e10, {O2});                // (xvi)
+  partial(OH, O2m, 0.9e10, {O2, OHm});           // (xvii)
+  partial(OH, HO2m, 0.5e10, {HO2, OHm});         // (xviii)
+  partial(e_aq, HO2, 2.0e10, {HO2m});            // (xix)
+  partial(e_aq, O2m, 1.3e10, {OHm, HO2m});       // (xx)
+  partial(H, HO2, 2.0e10, {H2O2});               // (xxi)
+  partial(H, O2m, 2.0e10, {HO2m});               // (xxii)
+  partial(H3Op, O2m, 3e10, {HO2});               // (xxiii)
+  partial(H3Op, HO2m, 2.0e10, {H2O2});           // (xxiv)
+  partial(HO2, HO2, 0.000076e10, {H2O2, O2});    // (xxv)
+  partial(HO2, O2m, 0.0085e10, {O2, HO2m});      // (xxvi)
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ChemistryTypes::AcidBaseList BoscoloChemReactions::BuildBoscoloChemAcidBase()
+ChemistryTypes::BulkReactionList BoscoloChemReactions::BuildBoscoloChemBulkReactions()
 {
   const G4double M = 1e-3 * m3 / (mole * s);  // bimolecular unit (M^-1 s^-1)
-  const G4double cW = 55.3;                   // bulk water molarity factor
 
-  // Same values and order as the former hard-coded list in DnaChemistryList.
+  // Table 1 has no acid-base buffer: only reactions (xiv)/(xv) against the
+  // dissolved-O2 background set by /chem/env/scavenger O2 (inert while its
+  // concentration is 0).
   return {
-    {"H", {{"H2O", 6.32 / s, {"e_aq", "H3Op(B)"}, 0}, {"OHm(B)", 2.49e7 * M, {"e_aq"}, 0}}},
-    {"e_aq",
-     {{"H3Op(B)", 2.25e10 * M, {"H"}, 0}, {"H2O", 1.57e1 * cW / s, {"H", "OHm(B)"}, 0}}},
-    {"O2m", {{"H3Op(B)", 4.78e10 * M, {kHO2}, 6}, {"H2O", 0.15 * cW / s, {kHO2, "OHm(B)"}, 0}}},
-    {kHO2, {{"OHm(B)", 1.27e10 * M, {"O2m"}, 0}, {"H2O", 7.58e5 / s, {"H3Op(B)", "O2m"}, 6}}},
-    {"HO2m",
-     {{"H3Op(B)", 4.78e10 * M, {"H2O2"}, 0}, {"H2O", 1.36e6 * cW / s, {"H2O2", "OHm(B)"}, 7}}},
-    {"Om", {{"H3Op(B)", 9.56e10 * M, {kOH}, 0}, {"H2O", 1.8e6 * cW / s, {kOH, "OHm(B)"}, 8}}},
-    {"O3m", {{"H3Op(B)", 9.0e10 * M, {kOH, "O2"}, 0}, {"H2O", 2.66e3 / s, {"Om", "O2"}, 0}}},
-    {"H2O2", {{"H2O", 7.86e-2 / s, {"HO2m", "H3Op(B)"}, 0}, {"OHm(B)", 1.27e10 * M, {"HO2m"}, 7}}},
-    {kOH, {{"OHm(B)", 1.27e10 * M, {"Om"}, 8}, {"H2O", 0.060176635 / s, {"Om", "H3Op(B)"}, 0}}},
-    {"OHm", {{"H3Op(B)", 1.13e11 * M, {}, 0}}},
-    {"H3Op", {{"OHm(B)", 1.13e11 * M, {}, 0}}},
+    {"e_aq", {{"O2", 1.9e10 * M, {"O2m"}, 0}}},  // (xiv)
+    {"H", {{"O2", 2.0e10 * M, {kHO2}, 0}}},      // (xv)
   };
 }

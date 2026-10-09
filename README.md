@@ -25,16 +25,24 @@ checklist). In short: `build/` is a RelWithDebInfo tree used to run `sim`;
 
 ## Run
 
-From the run build directory (`build/`), pass the macro **filename only** —
-`sim.cc` prepends `macro/` itself, and the build copies `macro/` alongside
-the executable:
+From the run build directory (`build/`), pass the macro **filename only**.
+The macro is looked up in this order: the argument as given, then
+`<exeDir>/<arg>`, then `<exeDir>/macro/<arg>` (the build copies `macro/`
+alongside the executable):
 
 ```bash
 ./sim beam.in             # pure-water radiolysis
 ./sim beam_o2.in          # with dissolved-O2 scavenger config (see caveat below)
 ./sim beam_boscolo.in     # BoscoloChem reaction network, see "Choosing a chemistry"
 ./sim reaction_counter.in # reaction-counting example, see below
+./sim example_sbs.in      # chemistry mode SBS (particle-based stage only)
+./sim example_irt.in      # chemistry mode IRT_syn, no mesoscopic stage
+./sim example_meso.in     # chemistry mode IRT_syn + mesoscopic stage (smoke-sized)
 ```
+
+The three `example_*.in` macros differ only in the chemistry mode; see
+"Chemistry modes" below. Each runs two sub-runs of 2 events (10 keV e-,
+dissolved O2 at 21 %) into `results/sub_01/` and `results/sub_02/`.
 
 Other flags:
 
@@ -61,6 +69,11 @@ instead of the command line:
 *different* path than `--dir` did, the run aborts with a fatal
 configuration error instead of silently picking one. Setting the same path
 from both is a harmless no-op.
+
+Without `--dir` or `/run/outputDir`, output goes to `<exeDir>/results`
+(e.g. `build/results`). That directory's `Manifest.json` is a results index
+listing every dump (`dumps`, one entry per `/run/dumpDataAndReset*`), each
+pointing at its own `Manifest.json` in its folder.
 
 ## Output files
 
@@ -128,14 +141,26 @@ named **Chemistry**. Pick one in the macro, before `/run/initialize`:
 
 `macro/beam_boscolo.in` is a ready-to-run example.
 
-Only SBS is supported as the chemistry time-step model
-(`/process/chem/TimeStepModel SBS`); IRT is rejected with a fatal exception.
+## Chemistry modes
 
-The chemistry time limit defaults to 1 µs
-(`G4Scheduler::Instance()->SetEndTime()` in `ActionInitialization::Build()`,
-applied on `/run/initialize`). To override it, issue
-`/scheduler/endTime <value> <unit>` *after* `/run/initialize` — anything
-issued before that point is overwritten.
+Three modes are selectable before `/run/initialize` (ADR 0008):
+
+- **IRT_syn + mesoscopic** (default): particle-based stage up to the
+  hand-over time, then the mesoscopic stage. Tuned with `/chem/meso/handOverTime`,
+  `/chem/meso/voxelSize`, `/chem/meso/timesPerDecade`. Example:
+  `macro/example_meso.in`.
+- **IRT_syn only**: `/chem/meso/enable false`. Particle-based stage only.
+  Example: `macro/example_irt.in`.
+- **SBS**: `/process/chem/TimeStepModel SBS`. Step-by-step Brownian dynamics,
+  particle-based stage only, no mesoscopic stage. Example: `macro/example_sbs.in`.
+  SBS differs from IRT_syn + mesoscopic in its yields (see
+  `docs/irt-syn-mesoscopic-validation.md`); compare modes, do not mix them.
+
+Combining SBS with an explicit `/chem/meso/enable true` is a fatal error.
+
+The default chemistry end time is 1 us without the mesoscopic stage and 1 s
+with it. To override it, issue `/scheduler/endTime <value> <unit>` *after*
+`/run/initialize` — anything issued before that point is overwritten.
 
 ## Reaction counter
 
@@ -182,12 +207,12 @@ verbose) is set.
 /dnaLogger/verbose Info
 
 /process/dna/e-SolvationSubType Ritchie1994
-/process/chem/TimeStepModel SBS
 
 # Bin reaction counts at a fixed 100 ps step (PreInit, before /run/initialize).
 /chem/reaction/timeBinsFixed 100 picosecond
 
 /run/initialize
+/scheduler/endTime 1 us
 
 /gun/particle e-
 /gun/energy 100 keV
@@ -203,7 +228,9 @@ Run it with:
 
 This produces `Reactions.Txt`, `Reactions_nt_reactions.csv`, and
 `ReactionsMetadata.csv` with counts binned every 100 ps out to the 1 µs
-scheduler end time (~10 bins), plus the usual `Species.*` output.
+scheduler end time the macro sets, plus the usual `Species.*` and
+`SpeciesMeso.*` output. Reactions are only counted in the particle-based
+stage, so every bin after the hand-over time (5 ns by default) is empty.
 
 To use explicit bin edges instead, comment out `timeBinsFixed` and use, e.g.:
 

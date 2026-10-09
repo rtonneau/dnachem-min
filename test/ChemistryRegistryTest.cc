@@ -12,11 +12,12 @@
 namespace
 {
 void DummyReactions(G4DNAMolecularReactionTable*) {}
-ChemistryTypes::AcidBaseList DummyAcidBase() { return {}; }
+void DummyMolecules() {}
+ChemistryTypes::BulkReactionList DummyBulkReactions() { return {}; }
 
 ChemistryRegistry::Chemistry Make(const std::string& name)
 {
-  return {name, &DummyReactions, &DummyAcidBase};
+  return {name, &DummyReactions, &DummyBulkReactions};
 }
 
 void MustRegister(const std::string& name)
@@ -121,6 +122,38 @@ static void TestResetClearsSelectionAndEntries()
   assert(ChemistryRegistry::Selected() == nullptr);
 }
 
+static void TestNullConstructMoleculesRegisters()
+{
+  ChemistryRegistry::ResetForTesting();
+  std::string err;
+  assert(ChemistryRegistry::Register({"NoMolecules", &DummyReactions, &DummyBulkReactions}, err));
+  assert(ChemistryRegistry::Select("NoMolecules", err));
+  assert(ChemistryRegistry::Selected()->constructMolecules == nullptr);
+  // The three-field helper leaves the hook null as well.
+  assert(Make("Other").constructMolecules == nullptr);
+}
+
+static void TestConstructMoleculesIsStoredAndReturned()
+{
+  ChemistryRegistry::ResetForTesting();
+  std::string err;
+  assert(ChemistryRegistry::Register(
+    {"WithMolecules", &DummyReactions, &DummyBulkReactions, &DummyMolecules}, err));
+  assert(ChemistryRegistry::Select("WithMolecules", err));
+  assert(ChemistryRegistry::Selected()->constructMolecules == &DummyMolecules);
+}
+
+// The process-wide partial-reaction switch (SBS keeps every reaction type 0):
+// on by default, settable both ways.
+void TestPartialReactionsSwitch()
+{
+  assert(ChemistryTypes::PartialReactionsEnabled());
+  ChemistryTypes::SetPartialReactionsEnabled(false);
+  assert(!ChemistryTypes::PartialReactionsEnabled());
+  ChemistryTypes::SetPartialReactionsEnabled(true);
+  assert(ChemistryTypes::PartialReactionsEnabled());
+}
+
 int main()
 {
 #ifdef _MSC_VER
@@ -136,6 +169,9 @@ int main()
   TestSelectSameNameTwiceIsNoOp();
   TestSelectDifferentNameConflicts();
   TestResetClearsSelectionAndEntries();
+  TestNullConstructMoleculesRegisters();
+  TestConstructMoleculesIsStoredAndReturned();
+  TestPartialReactionsSwitch();
   std::cout << "ChemistryRegistryTest: all tests passed\n";
   return 0;
 }

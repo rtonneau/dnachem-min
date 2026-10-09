@@ -21,10 +21,11 @@ PhysicsList::PhysicsList()
   SetDefaultCutValue(defaultCut);
   SetVerboseLevel(0);
 
-  // Project default chemistry time-step model: Step-by-Step. DnaChemistryList
-  // rejects IRT with a fatal exception; a macro may still select IRT_syn via
-  // /process/chem/TimeStepModel before /run/initialize.
-  G4EmParameters::Instance()->SetTimeStepModel(G4ChemTimeStepModel::SBS);
+  // Default chemistry time-step model: IRT_syn (particle-based stage before
+  // the mesoscopic hand-over, see TimeStepAction). A macro may select SBS
+  // with /process/chem/TimeStepModel before /run/initialize (no mesoscopic
+  // stage); IRT is fatal at /run/initialize (DnaChemistryList).
+  G4EmParameters::Instance()->SetTimeStepModel(G4ChemTimeStepModel::IRT_syn);
   G4EmParameters::Instance()->SetVerbose(0);
 }
 

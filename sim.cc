@@ -7,10 +7,12 @@
 #include "core/DnaLogger.hh"
 #include "core/DnaLoggerMessenger.hh"
 #include "core/ArgParser.hh"
+#include "core/MacroResolver.hh"
 #include "core/OutputDir.hh"
 #include "core/OutputDirMessenger.hh"
 #include "physics/PhysicsList.hh"
 #include "scoring/RunAccumulatorMessenger.hh"
+#include "scoring/RunManifest.hh"
 
 #include "G4ScoringManager.hh"
 #include "G4DNAChemistryManager.hh"
@@ -23,7 +25,29 @@
 #include "Randomize.hh"
 
 #include <cstdlib>
+#include <filesystem>
+#include <vector>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include <time.h>
+
+// Directory holding the running executable (empty if it cannot be determined).
+static std::string ExecutableDir()
+{
+  namespace fs = std::filesystem;
+  std::error_code ec;
+#ifdef _WIN32
+  std::vector<wchar_t> buf(32768);
+  DWORD n = GetModuleFileNameW(nullptr, buf.data(), static_cast<DWORD>(buf.size()));
+  if (n == 0 || n >= buf.size()) return "";
+  return fs::path(std::wstring(buf.data(), n)).parent_path().string();
+#else
+  fs::path exe = fs::read_symlink("/proc/self/exe", ec);
+  if (ec) return "";
+  return exe.parent_path().string();
+#endif
+}
 
 static const G4bool useGUI = false;
 std::ofstream out;
@@ -41,6 +65,7 @@ constexpr long kDefaultSeed = 12345;
 int main(int argc, char **argv)
 {
   DnaLogger::SetLevel(DnaLogger::Level::Quiet);
+  RunManifest::MarkProcessStart();
 
   G4Random::setTheSeed(kDefaultSeed);
 
@@ -81,6 +106,14 @@ int main(int argc, char **argv)
     DnaLogger::SetLevel(DnaLogger::Level::Error);
     DnaLogger::Print(DnaLogger::Level::Error, outputDirError);
     exit(1);
+  }
+  // With neither --dir nor /run/outputDir, output goes to <exeDir>/results.
+  // The default is applied lazily (created at the first output), so
+  // "/run/outputDir" in the macro still replaces it.
+  {
+    const std::string exeDir = ExecutableDir();
+    if (!exeDir.empty())
+      OutputDir::SetDefaultDir((std::filesystem::path(exeDir) / "results").string());
   }
   G4int requestedThreads = argParser.GetInt("--threads");
   G4RunManagerType runManagerType =
@@ -142,8 +175,17 @@ int main(int argc, char **argv)
     // ------------------------
     // - Batch mode execution
     // ------------------------
-    G4String macroFile = "macro/" + ((argc > 1) ? G4String(argv[1]) : G4String("beam.in"));
+    const std::string macroArg = (argc > 1) ? std::string(argv[1]) : std::string("beam.in");
+    const MacroResolver::Result resolved = MacroResolver::Resolve(macroArg, ExecutableDir());
+    if (!resolved.found)
+    {
+      G4cerr << "Macro file '" << macroArg << "' not found. Tried:" << G4endl;
+      for (const auto &t : resolved.tried) G4cerr << "  " << t << G4endl;
+      return 1;
+    }
+    G4String macroFile = resolved.path;
     G4cout << "starting batch mode with macro file: " << macroFile << G4endl;
+    RunManifest::SetMacroName(macroFile);
     // Batch mode execution
     // rem: Initialize is performed in beam.in macro!
 

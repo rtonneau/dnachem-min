@@ -326,6 +326,106 @@ static void TestClearingSubdirRestoresPlainResolve()
   OutputDir::Configure("", err);
 }
 
+// --- GetDirectory ------------------------------------------------------
+
+static void TestGetDirectoryReturnsConfiguredDirAsGiven()
+{
+  ResetTestRoot();
+  fs::path target = TestRoot() / "reported";
+
+  G4String err;
+  assert(OutputDir::Configure(target.string().c_str(), err));
+  assert(OutputDir::GetDirectory() == G4String(target.string().c_str()));
+}
+
+static void TestGetDirectoryIsEmptyWhenNoneConfigured()
+{
+  G4String err;
+  assert(OutputDir::Configure("", err));
+  assert(OutputDir::GetDirectory().empty());
+}
+
+// --- Default directory ---------------------------------------------------
+
+static void TestDefaultDirUsedLazilyWhenNothingConfigured()
+{
+  ResetTestRoot();
+  fs::path def = TestRoot() / "results";
+  G4String err;
+  assert(OutputDir::Configure("", err));
+  OutputDir::SetDefaultDir(def.string().c_str());
+  assert(!fs::exists(def)); // lazy: nothing created yet
+
+  fs::path expected = def / "Species.Txt";
+  assert(OutputDir::Resolve("Species.Txt") == expected.string().c_str());
+  assert(fs::is_directory(def));
+  assert(OutputDir::GetDirectory() == G4String(def.string().c_str()));
+  assert(OutputDir::ResolveInRoot("Manifest.json") == G4String((def / "Manifest.json").string().c_str()));
+
+  OutputDir::SetDefaultDir("");
+}
+
+static void TestConfigureOverridesDefaultAndNeverCreatesIt()
+{
+  ResetTestRoot();
+  fs::path def = TestRoot() / "results-unused";
+  fs::path chosen = TestRoot() / "chosen";
+  G4String err;
+  assert(OutputDir::Configure("", err));
+  OutputDir::SetDefaultDir(def.string().c_str());
+
+  // /run/outputDir after the default was set (not yet used) still works.
+  assert(OutputDir::ConfigureFromMacro(chosen.string().c_str(), err));
+  assert(OutputDir::Resolve("a") == G4String((chosen / "a").string().c_str()));
+  assert(!fs::exists(def));
+
+  OutputDir::SetDefaultDir("");
+  OutputDir::Configure("", err);
+}
+
+static void TestMacroDirAfterDefaultUsedIsRefused()
+{
+  ResetTestRoot();
+  fs::path def = TestRoot() / "results-used";
+  G4String err;
+  assert(OutputDir::Configure("", err));
+  OutputDir::SetDefaultDir(def.string().c_str());
+  OutputDir::Resolve("a"); // first use materialises the default
+
+  assert(!OutputDir::ConfigureFromMacro((TestRoot() / "late").string().c_str(), err));
+  assert(!err.empty());
+
+  OutputDir::SetDefaultDir("");
+}
+
+static void TestDefaultDirWithSubdirAndRootResolve()
+{
+  ResetTestRoot();
+  fs::path def = TestRoot() / "results-sub";
+  G4String err;
+  assert(OutputDir::Configure("", err));
+  OutputDir::SetDefaultDir(def.string().c_str());
+
+  assert(OutputDir::ConfigureSubdir("sub_01", err));
+  OutputDir::SetPrefix("p_");
+  assert(fs::is_directory(def / "sub_01"));
+  assert(OutputDir::Resolve("X") == G4String((def / "sub_01" / "p_X").string().c_str()));
+  // Root resolution ignores prefix and subfolder.
+  assert(OutputDir::ResolveInRoot("Manifest.json") == G4String((def / "Manifest.json").string().c_str()));
+
+  OutputDir::SetPrefix("");
+  OutputDir::ConfigureSubdir("", err);
+  OutputDir::SetDefaultDir("");
+}
+
+static void TestResolveInRootWithoutAnyDirIsUnchanged()
+{
+  G4String err;
+  assert(OutputDir::Configure("", err));
+  OutputDir::SetDefaultDir("");
+  assert(OutputDir::ResolveInRoot("Manifest.json") == "Manifest.json");
+}
+
 int main()
 {
   TestConfigureEmptyDirIsNoOp();
@@ -350,6 +450,13 @@ int main()
   TestConfigureSubdirRejectsPathThatIsAFile();
   TestResolveCombinesSubdirAndPrefix();
   TestClearingSubdirRestoresPlainResolve();
+  TestGetDirectoryReturnsConfiguredDirAsGiven();
+  TestGetDirectoryIsEmptyWhenNoneConfigured();
+  TestDefaultDirUsedLazilyWhenNothingConfigured();
+  TestConfigureOverridesDefaultAndNeverCreatesIt();
+  TestMacroDirAfterDefaultUsedIsRefused();
+  TestDefaultDirWithSubdirAndRootResolve();
+  TestResolveInRootWithoutAnyDirIsUnchanged();
 
   std::error_code ec;
   fs::remove_all(TestRoot(), ec);
