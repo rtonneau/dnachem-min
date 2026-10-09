@@ -28,7 +28,11 @@ resets all counters to empty/zero:
   `.csv` rows are `time_ns,species,count` (summed over events). Record times
   are a log grid from the hand-over time to the end time
   (`/chem/meso/timesPerDecade`, default 10). Bulk species are not listed.
-  `Species.*` stops at the hand-over time.
+  `Species.*` stops at the hand-over time. Neither file is written when the
+  mesoscopic stage is off: `mesoEnabled: false` in the manifest, which is the
+  case under SBS (`/process/chem/TimeStepModel SBS`) and with
+  `/chem/meso/enable false` under IRT_syn. There `Species.*` covers the whole
+  chemistry run.
 - `SpeciesMesoSpatial.h5`: only with `/chem/meso/spatialOutput true`
   (PreInit, default false). Spatial snapshots of the mesoscopic mesh, appended
   per event by `TimeStepAction` into the staging folder
@@ -69,8 +73,10 @@ resets all counters to empty/zero:
   in the keys). Top level: `timestamp`, `elapsedSinceStart_s` (main start → dump),
   `elapsedSincePreviousDump_s` (previous dump or process start → dump),
   `geant4Version`, `macro`, `chemistry`, `scavengers` (`species`, `molarity_M`), `pH`,
-  `chemistryEndTime_ns` (default 1e9 for the 1 s end time), `chemistryModel`
-  (`"IRT_syn+mesoscopic"`), `handOverTime_ns`, `voxelSize_nm` (requested cell
+  `chemistryEndTime_ns` (1e9 for the 1 s end time with meso; 1000 for the 1 us
+  default without it), `timeStepModel` (`"IRT_syn"` or `"SBS"`), `mesoEnabled`
+  (bool; false = no `SpeciesMeso*` files), `chemistryModel` (`"IRT_syn+mesoscopic"`,
+  `"IRT_syn"` or `"SBS"`), `handOverTime_ns` (null without the mesoscopic stage), `voxelSize_nm` (requested cell
   size), `mesoPixels` (initial mesh pixels per side, capped at 65536, so on the
   default 1 mm box the cell actually used is 15.26 nm; null without a chemistry
   world), `mesoTimesPerDecade`, `runMode` (`Serial`/`MT`), `threads`,
@@ -133,9 +139,21 @@ reset...` line is a plain, always-visible `G4cout` line (unlike most of this
 project's diagnostics, which go through `DnaLogger` and are silent by
 default) — see `RunAccumulatorMessenger.cc`.
 
+Without `--dir` or `/run/outputDir`, output goes to `<exeDir>/results`
+(`OutputDir::SetDefaultDir` from `sim.cc`, created lazily at the first output,
+so a run that sets either never creates it; a `/run/outputDir` issued after the
+default was already used is refused). `<outdir>/Manifest.json` is also the
+**results index** (`ResultsIndex`, rewritten at every dump, the `EndOfRun_`
+flush included): top level `kind: "resultsIndex"`, `outputDirAbsolute` and
+`dumps[]` (`folder`, `prefix`, `manifest` = relative path of that dump's own
+manifest, `timestamp`, `events`, `runs[]` with run/events/seed/beam). Each
+sub-folder or prefixed dump keeps its own manifest unchanged. Collision: a flat
+dump with an empty prefix has its manifest at the index's path, so that file
+is that dump's manifest plus a top-level `dumps` array (no `kind`).
+
 Pass `--dir <path>` to redirect every output file above (plus the
 `/chem/reaction/dump` target, if the macro sets one) into `<path>` instead of
-cwd — useful for isolating each run's output when scripting many `sim.exe`
+the default directory — useful for isolating each run's output when scripting many `sim.exe`
 invocations. `<path>` itself is created if missing; its parent must already
 exist. `--dir` can appear anywhere on the command line, but the macro
 filename must still come first (`argv[1]`):

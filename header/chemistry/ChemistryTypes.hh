@@ -3,6 +3,7 @@
 #ifndef ChemistryTypes_h
 #define ChemistryTypes_h 1
 
+#include <atomic>
 #include <string>
 #include <vector>
 
@@ -30,6 +31,28 @@ namespace ChemistryTypes
 
   /// May be empty: a Chemistry without bulk reactions.
   using BulkReactionList = std::vector<BulkReactionEntry>;
+
+  namespace Detail
+  {
+    inline std::atomic<bool> partialReactionsEnabled{true};
+  }  // namespace Detail
+
+  /// Process-wide switch read by every Chemistry builder at the place where it
+  /// would call SetReactionType(1) (partially diffusion-controlled reaction,
+  /// vdW reaction radius + activation rate). True (default): type 1 is
+  /// applied as the catalogue says (IRT_syn). False: the reaction stays
+  /// type 0, fully diffusion-controlled (SBS, chem1-chem6). The type has to
+  /// be left unset, not reset: G4DNAMolecularReactionData::SetReactionType(1)
+  /// cannot be undone. Set once, before the Chemistry builds its tables.
+  inline bool PartialReactionsEnabled()
+  {
+    return Detail::partialReactionsEnabled.load();
+  }
+
+  inline void SetPartialReactionsEnabled(bool enabled)
+  {
+    Detail::partialReactionsEnabled.store(enabled);
+  }
 }  // namespace ChemistryTypes
 
 #endif  // ChemistryTypes_h

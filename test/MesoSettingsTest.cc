@@ -1,5 +1,6 @@
 /// \file MesoSettingsTest.cc
-/// \brief Plain-assert unit tests for MesoSettings (no Geant4 runtime).
+/// \brief Plain-assert unit tests for MesoSettings (no Geant4 runtime):
+/// pixel count, log time grid, defaults and the /chem/meso/enable switch.
 #include "chemistry/MesoSettings.hh"
 
 #include <cassert>
@@ -63,6 +64,30 @@ void TestDefaults()
 {
   const auto& settings = MesoSettings::Current();
   assert(settings.spatialOutput == false);
+  assert(settings.enabled == true);
+  assert(settings.enabledExplicitly == false);
+}
+
+void TestStageEnabled()
+{
+  MesoSettings::Values values;  // default: enabled, not set explicitly
+  assert(MesoSettings::StageEnabled(values, false));
+  // SBS has no hand-over: the default (true) silently means off.
+  assert(!MesoSettings::StageEnabled(values, true));
+  assert(!MesoSettings::ExplicitlyEnabledWithSbs(values, true));
+  assert(!MesoSettings::ExplicitlyEnabledWithSbs(values, false));
+
+  values.enabled = false;
+  values.enabledExplicitly = true;  // /chem/meso/enable false
+  assert(!MesoSettings::StageEnabled(values, false));
+  assert(!MesoSettings::StageEnabled(values, true));
+  assert(!MesoSettings::ExplicitlyEnabledWithSbs(values, true));
+
+  values.enabled = true;  // /chem/meso/enable true
+  assert(MesoSettings::StageEnabled(values, false));
+  assert(!MesoSettings::StageEnabled(values, true));
+  assert(MesoSettings::ExplicitlyEnabledWithSbs(values, true));
+  assert(!MesoSettings::ExplicitlyEnabledWithSbs(values, false));
 }
 }  // namespace
 
@@ -77,6 +102,7 @@ int main()
   TestLogTimeGrid();
   TestInvalid();
   TestDefaults();
+  TestStageEnabled();
   std::cout << "MesoSettingsTest: all tests passed\n";
   return 0;
 }

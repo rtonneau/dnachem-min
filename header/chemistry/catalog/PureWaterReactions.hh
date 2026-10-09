@@ -28,8 +28,9 @@
 /// Needs ChemistryTypes.hh -- copy both files to port this unit.
 ///
 /// Reaction types (IRT_syn): every tracked pair that G4EmDNAChemistry_option3
-/// lists as Type II or Type IV calls SetReactionType(1) unconditionally
-/// (partially diffusion-controlled); the others stay type 0 (fully
+/// lists as Type II or Type IV calls SetReactionType(1) (partially
+/// diffusion-controlled) unless ChemistryTypes::PartialReactionsEnabled() is
+/// false, which the driver sets for SBS; the others stay type 0 (fully
 /// diffusion-controlled). The bulk-reaction list keeps its own types (the
 /// acid-base equilibria 6/7/8). The driver also adds every bulk reaction to
 /// the reaction table, for the mesoscopic stage; a bulk reaction whose pair

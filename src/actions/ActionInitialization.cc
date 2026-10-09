@@ -10,6 +10,8 @@
 #include "actions/TrackingAction.hh"
 #include "actions/SteppingAction.hh"
 #include "geometry/DetectorConstruction.hh"
+#include "chemistry/ChemUtils.hh"
+#include "chemistry/MesoSettings.hh"
 
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
@@ -57,7 +59,11 @@ void ActionInitialization::Build() const
       G4RunManager::GetRunManager()->GetUserDetectorConstruction());
     G4Scheduler::Instance()->SetUserAction(
       new TimeStepAction(detector != nullptr ? detector->GetChemistryWorld() : nullptr));
-    G4Scheduler::Instance()->SetEndTime(1. * s);
+    // Without the mesoscopic stage (/chem/meso/enable false, or SBS) the
+    // particle-based stage runs to the end time itself: 1 us by default.
+    const G4bool sbs = ChemUtils::GetCurrentTimeStepModel() == G4ChemTimeStepModel::SBS;
+    const G4bool mesoOn = MesoSettings::StageEnabled(MesoSettings::Current(), sbs);
+    G4Scheduler::Instance()->SetEndTime(mesoOn ? 1. * s : 1. * us);
     //==========================================================================
     // G4Scheduler::Instance()->SetMaxNbSteps(10);
     // You may decide to stop the simulation after N steps

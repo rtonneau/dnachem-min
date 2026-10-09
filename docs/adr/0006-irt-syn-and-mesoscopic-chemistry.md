@@ -4,6 +4,8 @@ status: accepted
 
 # Chemistry runs IRT_syn, then a mesoscopic stage; SBS is removed
 
+> Superseded in part by [[0008-selectable-chemistry-modes]]: SBS is selectable again, and the mesoscopic stage can be switched off. The IRT_syn + mesoscopic model below remains the model of record.
+
 Each event's chemical stage now has two parts, following the Geant4-DNA `UHDR` example. First, a particle-based stage (`G4DNAIndependentReactionTimeModel`, IRT_syn) runs up to a configurable hand-over time (default 5 ns). Then the compartment-based mesoscopic stage (`G4DNAEventScheduler`, Gillespie on a cell mesh; 6.25 nm cells requested, 15.26 nm on the default 1 mm box after the mesh cap below) runs up to the end time, which now defaults to 1 s. The goal is staged: long-time yields of single tracks now, and later dose-sized multi-track runs (stage 2), both with a consumable O2 pool. The pool stays per event (see [[0004-scavenger-reactions-per-chemistry]]), consumed in both parts and restored for each event. Multi-track depletion will come from putting several tracks in one event, not from carrying state across events.
 
 **Considered options.**

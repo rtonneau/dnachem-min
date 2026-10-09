@@ -5,12 +5,14 @@
 
 #include "actions/Run.hh"
 #include "chemistry/ChemistryRegistry.hh"
+#include "chemistry/ChemUtils.hh"
 #include "chemistry/MesoSettings.hh"
 #include "core/OutputDir.hh"
 #include "geometry/DetectorConstruction.hh"
 #include "geometry/DnaChemistryWorld.hh"
 #include "scoring/DataNode.hh"
 #include "scoring/JsonWriter.hh"
+#include "scoring/ResultsIndex.hh"
 #include "scoring/RunAccumulator.hh"
 
 #include "G4Exception.hh"
@@ -26,6 +28,7 @@
 #include <fstream>
 #include <iomanip>
 #include <optional>
+#include <vector>
 #include <sstream>
 
 namespace
@@ -33,6 +36,26 @@ namespace
   G4String gMacroName;
   std::chrono::steady_clock::time_point gProcessStart = std::chrono::steady_clock::now();
   std::optional<std::chrono::steady_clock::time_point> gPreviousDump;
+
+  // Results index (<outdir>/Manifest.json): one entry per dump so far, and
+  // the manifest of the empty-prefix flat dump if there was one (it shares
+  // the index's path, so the index is written on top of it, see ResultsIndex).
+  std::vector<DataNode> gDumpEntries;
+  std::optional<DataNode> gRootDumpManifest;
+
+  // Writes `tree` as JSON to `path`; a failed open is a JustWarning.
+  void WriteTree(const G4String &path, const DataNode &tree, const char *code,
+                 const std::string &consequence)
+  {
+    std::ofstream out(path);
+    if (!out)
+    {
+      G4Exception("RunManifest::Write", code, JustWarning,
+                  ("could not open '" + path + "' for writing; " + consequence).c_str());
+      return;
+    }
+    JsonWriter::Write(out, tree);
+  }
 
   std::string Timestamp()
   {
@@ -136,8 +159,10 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   // Initial mesh pixel count per side (same formula as TimeStepAction; the
   // cell size actually used is voxelSize_nm unless the 65536 cap applied,
   // ADR 0006). Needs the chemistry world for the box size.
+  const bool sbs = ChemUtils::GetCurrentTimeStepModel() == G4ChemTimeStepModel::SBS;
+  const bool mesoOn = MesoSettings::StageEnabled(MesoSettings::Current(), sbs);
   DataNode mesoPixels;
-  if (chemistryWorld != nullptr)
+  if (mesoOn && chemistryWorld != nullptr)
     mesoPixels = DataNode(MesoSettings::PixelCount(2. * chemistryWorld->GetHalfBox(),
                                                    MesoSettings::Current().voxelSize * mm));
 
@@ -169,12 +194,17 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   manifest.Add("halfBox_um",
                (chemistryWorld != nullptr) ? DataNode(chemistryWorld->GetHalfBox() / um) : DataNode());
   manifest.Add("chemistryEndTime_ns", G4Scheduler::Instance()->GetEndTime() / ns);
-  manifest.Add("chemistryModel", "IRT_syn+mesoscopic");
-  manifest.Add("handOverTime_ns", MesoSettings::Current().handOverTime);
-  manifest.Add("voxelSize_nm", MesoSettings::Current().voxelSize * mm / nm);
+  manifest.Add("timeStepModel", std::string(ChemUtils::GetCurrentTimeStepModelName()));
+  manifest.Add("mesoEnabled", mesoOn);
+  manifest.Add("chemistryModel", mesoOn ? "IRT_syn+mesoscopic" : (sbs ? "SBS" : "IRT_syn"));
+  manifest.Add("handOverTime_ns",
+               mesoOn ? DataNode(MesoSettings::Current().handOverTime) : DataNode());
+  manifest.Add("voxelSize_nm",
+               mesoOn ? DataNode(MesoSettings::Current().voxelSize * mm / nm) : DataNode());
   manifest.Add("mesoPixels", mesoPixels);
-  manifest.Add("mesoTimesPerDecade", MesoSettings::Current().timesPerDecade);
-  manifest.Add("mesoSpatialOutput", MesoSettings::Current().spatialOutput);
+  manifest.Add("mesoTimesPerDecade",
+               mesoOn ? DataNode(MesoSettings::Current().timesPerDecade) : DataNode());
+  manifest.Add("mesoSpatialOutput", mesoOn && MesoSettings::Current().spatialOutput);
   manifest.Add("runMode", (mtRunManager != nullptr) ? "MT" : "Serial");
   manifest.Add("threads", (mtRunManager != nullptr) ? mtRunManager->GetNumberOfThreads() : 1);
   manifest.Add("outputDirAsConfigured", dir);
@@ -186,15 +216,31 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   manifest.Add("files", fileList);
   manifest.Add("runs", runs);
 
+  // Results index: this dump joins the list. A flat dump with an empty prefix
+  // has its per-dump manifest at the index's path (<outdir>/Manifest.json);
+  // that file is then written once, as the per-dump manifest plus the
+  // top-level "dumps" array, here and by every later dump. Any other dump
+  // writes its own manifest (unchanged) and the index beside/above it.
+  gDumpEntries.push_back(ResultsIndex::MakeDumpEntry(
+      prefix, subdir, Timestamp(), RunAccumulator::GetAccumulatedEvents(),
+      RunAccumulator::GetRunEntries()));
+  if (prefix.empty() && subdir.empty())
+    gRootDumpManifest = manifest;
+
+  const std::string absoluteDir = ec ? dir : absolute.lexically_normal().string();
+  const DataNode *rootBase = gRootDumpManifest ? &*gRootDumpManifest : nullptr;
+
   const G4String path = OutputDir::Resolve("Manifest.json");
-  std::ofstream out(path);
-  if (!out)
+  if (prefix.empty() && subdir.empty())
   {
-    G4Exception("RunManifest::Write", "ManifestWriteFailed", JustWarning,
-                ("could not open '" + path + "' for writing; the dump's data files are "
-                 "written but it has no manifest")
-                    .c_str());
+    WriteTree(path, ResultsIndex::Build(gDumpEntries, rootBase, absoluteDir), "ManifestWriteFailed",
+              "the dump's data files are written but it has no manifest");
     return;
   }
-  JsonWriter::Write(out, manifest);
+
+  WriteTree(path, manifest, "ManifestWriteFailed",
+            "the dump's data files are written but it has no manifest");
+  WriteTree(OutputDir::ResolveInRoot(ResultsIndex::FileName()),
+            ResultsIndex::Build(gDumpEntries, rootBase, absoluteDir), "IndexWriteFailed",
+            "the dump's data files and manifest are written but the results index is not updated");
 }

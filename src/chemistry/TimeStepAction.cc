@@ -5,6 +5,7 @@
 
 #include "core/DnaLogger.hh"
 #include "core/OutputDir.hh"
+#include "chemistry/ChemUtils.hh"
 #include "chemistry/MesoSettings.hh"
 #include "chemistry/ReactionTableDump.hh"
 #include "scoring/MesoSpatialFile.hh"
@@ -364,9 +365,8 @@ TimeStepAction::TimeStepAction(const G4VChemistryWorld *chemistryWorld)
     fpChemWorld(chemistryWorld),
     fpEventScheduler(std::make_unique<G4DNAEventScheduler>())
 {
-  // No AddTimeStep() user time steps: the IRT_syn stepper ignores the
-  // scheduler's defined minimum time step (G4DNAIndependentReactionTimeStepper
-  // keeps its own fUserMinTimeStep), as in the UHDR example.
+  // User time steps (SBS only) are added in StartProcessing: in Serial mode
+  // this constructor runs before the macro selects the time-step model.
   if (fpChemWorld == nullptr) {
     G4Exception("TimeStepAction::TimeStepAction", "NoChemistryWorld", FatalException,
                 "The mesoscopic stage needs the chemistry world (its boundary is the mesh).");
@@ -388,6 +388,39 @@ TimeStepAction::~TimeStepAction()
 void TimeStepAction::StartProcessing()
 {
   fHandedOver = false;
+  const G4bool sbs = ChemUtils::GetCurrentTimeStepModel() == G4ChemTimeStepModel::SBS;
+  fMesoOn = MesoSettings::StageEnabled(MesoSettings::Current(), sbs);
+
+  if (sbs && !fSbsTimeStepsAdded) {
+    // Minimum time steps of the SBS stepper (chem1-chem6 pattern): e.g. from
+    // 1 ps to 10 ps the step returned is at least 1 ps, unless a reaction or
+    // an interaction with the medium needs a shorter one. Thread-local
+    // scheduler, so once per thread. Not for IRT_syn, whose stepper keeps
+    // its own minimum (G4DNAIndependentReactionTimeStepper), as in the UHDR
+    // example.
+    AddTimeStep(1 * picosecond, 0.1 * picosecond);
+    AddTimeStep(10 * picosecond, 1 * picosecond);
+    AddTimeStep(100 * picosecond, 10 * picosecond);
+    AddTimeStep(1000 * picosecond, 100 * picosecond);
+    AddTimeStep(10000 * picosecond, 1000 * picosecond);
+    fSbsTimeStepsAdded = true;
+  }
+
+  fParticleStageWall = 0.;
+  if (!fMesoOn) {
+    // No mesoscopic stage: the particle-based stage runs to the end time and
+    // the event scheduler is never used (no record times, no counter).
+    fHandOverDrift = false;
+    if (DnaLogger::Enabled(DnaLogger::Level::Info)) {
+      const G4Event* event = G4EventManager::GetEventManager()->GetConstCurrentEvent();
+      DnaLogger::Print(DnaLogger::Level::Info,
+                       "[TimeStepAction] Chemistry starts (particle-based stage only), event " +
+                         std::to_string(event != nullptr ? event->GetEventID() : -1));
+    }
+    fChemTimer.Start();
+    return;
+  }
+
   fpEventScheduler->SetVerbose(G4Scheduler::Instance()->GetVerbose());
 
   // G4DNAEventScheduler::RecordTime / LastRegisterForCounter dereference the
@@ -415,7 +448,6 @@ void TimeStepAction::StartProcessing()
   if (tMeshAction != nullptr) tMeshAction->StartRecording(std::move(recordTimes));
   fpEventScheduler->ResetCounter();
   fHandOverDrift = false;
-  fParticleStageWall = 0.;
   if (DnaLogger::Enabled(DnaLogger::Level::Info)) {
     const G4Event* event = G4EventManager::GetEventManager()->GetConstCurrentEvent();
     DnaLogger::Print(DnaLogger::Level::Info,
@@ -430,14 +462,17 @@ void TimeStepAction::StartProcessing()
 void TimeStepAction::UserPreTimeStepAction()
 {
   // Particle-stage entries of the scheduler's record-time counter (UHDR).
-  fpEventScheduler->ParticleBasedCounter();
+  if (fMesoOn) fpEventScheduler->ParticleBasedCounter();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void TimeStepAction::UserPostTimeStepAction()
 {
-  if (!fHandedOver && G4Scheduler::Instance()->GetGlobalTime() >= MesoSettings::Current().handOverTime * ns) {
+  // Meso off (/chem/meso/enable false, or SBS): never hand over, the
+  // particle-based stage runs to the end time.
+  if (fMesoOn && !fHandedOver &&
+      G4Scheduler::Instance()->GetGlobalTime() >= MesoSettings::Current().handOverTime * ns) {
     fHandedOver = true;
     CompartmentBased();
   }
@@ -688,6 +723,12 @@ void TimeStepAction::EndProcessing()
     // The killed particle-stage tracks are gone by now (see CompartmentBased).
     G4MoleculeCounterManager::Instance()->SetIsActive(fCounterWasActive);
     fCounterMuted = false;
+  }
+  if (!fMesoOn) {
+    // The event scheduler was not set up for this event (StartProcessing).
+    fHandedOver = false;
+    fHandOverDrift = false;
+    return;
   }
   fpEventScheduler->Reset();
   if (DnaLogger::Enabled(DnaLogger::Level::Debug) && tMeshAction != nullptr) {

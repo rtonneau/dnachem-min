@@ -52,6 +52,15 @@ MesoMessenger::MesoMessenger()
     "before /run/initialize.");
   fpSpatialOutputCmd->SetParameterName("spatialOutput", false);
   fpSpatialOutputCmd->AvailableForStates(G4State_PreInit);
+
+  fpEnableCmd = new G4UIcmdWithABool("/chem/meso/enable", this);
+  fpEnableCmd->SetGuidance(
+    "Whether the particle-based stage hands over to the mesoscopic stage at the hand-over "
+    "time. false: the particle-based stage runs to the end time. Default: true. The SBS "
+    "time-step model has no mesoscopic stage: there the default means off, and an explicit "
+    "'true' is fatal at /run/initialize. Issue before /run/initialize.");
+  fpEnableCmd->SetParameterName("enable", false);
+  fpEnableCmd->AvailableForStates(G4State_PreInit);
 }
 
 MesoMessenger::~MesoMessenger()
@@ -60,6 +69,7 @@ MesoMessenger::~MesoMessenger()
   delete fpVoxelCmd;
   delete fpPerDecadeCmd;
   delete fpSpatialOutputCmd;
+  delete fpEnableCmd;
 }
 
 void MesoMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
@@ -92,6 +102,12 @@ void MesoMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
   else if (command == fpSpatialOutputCmd) {
     settings.spatialOutput = fpSpatialOutputCmd->GetNewBoolValue(newValue);
   }
+  else if (command == fpEnableCmd) {
+    // The SBS conflict is checked at /run/initialize (DnaChemistryList), when
+    // the time-step model is final whatever the command order.
+    settings.enabled = fpEnableCmd->GetNewBoolValue(newValue);
+    settings.enabledExplicitly = true;
+  }
 }
 
 G4String MesoMessenger::GetCurrentValue(G4UIcommand* command)
@@ -108,6 +124,9 @@ G4String MesoMessenger::GetCurrentValue(G4UIcommand* command)
   }
   if (command == fpSpatialOutputCmd) {
     return fpSpatialOutputCmd->ConvertToString(settings.spatialOutput);
+  }
+  if (command == fpEnableCmd) {
+    return fpEnableCmd->ConvertToString(settings.enabled);
   }
   return "";
 }

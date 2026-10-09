@@ -6,6 +6,10 @@
 /// remaining molecules are handed to a G4DNAEventScheduler (compartment-based
 /// mesoscopic stage, Gillespie on a cell mesh) that runs to the end time.
 /// Pattern: Geant4 UHDR example, TimeStepAction::CompartmentBased.
+/// With the mesoscopic stage off (/chem/meso/enable false, or the SBS model,
+/// MesoSettings::StageEnabled) there is no hand-over: the particle-based stage
+/// runs to the end time and the event scheduler is unused. Under SBS it also
+/// adds the scheduler's user minimum time steps (chem1-chem6 pattern).
 
 #ifndef ITACTION_H
 #define ITACTION_H
@@ -73,6 +77,11 @@ private:
   std::unique_ptr<G4DNAEventScheduler> fpEventScheduler;
   /// True once this event's chemistry has been handed over.
   G4bool fHandedOver = false;
+  /// Whether this event's chemistry has a mesoscopic stage (set in
+  /// StartProcessing from MesoSettings::StageEnabled).
+  G4bool fMesoOn = true;
+  /// True once the SBS user time steps were given to this thread's scheduler.
+  G4bool fSbsTimeStepsAdded = false;
   /// Debug only: true when the hand-over changed the molecule total.
   G4bool fHandOverDrift = false;
   /// The molecule counter is muted from the hand-over to EndProcessing;

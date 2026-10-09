@@ -13,6 +13,7 @@
 //
 #include "scoring/ScoreSpecies.hh"
 
+#include "chemistry/ChemUtils.hh"
 #include "chemistry/MesoSettings.hh"
 #include "core/OutputDir.hh"
 
@@ -133,9 +134,12 @@ void ScoreSpecies::EndOfEvent(G4HCofThisEvent *)
   // TimeStepAction mutes the molecule counter from the hand-over to the end
   // of the event, so it holds frozen hand-over counts at later times: score
   // only the record times up to the hand-over (SpeciesMeso.* covers the
-  // rest). No mesoscopic stage when the hand-over is not before the end time.
+  // rest). No mesoscopic stage when it is switched off (SBS or /chem/meso/enable false)
+  // or the hand-over is not before the end time.
   const G4double handOverTime = MesoSettings::Current().handOverTime * ns;
-  const G4bool hasMesoStage = handOverTime < G4Scheduler::Instance()->GetEndTime();
+  const G4bool sbs = ChemUtils::GetCurrentTimeStepModel() == G4ChemTimeStepModel::SBS;
+  const G4bool hasMesoStage = MesoSettings::StageEnabled(MesoSettings::Current(), sbs) &&
+                              handOverTime < G4Scheduler::Instance()->GetEndTime();
 
   for (auto idx : indices)
   {
