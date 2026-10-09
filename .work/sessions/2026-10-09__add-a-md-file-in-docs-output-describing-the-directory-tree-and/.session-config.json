@@ -84,6 +84,30 @@
         "ticket": "01-capture-trees-and-index",
         "commit": "cda61df"
       }
+    },
+    {
+      "at": "2026-10-09T07:30:57.317Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/02-layout-files.md",
+        "03-implement/02-layout-files/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-layout-files"
+      }
+    },
+    {
+      "at": "2026-10-09T07:34:20.889Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/02-layout-files/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "02-layout-files",
+        "commit": "57d257e"
+      }
     }
   ],
   "current_phase": "ship",
