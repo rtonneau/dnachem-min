@@ -7,5 +7,8 @@
   "jev": {
     "enabled": true,
     "detected_at": "2026-10-08T19:01:52.706Z"
+  },
+  "release": {
+    "versionFiles": []
   }
 }
