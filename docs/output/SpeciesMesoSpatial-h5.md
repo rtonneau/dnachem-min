@@ -1,5 +1,7 @@
 # SpeciesMesoSpatial.h5
 
+Where this file sits in the output directory: [README.md](README.md).
+
 ## Purpose
 
 `SpeciesMesoSpatial.h5` holds the spatial state of the mesoscopic stage: for

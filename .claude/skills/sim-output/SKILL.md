@@ -41,6 +41,8 @@ resets all counters to empty/zero:
   (N x S uint32); only non-empty cells are written (format version 2). Full
   format (attributes, species columns, concentration formula, h5py example,
   version history): `docs/output/SpeciesMesoSpatial-h5.md`.
+  Directory trees per layout and one line per output file:
+  `docs/output/README.md`.
 - `PreChemical_run<R>_event<E>.txt`: one pre-chemical file per event (Serial
   and MT alike). Each event writes it into the staging folder
   `<outdir>/.pending_prechem/`; every dump then moves all staged files into
