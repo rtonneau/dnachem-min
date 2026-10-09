@@ -60,6 +60,30 @@
       "detail": {
         "tickets": 3
       }
+    },
+    {
+      "at": "2026-10-09T07:25:31.290Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/01-capture-trees-and-index.md",
+        "03-implement/01-capture-trees-and-index/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "01-capture-trees-and-index"
+      }
+    },
+    {
+      "at": "2026-10-09T07:30:56.420Z",
+      "event": "ticket_done",
+      "phase": "ship",
+      "files": [
+        "03-implement/01-capture-trees-and-index/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "01-capture-trees-and-index",
+        "commit": "cda61df"
+      }
     }
   ],
   "current_phase": "ship",
@@ -68,5 +92,6 @@
     "base_branch": "integration",
     "branch_created_at": "2026-10-09T07:25:26.896Z",
     "pr_url": null
-  }
+  },
+  "ship_mode": "subagent+inline"
 }
