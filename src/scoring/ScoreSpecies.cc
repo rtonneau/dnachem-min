@@ -48,11 +48,23 @@ ScoreSpecies::ScoreSpecies(G4String name, G4int depth)
 {
   fNEvent = 0;
   AddTimeToRecord(1 * CLHEP::picosecond);
+  AddTimeToRecord(2 * CLHEP::picosecond);
+  AddTimeToRecord(5 * CLHEP::picosecond);
   AddTimeToRecord(10 * CLHEP::picosecond);
+  AddTimeToRecord(20 * CLHEP::picosecond);
+  AddTimeToRecord(50 * CLHEP::picosecond);
   AddTimeToRecord(100 * CLHEP::picosecond);
+  AddTimeToRecord(200 * CLHEP::picosecond);
+  AddTimeToRecord(500 * CLHEP::picosecond);
   AddTimeToRecord(1000 * CLHEP::picosecond);
+  AddTimeToRecord(2000 * CLHEP::picosecond);
+  AddTimeToRecord(5000 * CLHEP::picosecond);
   AddTimeToRecord(10000 * CLHEP::picosecond);
+  AddTimeToRecord(20000 * CLHEP::picosecond);
+  AddTimeToRecord(50000 * CLHEP::picosecond);
   AddTimeToRecord(100000 * CLHEP::picosecond);
+  AddTimeToRecord(200000 * CLHEP::picosecond);
+  AddTimeToRecord(500000 * CLHEP::picosecond);
   AddTimeToRecord(999999 * CLHEP::picosecond);
   fEdep = 0;
 }
