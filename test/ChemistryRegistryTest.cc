@@ -143,6 +143,17 @@ static void TestConstructMoleculesIsStoredAndReturned()
   assert(ChemistryRegistry::Selected()->constructMolecules == &DummyMolecules);
 }
 
+// The process-wide partial-reaction switch (SBS keeps every reaction type 0):
+// on by default, settable both ways.
+void TestPartialReactionsSwitch()
+{
+  assert(ChemistryTypes::PartialReactionsEnabled());
+  ChemistryTypes::SetPartialReactionsEnabled(false);
+  assert(!ChemistryTypes::PartialReactionsEnabled());
+  ChemistryTypes::SetPartialReactionsEnabled(true);
+  assert(ChemistryTypes::PartialReactionsEnabled());
+}
+
 int main()
 {
 #ifdef _MSC_VER
@@ -160,6 +171,7 @@ int main()
   TestResetClearsSelectionAndEntries();
   TestNullConstructMoleculesRegisters();
   TestConstructMoleculesIsStoredAndReturned();
+  TestPartialReactionsSwitch();
   std::cout << "ChemistryRegistryTest: all tests passed\n";
   return 0;
 }

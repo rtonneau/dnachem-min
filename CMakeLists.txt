@@ -141,3 +141,13 @@ add_custom_command(
     "$<TARGET_FILE_DIR:sim>/macro"
     COMMENT "Copying macro files to output directory..."
 )
+
+# Standalone unit test for MacroResolver (standard library only).
+add_executable(MacroResolverTest test/MacroResolverTest.cc src/core/MacroResolver.cc)
+target_include_directories(MacroResolverTest PRIVATE ${project_include_dirs})
+add_test(NAME MacroResolverTest COMMAND MacroResolverTest)
+
+# Standalone unit test for ResultsIndex (pure index builder on DataNode, std only).
+add_executable(ResultsIndexTest test/ResultsIndexTest.cc src/scoring/ResultsIndex.cc src/scoring/DataNode.cc src/scoring/JsonWriter.cc)
+target_include_directories(ResultsIndexTest PRIVATE ${project_include_dirs})
+add_test(NAME ResultsIndexTest COMMAND ResultsIndexTest)

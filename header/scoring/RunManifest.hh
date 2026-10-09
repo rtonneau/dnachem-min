@@ -41,6 +41,13 @@ namespace RunManifest
   /// or subfolder applies). `files` are the data files this dump wrote, as
   /// names relative to the manifest's folder. A file that cannot be opened
   /// raises a JustWarning G4Exception; the data files are already on disk.
+  ///
+  /// Also rewrites the results index, <outdir>/Manifest.json (ResultsIndex),
+  /// listing every dump so far, the exit-time EndOfRun_ flush included. A
+  /// dump with an empty prefix and no subfolder has its manifest at that very
+  /// path: the file is then written once, as that manifest plus the
+  /// top-level "dumps" array (also rewritten by every later dump), so neither
+  /// overwrites the other. A failed open of the index is a JustWarning.
   void Write(const G4String &prefix, const G4String &subdir,
              const std::vector<std::string> &files);
 } // namespace RunManifest

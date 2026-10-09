@@ -4,7 +4,7 @@
 Usage: compare_reference.py <reference_dir> <new_dir> [--tol 0.10] [--plot out.png]
 
 Each directory holds Species_nt_species.csv and Manifest.json (a dump of sim).
-A dump whose Manifest.json has "chemistryModel" (IRT_syn+mesoscopic) also has
+A dump whose Manifest.json has "mesoEnabled": true (older dumps: "chemistryModel") also has
 SpeciesMeso.csv: Species_nt_species.csv stops at the hand-over time and the
 mesoscopic output (time_ns,species,count, counts summed over events) covers
 the later times.
@@ -53,7 +53,9 @@ def load_dump(path):
         g = grp.sort_values("time")
         series[name] = pd.DataFrame({"time_ns": g["time"].to_numpy(),
                                      "G": (g["sumG"] / g["nEvent"]).to_numpy()})
-    is_new = "chemistryModel" in man
+    # mesoEnabled (manifest of the selectable-mode build) is false for SBS and
+    # IRT_syn-only dumps: no SpeciesMeso.csv. Older dumps have chemistryModel only.
+    is_new = bool(man.get("mesoEnabled", "chemistryModel" in man))
     if is_new:
         meso_path = os.path.join(path, "SpeciesMeso.csv")
         if not os.path.exists(meso_path):

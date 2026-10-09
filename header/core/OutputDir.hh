@@ -12,6 +12,15 @@
 /// independent filename prefix (prepended before the directory join),
 /// separate from the configured directory. ConfigureSubdir() adds an
 /// optional subfolder between the two: <dir>/<subdir>/<prefix><filename>.
+///
+/// Default directory: SetDefaultDir() (called from sim.cc with
+/// <exeDir>/results) names a directory used only when no Configure() /
+/// ConfigureFromMacro() directory is set. It is applied lazily -- created
+/// at the first Resolve()/GetDirectory()/ConfigureSubdir() that needs it,
+/// under a mutex because that can be a worker thread -- so --dir and
+/// /run/outputDir (a PreInit command, issued before any output exists) still
+/// replace it and a run that sets one never creates it. Once the default has
+/// been used, a /run/outputDir naming another directory is refused.
 
 #ifndef OutputDir_h
 #define OutputDir_h 1
@@ -27,13 +36,22 @@ namespace OutputDir
   /// dir exists but is not a directory.
   G4bool Configure(const G4String &dir, G4String &err);
 
-  /// Joins the configured directory with filename, or returns filename
-  /// unchanged if the configured directory is empty.
+  /// Sets the directory used when none is configured (empty = no default,
+  /// the initial state: output then goes to cwd). Not created until needed.
+  /// Resets the "default already used" state. Call before any output.
+  void SetDefaultDir(const G4String &dir);
+
+  /// Joins the output directory (configured, else default) with filename,
+  /// or returns filename unchanged if there is none.
   G4String Resolve(const G4String &filename);
 
-  /// The configured output directory exactly as it was given to Configure()
-  /// or ConfigureFromMacro(); empty if none is configured. Ignores the prefix
-  /// and the subfolder.
+  /// Like Resolve(), but ignores the prefix and the subfolder: the file sits
+  /// directly in the output directory (the results index uses it).
+  G4String ResolveInRoot(const G4String &filename);
+
+  /// The output directory: as given to Configure() / ConfigureFromMacro(),
+  /// else the default directory (created now if needed), else empty. Ignores
+  /// the prefix and the subfolder.
   G4String GetDirectory();
 
   /// Sets the configured output directory from a macro command, for use

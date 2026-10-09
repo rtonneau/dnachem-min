@@ -77,6 +77,16 @@ counted in the reaction output.
 _Avoid_: "acid-base reaction" as the umbrella term — acid-base is only one kind of
 bulk reaction.
 
+**Chemistry mode**:
+How an event's chemistry is run, chosen in the macro before initialisation: **SBS**
+(step-by-step, particle-based all the way to the end time), **IRT_syn** (particle-based
+only, no hand-over) or **IRT_syn + mesoscopic** (particle-based stage, then the
+**Mesoscopic stage**; the default). The mesoscopic stage is only available after
+IRT_syn. Independent of the **Chemistry** (reaction content) and of the **Scavenger**,
+except that SBS treats every reaction as fully diffusion-controlled while IRT_syn
+treats the catalogue's Type II/IV pairs as partially diffusion-controlled.
+_Avoid_: "model" alone (also names physics models), "time-step model" in user-facing text.
+
 **Particle-based stage**:
 The first part of an event's chemistry, from the end of the pre-chemical stage to
 the **Hand-over time**: every radiolytic molecule is an individual particle with a
@@ -84,7 +94,8 @@ position, and reactions between two of them are sampled from their separation
 (independent reaction times, synchronous variant: IRT_syn). Species and reaction
 counts of this stage are the species output and the reaction output.
 _Avoid_: "microscopic stage" (fine informally, but use one name); "IRT" alone (the
-classic, non-synchronous IRT is not used); "SBS" (no longer used).
+classic, non-synchronous IRT is not used). Under the SBS **Chemistry mode** the
+whole chemistry is a single particle-based stage.
 
 **Mesoscopic stage**:
 The second part of an event's chemistry, from the **Hand-over time** to the end

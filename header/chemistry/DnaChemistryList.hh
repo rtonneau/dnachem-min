@@ -21,9 +21,10 @@
 /// DnaChemistryWorld) react through the Chemistry's bulk reactions
 /// (docs/adr/0004-scavenger-reactions-per-chemistry.md).
 ///
-/// Time-step model: IRT_syn only (hard-coded; SBS and IRT are not supported,
-/// any other /process/chem/TimeStepModel value is fatal). The particle-based
-/// stage hands over to the mesoscopic stage in TimeStepAction.
+/// Time-step model (/process/chem/TimeStepModel, default IRT_syn set in
+/// PhysicsList): IRT_syn, whose particle-based stage hands over to the
+/// mesoscopic stage in TimeStepAction unless /chem/meso/enable false, or SBS
+/// (step-by-step, no mesoscopic stage). IRT and any other value are fatal.
 
 #ifndef DnaChemistryList_h
 #define DnaChemistryList_h 1
@@ -75,6 +76,12 @@ public:
   void ApplyReactionTimeBinning() const;
 
 private:
+  /// Fatal unless the time-step model is IRT_syn or SBS, and when
+  /// /chem/meso/enable true was given explicitly with SBS; otherwise prints
+  /// the model and whether the mesoscopic stage runs. Master, at
+  /// /run/initialize (ConstructProcess).
+  void CheckTimeStepModel() const;
+
   /// /chem/reaction/timeBinsFixed <width> <unit> setter.
   void SetReactionTimeBinsFixed(G4double width);
 
