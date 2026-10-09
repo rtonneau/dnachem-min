@@ -108,9 +108,33 @@
         "ticket": "02-layout-files",
         "commit": "57d257e"
       }
+    },
+    {
+      "at": "2026-10-09T07:34:21.608Z",
+      "event": "ticket_started",
+      "phase": "ship",
+      "files": [
+        "02-plan/tickets/03-link-lines.md",
+        "03-implement/03-link-lines/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "03-link-lines"
+      }
+    },
+    {
+      "at": "2026-10-09T07:34:38.768Z",
+      "event": "ticket_done",
+      "phase": "finish-pending",
+      "files": [
+        "03-implement/03-link-lines/commit-log.md"
+      ],
+      "detail": {
+        "ticket": "03-link-lines",
+        "commit": "f1a11af"
+      }
     }
   ],
-  "current_phase": "ship",
+  "current_phase": "finish-pending",
   "git": {
     "branch": "docs/run-output-tree",
     "base_branch": "integration",
