@@ -14,6 +14,7 @@
 #include "scoring/JsonWriter.hh"
 #include "scoring/ResultsIndex.hh"
 #include "scoring/RunAccumulator.hh"
+#include "scoring/TrackLengthTable.hh"
 
 #include "G4Exception.hh"
 #include "G4MTRunManager.hh"
@@ -87,6 +88,33 @@ namespace
   DataNode Vec3(const double *values)
   {
     return DataNode::MakeArray().Push(values[0]).Push(values[1]).Push(values[2]);
+  }
+
+  // Per-column mean and SEM of the accumulated track-length table. With no
+  // rows the means are null (there is nothing to average).
+  DataNode TrackLengthSummary(const TrackLengthTable &table)
+  {
+    const TrackLengthTable::Summary s = table.Summarize();
+    const bool any = s.nEvents > 0;
+    auto stat = [any](const TrackLengthTable::Stat &v) {
+      DataNode node = DataNode::MakeObject();
+      node.Add("mean", any ? DataNode(v.mean) : DataNode());
+      node.Add("sem", any ? DataNode(v.sem) : DataNode());
+      return node;
+    };
+    DataNode node = DataNode::MakeObject();
+    node.Add("events", static_cast<long>(s.nEvents));
+    node.Add("stopped", static_cast<long>(s.nStopped));
+    node.Add("escaped", static_cast<long>(s.nEscaped));
+    node.Add("killed", static_cast<long>(s.nKilled));
+    node.Add("primaryLength_nm", stat(s.primaryLength_nm));
+    node.Add("primaryEkin0_keV", stat(s.primaryEkin0_keV));
+    node.Add("primaryEkinEnd_keV", stat(s.primaryEkinEnd_keV));
+    node.Add("secondaryFirstGen_nm", stat(s.secondaryFirstGen_nm));
+    node.Add("nSecondaryFirstGen", stat(s.nSecondaryFirstGen));
+    node.Add("secondaryAll_nm", stat(s.secondaryAll_nm));
+    node.Add("nSecondaryAll", stat(s.nSecondaryAll));
+    return node;
   }
 }
 
@@ -213,6 +241,7 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   manifest.Add("subdir", std::string(subdir));
   manifest.Add("totalEvents", RunAccumulator::GetAccumulatedEvents());
   manifest.Add("totalEnergyDeposit_eV", RunAccumulator::GetAccumulatedEnergy() / eV);
+  manifest.Add("trackLengths", TrackLengthSummary(RunAccumulator::GetAccumulatedTrackLengthTable()));
   manifest.Add("files", fileList);
   manifest.Add("runs", runs);
 
