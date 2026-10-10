@@ -99,6 +99,35 @@ Given the otherwise clean agreement and the modest event counts (16/24) on both 
 plausibly a statistical fluctuation in one or both runs rather than a real box-size effect, but
 it has not been checked with a larger run.
 
+## Physical/pre-chemical stage interaction counts
+
+`physical_stage_counts.py` compares, per event, how many water-ionisation, water-excitation,
+dissociative-electron-attachment and secondary-electron (solvation) events each beam produces.
+Source: `PreChemical_run<R>_event<E>.txt`, the per-event dump Geant4-DNA's own
+`G4DNAChemistryManager`/`G4PhysChemIO` write directly from the physics models at the
+physical/pre-chemical boundary -- the files `/run/dumpDataAndReset(ToDir)` moves into the dump
+directory (same files referenced in `CLAUDE.md`'s `PreChemicalFiles.cc` entry). Writes
+`physical_stage_counts.png` (grouped bar chart) and `physical_stage_counts.md` (full table) next
+to itself.
+
+**Caveat specific to this check:** all 4 O2-level macros in a batch share the fixed RNG seed
+(`sim.cc`'s `kDefaultSeed = 12345`), and O2 only acts in the chemistry stage, downstream of these
+files -- so the 4 O2 levels of a batch are *bit-identical* at the physical stage (verified by
+diff), not 4 independent samples. The script uses one representative O2 directory per beam (16
+proton events, 300 electron events from the newer batch, whose seed-identical prefix supersedes
+the original 56-event batch) rather than pooling, and reports the per-O2-level breakdown only as
+a determinism check.
+
+Result: the 500 keV electron beam produces ~1.7x more ionisations, secondary electrons and
+dissociative-attachment events per event than the 90 MeV proton beam, and ~1.55x more excitations
+(ionisation/excitation ratio 7.5 for the proton vs. 8.3 for the electron). The ionisation and
+secondary-electron ratios (1.70, 1.70) track the per-event energy-deposit ratio almost exactly:
+4072 eV/event (proton, 10x10x10 um^3 box) vs. 6922 eV/event (electron, `PrimaryKiller eLossMin`
+truncation at 1 % of the 500 keV beam energy) -- a ratio of 1.70 -- consistent with ionisation
+count scaling with deposited energy. The slightly higher ionisation/excitation ratio for the
+electron is consistent with its lower LET in this geometry, which favours ionisation over
+excitation somewhat more than the proton's denser track.
+
 ## Caveats (indicative only, not a reproduction)
 
 - dnachem-min models a single homogeneous water box (10x10x10 um^3 for the proton runs, 500 um
