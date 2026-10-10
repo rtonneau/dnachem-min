@@ -23,7 +23,7 @@ RunAccumulatorMessenger::RunAccumulatorMessenger()
 {
     fpDumpCmd = new G4UIcmdWithAString("/run/dumpDataAndReset", this);
     fpDumpCmd->SetGuidance(
-        "Write Species/SpeciesMeso/Reactions/PhysicsInteractions output files and a "
+        "Write Species/SpeciesMeso/Reactions/PhysicsInteractions/TrackLengths output files and a "
         "Manifest.json for everything accumulated since the last dump (or program "
         "start), then reset all counters. Optional prefix is prepended "
         "literally to every output filename (no separator inserted). Fatal "
@@ -193,6 +193,18 @@ void RunAccumulatorMessenger::WriteAllAndReset(const G4String &prefix, const G4S
     interactionCounter.WriteCsv(interactionsCsv);
     interactionsCsv.close();
     files.push_back(prefix + "PhysicsInteractions.csv");
+
+    // Per-event primary and secondary e- track lengths (physical stage).
+    const TrackLengthTable &trackLengthTable = RunAccumulator::GetAccumulatedTrackLengthTable();
+    std::ofstream trackLengthsOut(OutputDir::Resolve("TrackLengths.Txt"));
+    trackLengthTable.WriteAscii(trackLengthsOut);
+    trackLengthsOut.close();
+    files.push_back(prefix + "TrackLengths.Txt");
+
+    std::ofstream trackLengthsCsv(OutputDir::Resolve("TrackLengths.csv"));
+    trackLengthTable.WriteCsv(trackLengthsCsv);
+    trackLengthsCsv.close();
+    files.push_back(prefix + "TrackLengths.csv");
 
     // Mesoscopic stage off (/chem/meso/enable false, or SBS): no SpeciesMeso files.
     if (MesoSettings::StageEnabled(MesoSettings::Current(),

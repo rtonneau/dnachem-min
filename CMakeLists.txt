@@ -83,7 +83,7 @@ add_test(NAME JsonWriterTest COMMAND JsonWriterTest)
 # bookkeeping logic, no Geant4 kernel dependency -- DumpAndReset's
 # file-writing/species lookup lives in RunAccumulatorMessenger instead,
 # which is not unit-tested, matching this project's existing convention).
-add_executable(RunAccumulatorTest test/RunAccumulatorTest.cc src/scoring/RunAccumulator.cc src/scoring/ReactionCounter.cc src/scoring/PhysicsInteractionCounter.cc src/scoring/MesoSpeciesCounter.cc src/scoring/DataNode.cc src/core/OutputDir.cc)
+add_executable(RunAccumulatorTest test/RunAccumulatorTest.cc src/scoring/RunAccumulator.cc src/scoring/ReactionCounter.cc src/scoring/PhysicsInteractionCounter.cc src/scoring/MesoSpeciesCounter.cc src/scoring/TrackLengthTable.cc src/scoring/DataNode.cc src/core/OutputDir.cc)
 target_link_libraries(RunAccumulatorTest ${Geant4_LIBRARIES})
 target_include_directories(RunAccumulatorTest PRIVATE ${project_include_dirs})
 add_test(NAME RunAccumulatorTest COMMAND RunAccumulatorTest)

@@ -5,6 +5,7 @@
 #include "scoring/ReactionCounter.hh"
 #include "scoring/PhysicsInteractionCounter.hh"
 #include "scoring/MesoSpeciesCounter.hh"
+#include "scoring/TrackLengthTable.hh"
 
 #include "G4Run.hh"
 #include "globals.hh"
@@ -41,6 +42,7 @@ public:
     ReactionCounter *GetReactionCounter() const { return fReactionCounter; }
     PhysicsInteractionCounter *GetInteractionCounter() const { return fInteractionCounter; }
     MesoSpeciesCounter *GetMesoSpeciesCounter() const { return fMesoSpeciesCounter; }
+    TrackLengthTable *GetTrackLengthTable() const { return fTrackLengthTable; }
 
     // Beam sampled by PrimaryGeneratorAction from its gun on the first event of
     // this run (on a worker thread in MT mode); Merge() carries it to the
@@ -76,6 +78,10 @@ private:
     // Same pattern again, for TimeStepAction's live MesoSpeciesCounter.
     MesoSpeciesCounter *fMesoSpeciesCounter;
     MesoSpeciesCounter fOwnedMesoSpeciesCounter;
+    // Same pattern again, for TrackingAction's live TrackLengthTable (the
+    // MT master registers no TrackingAction).
+    TrackLengthTable *fTrackLengthTable;
+    TrackLengthTable fOwnedTrackLengthTable;
 
     G4bool fHasBeam = false;
     Beam fBeam;

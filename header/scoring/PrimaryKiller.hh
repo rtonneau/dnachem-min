@@ -53,6 +53,12 @@ public:
     /** Set the verbosity level*/
     inline void SetVerboseLevel(G4int level) { fVerbose = level; }
 
+    /** True if a PrimaryKiller killed track 1 in the current event on this
+     thread (eLossMin / minKineticE cut, or track 1 leaving the bounding
+     box). Per-thread; reset at the start of each event by Initialize().
+     Read by TrackingAction to tell a killed primary from a stopped one. */
+    static G4bool PrimaryKilledThisEvent();
+
     /** Method related to G4UImessenger
         used to control energy cuts through macro file
      */

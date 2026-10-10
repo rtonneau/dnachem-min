@@ -21,6 +21,7 @@
 #include "scoring/MesoSpeciesCounter.hh"
 #include "scoring/ReactionCounter.hh"
 #include "scoring/PhysicsInteractionCounter.hh"
+#include "scoring/TrackLengthTable.hh"
 
 #include "globals.hh"
 
@@ -29,12 +30,14 @@
 namespace RunAccumulator
 {
   /// Merges energy/events/reactions/interactions/mesoscopic species counts
-  /// into the persistent totals (the counters are merged via their Merge()
-  /// -- the arguments are left unmodified) and marks pending data. Called
-  /// once per run from RunAction::EndOfRunAction (master thread only).
+  /// and the per-event track-length rows into the persistent totals (the
+  /// counters and the table are merged via their Merge() -- the arguments
+  /// are left unmodified) and marks pending data. Called once per run from
+  /// RunAction::EndOfRunAction (master thread only).
   void Accumulate(G4double energy, long events, const ReactionCounter &reactions,
                    const PhysicsInteractionCounter &interactions,
-                   const MesoSpeciesCounter &mesoSpecies);
+                   const MesoSpeciesCounter &mesoSpecies,
+                   const TrackLengthTable &trackLengths);
 
   /// True if Accumulate() has added data since the last ClearAccumulated().
   G4bool HasPendingData();
@@ -44,6 +47,7 @@ namespace RunAccumulator
   const ReactionCounter &GetAccumulatedReactionCounter();
   const PhysicsInteractionCounter &GetAccumulatedInteractionCounter();
   const MesoSpeciesCounter &GetAccumulatedMesoSpeciesCounter();
+  const TrackLengthTable &GetAccumulatedTrackLengthTable();
 
   /// Appends one run's manifest entry (built by RunManifest::RecordRun) for
   /// the manifest of the next dump. Called once per run (master thread only),
@@ -53,8 +57,8 @@ namespace RunAccumulator
   /// The entries added since the last ClearAccumulated(), in call order.
   const std::vector<DataNode> &GetRunEntries();
 
-  /// Resets energy and events to 0, the three counters to empty and the run
-  /// entries to none, and clears the pending-data flag. Does not touch the
+  /// Resets energy and events to 0, the three counters and the track-length
+  /// table to empty and the run entries to none, and clears the pending-data flag. Does not touch the
   /// prefix-uniqueness set.
   void ClearAccumulated();
 
