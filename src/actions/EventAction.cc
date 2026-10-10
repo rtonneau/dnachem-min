@@ -1,5 +1,6 @@
 // EventAction.cc
 #include "actions/EventAction.hh"
+#include "actions/TrackingAction.hh"
 #include "core/DnaLogger.hh"
 #include "core/OutputDir.hh"
 #include "scoring/PreChemicalFiles.hh"
@@ -11,6 +12,17 @@
 
 #include <memory>
 
+namespace
+{
+// This thread's TrackingAction (the per-event track-length collector), or
+// nullptr where none is registered.
+TrackingAction *ThreadTrackingAction()
+{
+    return const_cast<TrackingAction *>(dynamic_cast<const TrackingAction *>(
+        G4RunManager::GetRunManager()->GetUserTrackingAction()));
+}
+}  // namespace
+
 EventAction::EventAction() = default;
 EventAction::~EventAction() = default;
 
@@ -21,6 +33,8 @@ void EventAction::BeginOfEventAction(const G4Event *event)
 
     DnaLogger::Print(DnaLogger::Level::Info,
                      eventPrefix + ": Begin of Event");
+    if (auto *trackingAction = ThreadTrackingAction())
+        trackingAction->ResetEvent();
     if (G4DNAChemistryManager::GetInstanceIfExists() != nullptr)
     {
         // One pre-chemical file per event, staged until the next dump (ADR 0005
@@ -61,5 +75,17 @@ void EventAction::EndOfEventAction(const G4Event *event)
         // Destroying the writer closes the event's file, even when the
         // chemistry stage never ran for this event.
         G4DNAChemistryManager::Instance()->SetPhysChemIO(nullptr);
+    }
+
+    // One track-length row per non-aborted event (Run::RecordEvent skips
+    // aborted events too), then reset the per-event values.
+    if (auto *trackingAction = ThreadTrackingAction())
+    {
+        if (!event->IsAborted())
+        {
+            const G4int runId = G4RunManager::GetRunManager()->GetCurrentRun()->GetRunID();
+            trackingAction->CommitEvent(runId, eventId);
+        }
+        trackingAction->ResetEvent();
     }
 }

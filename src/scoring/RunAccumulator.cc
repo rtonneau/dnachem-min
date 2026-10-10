@@ -12,6 +12,7 @@ namespace
   ReactionCounter gAccumulatedReactionCounter;
   PhysicsInteractionCounter gAccumulatedInteractionCounter;
   MesoSpeciesCounter gAccumulatedMesoSpeciesCounter;
+  TrackLengthTable gAccumulatedTrackLengthTable;
   std::vector<DataNode> gRunEntries;
   G4bool gHasPendingData = false;
   std::set<G4String> gUsedPrefixes;
@@ -20,13 +21,15 @@ namespace
 
 void RunAccumulator::Accumulate(G4double energy, long events, const ReactionCounter &reactions,
                                  const PhysicsInteractionCounter &interactions,
-                                 const MesoSpeciesCounter &mesoSpecies)
+                                 const MesoSpeciesCounter &mesoSpecies,
+                                 const TrackLengthTable &trackLengths)
 {
   gAccumulatedEnergy += energy;
   gAccumulatedEvents += events;
   gAccumulatedReactionCounter.Merge(reactions);
   gAccumulatedInteractionCounter.Merge(interactions);
   gAccumulatedMesoSpeciesCounter.Merge(mesoSpecies);
+  gAccumulatedTrackLengthTable.Merge(trackLengths);
   gHasPendingData = true;
 }
 
@@ -60,6 +63,11 @@ const MesoSpeciesCounter &RunAccumulator::GetAccumulatedMesoSpeciesCounter()
   return gAccumulatedMesoSpeciesCounter;
 }
 
+const TrackLengthTable &RunAccumulator::GetAccumulatedTrackLengthTable()
+{
+  return gAccumulatedTrackLengthTable;
+}
+
 void RunAccumulator::AddRunEntry(const DataNode &entry)
 {
   gRunEntries.push_back(entry);
@@ -77,6 +85,7 @@ void RunAccumulator::ClearAccumulated()
   gAccumulatedReactionCounter.Clear();
   gAccumulatedInteractionCounter.Clear();
   gAccumulatedMesoSpeciesCounter.Clear();
+  gAccumulatedTrackLengthTable.Clear();
   gRunEntries.clear();
   gHasPendingData = false;
 }

@@ -21,7 +21,8 @@ static void TestAccumulateSetsPendingFlag()
   ReactionCounter reactions;
   PhysicsInteractionCounter interactions;
   MesoSpeciesCounter meso;
-  RunAccumulator::Accumulate(1 * CLHEP::keV, 0, reactions, interactions, meso);
+  TrackLengthTable trackLengths;
+  RunAccumulator::Accumulate(1 * CLHEP::keV, 0, reactions, interactions, meso, trackLengths);
 
   assert(RunAccumulator::HasPendingData());
 
@@ -35,8 +36,9 @@ static void TestAccumulateSumsEnergyAcrossCalls()
   ReactionCounter reactions;
   PhysicsInteractionCounter interactions;
   MesoSpeciesCounter meso;
-  RunAccumulator::Accumulate(1 * CLHEP::keV, 0, reactions, interactions, meso);
-  RunAccumulator::Accumulate(2 * CLHEP::keV, 0, reactions, interactions, meso);
+  TrackLengthTable trackLengths;
+  RunAccumulator::Accumulate(1 * CLHEP::keV, 0, reactions, interactions, meso, trackLengths);
+  RunAccumulator::Accumulate(2 * CLHEP::keV, 0, reactions, interactions, meso, trackLengths);
 
   assert(RunAccumulator::GetAccumulatedEnergy() == 3 * CLHEP::keV);
 
@@ -50,8 +52,9 @@ static void TestAccumulateSumsEventsAcrossCalls()
   ReactionCounter reactions;
   PhysicsInteractionCounter interactions;
   MesoSpeciesCounter meso;
-  RunAccumulator::Accumulate(0., 2, reactions, interactions, meso);
-  RunAccumulator::Accumulate(0., 3, reactions, interactions, meso);
+  TrackLengthTable trackLengths;
+  RunAccumulator::Accumulate(0., 2, reactions, interactions, meso, trackLengths);
+  RunAccumulator::Accumulate(0., 3, reactions, interactions, meso, trackLengths);
 
   assert(RunAccumulator::GetAccumulatedEvents() == 5);
 
@@ -66,9 +69,10 @@ static void TestAccumulateMergesReactionCounts()
   reactions.Record("H + H -> H2", 1 * CLHEP::picosecond);
   PhysicsInteractionCounter interactions;
   MesoSpeciesCounter meso;
+  TrackLengthTable trackLengths;
 
-  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso);
-  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso);
+  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso, trackLengths);
+  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso, trackLengths);
 
   assert(RunAccumulator::GetAccumulatedReactionCounter()
              .GetCounts().at(1 * CLHEP::picosecond).at("H + H -> H2") == 2);
@@ -84,9 +88,10 @@ static void TestAccumulateMergesInteractionCounts()
   PhysicsInteractionCounter interactions;
   interactions.Record("e-_G4DNAIonisation");
   MesoSpeciesCounter meso;
+  TrackLengthTable trackLengths;
 
-  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso);
-  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso);
+  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso, trackLengths);
+  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso, trackLengths);
 
   assert(RunAccumulator::GetAccumulatedInteractionCounter()
              .GetCounts().at("e-_G4DNAIonisation") == 2);
@@ -103,8 +108,9 @@ static void TestAccumulateDoesNotModifyItsInputs()
   PhysicsInteractionCounter interactions;
   interactions.Record("e-_G4DNAIonisation");
   MesoSpeciesCounter meso;
+  TrackLengthTable trackLengths;
 
-  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso);
+  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso, trackLengths);
 
   assert(reactions.GetCounts().at(1 * CLHEP::picosecond).at("H + H -> H2") == 1);
   assert(interactions.GetCounts().at("e-_G4DNAIonisation") == 1);
@@ -119,14 +125,51 @@ static void TestAccumulateMergesMesoSpeciesCounts()
   ReactionCounter reactions;
   PhysicsInteractionCounter interactions;
   MesoSpeciesCounter meso;
+  TrackLengthTable trackLengths;
   meso.Add(5., "OH^0", 3);
 
-  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso);
-  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso);
+  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso, trackLengths);
+  RunAccumulator::Accumulate(0., 0, reactions, interactions, meso, trackLengths);
 
   assert(!RunAccumulator::GetAccumulatedMesoSpeciesCounter().Empty());
   assert(RunAccumulator::GetAccumulatedMesoSpeciesCounter().GetCounts().at(5.).at("OH^0") == 6);
   assert(meso.GetCounts().at(5.).at("OH^0") == 3);
+
+  RunAccumulator::ClearAccumulated();
+}
+
+static void TestAccumulateMergesTrackLengthRowsAcrossRuns()
+{
+  RunAccumulator::ClearAccumulated();
+
+  ReactionCounter reactions;
+  PhysicsInteractionCounter interactions;
+  MesoSpeciesCounter meso;
+
+  TrackLengthTable run0;
+  TrackLengthTable::Row row;
+  row.run = 0;
+  row.event = 0;
+  row.primaryLength_nm = 2500.;
+  run0.Add(row);
+  row.event = 1;
+  run0.Add(row);
+
+  TrackLengthTable run1;
+  row.run = 1;
+  row.event = 0;
+  run1.Add(row);
+
+  RunAccumulator::Accumulate(0., 2, reactions, interactions, meso, run0);
+  RunAccumulator::Accumulate(0., 1, reactions, interactions, meso, run1);
+
+  const TrackLengthTable &acc = RunAccumulator::GetAccumulatedTrackLengthTable();
+  assert(acc.Size() == 3);
+  assert(acc.GetRows()[2].run == 1);
+  assert(acc.GetRows()[0].primaryLength_nm == 2500.);
+  // Inputs are left unmodified.
+  assert(run0.Size() == 2);
+  assert(run1.Size() == 1);
 
   RunAccumulator::ClearAccumulated();
 }
@@ -140,8 +183,12 @@ static void TestClearAccumulatedResetsEverything()
   PhysicsInteractionCounter interactions;
   interactions.Record("e-_G4DNAIonisation");
   MesoSpeciesCounter meso;
+  TrackLengthTable trackLengths;
   meso.Add(5., "OH^0", 3);
-  RunAccumulator::Accumulate(5 * CLHEP::keV, 4, reactions, interactions, meso);
+  TrackLengthTable::Row row;
+  row.event = 1;
+  trackLengths.Add(row);
+  RunAccumulator::Accumulate(5 * CLHEP::keV, 4, reactions, interactions, meso, trackLengths);
 
   RunAccumulator::ClearAccumulated();
 
@@ -151,6 +198,7 @@ static void TestClearAccumulatedResetsEverything()
   assert(RunAccumulator::GetAccumulatedReactionCounter().GetCounts().empty());
   assert(RunAccumulator::GetAccumulatedInteractionCounter().GetCounts().empty());
   assert(RunAccumulator::GetAccumulatedMesoSpeciesCounter().Empty());
+  assert(RunAccumulator::GetAccumulatedTrackLengthTable().Empty());
 }
 
 // --- TryReservePrefix --------------------------------------------------
@@ -264,6 +312,7 @@ int main()
   TestAccumulateMergesInteractionCounts();
   TestAccumulateDoesNotModifyItsInputs();
   TestAccumulateMergesMesoSpeciesCounts();
+  TestAccumulateMergesTrackLengthRowsAcrossRuns();
 
   TestClearAccumulatedResetsEverything();
 

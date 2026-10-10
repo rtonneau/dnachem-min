@@ -27,6 +27,8 @@ Macro lines that differ per case (the rest is `/gun/particle e-`, `/gun/energy 1
   EndOfRun_ReactionsMetadata.csv
   EndOfRun_PhysicsInteractions.Txt
   EndOfRun_PhysicsInteractions.csv
+  EndOfRun_TrackLengths.Txt
+  EndOfRun_TrackLengths.csv
   EndOfRun_SpeciesMeso.Txt
   EndOfRun_SpeciesMeso.csv
   EndOfRun_PreChemical_run0_event0.txt
@@ -60,6 +62,8 @@ Macro lines that differ per case (the rest is `/gun/particle e-`, `/gun/energy 1
   EndOfRun_ReactionsMetadata.csv
   EndOfRun_PhysicsInteractions.Txt
   EndOfRun_PhysicsInteractions.csv
+  EndOfRun_TrackLengths.Txt
+  EndOfRun_TrackLengths.csv
   EndOfRun_SpeciesMeso.Txt
   EndOfRun_SpeciesMeso.csv
   EndOfRun_SpeciesMesoSpatial.h5
@@ -94,6 +98,8 @@ Macro lines that differ per case (the rest is `/gun/particle e-`, `/gun/energy 1
   EndOfRun_ReactionsMetadata.csv
   EndOfRun_PhysicsInteractions.Txt
   EndOfRun_PhysicsInteractions.csv
+  EndOfRun_TrackLengths.Txt
+  EndOfRun_TrackLengths.csv
   EndOfRun_PreChemical_run0_event0.txt
   EndOfRun_...
   .pending_prechem/            (empty)

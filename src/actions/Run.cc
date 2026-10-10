@@ -4,6 +4,7 @@
 #include "scoring/ScoreSpecies.hh"
 #include "chemistry/TimeStepAction.hh"
 #include "actions/SteppingAction.hh"
+#include "actions/TrackingAction.hh"
 
 #include "G4Event.hh"
 #include "G4HCofThisEvent.hh"
@@ -18,7 +19,7 @@
 
 #include <map>
 
-Run::Run() : G4Run(), fSumEne(0), fScorerRun(0), fReactionCounter(nullptr), fInteractionCounter(nullptr), fMesoSpeciesCounter(nullptr)
+Run::Run() : G4Run(), fSumEne(0), fScorerRun(0), fReactionCounter(nullptr), fInteractionCounter(nullptr), fMesoSpeciesCounter(nullptr), fTrackLengthTable(nullptr)
 {
     G4MultiFunctionalDetector *mfdet = dynamic_cast<G4MultiFunctionalDetector *>(
         G4SDManager::GetSDMpointer()->FindSensitiveDetector("mfDetector"));
@@ -37,6 +38,11 @@ Run::Run() : G4Run(), fSumEne(0), fScorerRun(0), fReactionCounter(nullptr), fInt
         dynamic_cast<const SteppingAction *>(G4RunManager::GetRunManager()->GetUserSteppingAction()));
     fInteractionCounter =
         (steppingAction != nullptr) ? &steppingAction->GetInteractionCounter() : &fOwnedInteractionCounter;
+
+    auto *trackingAction = const_cast<TrackingAction *>(
+        dynamic_cast<const TrackingAction *>(G4RunManager::GetRunManager()->GetUserTrackingAction()));
+    fTrackLengthTable =
+        (trackingAction != nullptr) ? &trackingAction->GetTrackLengthTable() : &fOwnedTrackLengthTable;
 
     fSeed = G4Random::getTheEngine()->getSeed();
 }
@@ -100,6 +106,7 @@ void Run::Merge(const G4Run *aRun)
     fReactionCounter->Merge(*localRun->fReactionCounter);
     fInteractionCounter->Merge(*localRun->fInteractionCounter);
     fMesoSpeciesCounter->Merge(*localRun->fMesoSpeciesCounter);
+    fTrackLengthTable->Merge(*localRun->fTrackLengthTable);
 
     G4Run::Merge(aRun);
 }

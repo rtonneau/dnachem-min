@@ -141,3 +141,16 @@ position. One file per event, including an empty one when the event made none. I
 belongs to the **Dump** that covers its run and is listed in that dump's **Manifest**.
 _Avoid_: "output_event file", "chemistry output" (the chemical stage's own results are
 the species and reaction files).
+
+**Primary track**:
+The path of the one particle the gun fires per event (track 1), through the physical
+stage only: its length, its kinetic energy at start and end, and how it ended
+(stopped in the water, escaped the box, or killed by the primary killer).
+_Avoid_: "primary particle" for the length (the particle is the thing, the track is its path).
+
+**Secondary electron**:
+Any electron of an event other than the primary, whatever its generation (the whole
+delta-ray tree). A **First-generation secondary electron** is one whose parent is
+the primary itself. Their summed track lengths and counts are recorded per event.
+_Avoid_: "delta electron" (usually implies an energy threshold), "daughter" alone
+(ambiguous between first generation and all generations).

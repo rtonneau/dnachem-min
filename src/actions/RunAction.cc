@@ -47,14 +47,16 @@ void RunAction::BeginOfRunAction(const G4Run *run)
     if (G4DNAChemistryManager::GetInstanceIfExists() != nullptr)
         G4DNAChemistryManager::GetInstanceIfExists()->BeginOfRunAction(run);
 
-    // Give the reaction/interaction/meso-species counters a per-run lifetime. On a thread
-    // that owns the TimeStepAction/SteppingAction (Serial master, MT worker)
+    // Give the reaction/interaction/meso-species counters and the track-length
+    // table a per-run lifetime. On a thread that owns the
+    // TimeStepAction/SteppingAction/TrackingAction (Serial master, MT worker)
     // the new Run points at their live, persistent counters; on the MT master
     // it points at its own, already empty ones. This is the only reset.
     auto *thisRun = static_cast<const Run *>(run);
     thisRun->GetReactionCounter()->Clear();
     thisRun->GetInteractionCounter()->Clear();
     thisRun->GetMesoSpeciesCounter()->Clear();
+    thisRun->GetTrackLengthTable()->Clear();
 
     if (IsMaster())
     {
@@ -102,7 +104,8 @@ void RunAction::EndOfRunAction(const G4Run *run)
         RunAccumulator::Accumulate(masterRun->GetSumDose(), nofEvents,
                                     *masterRun->GetReactionCounter(),
                                     *masterRun->GetInteractionCounter(),
-                                    *masterRun->GetMesoSpeciesCounter());
+                                    *masterRun->GetMesoSpeciesCounter(),
+                                    *masterRun->GetTrackLengthTable());
 
         // One entry per run for the dump's manifest (beam, events, seed,
         // this run's energy deposit, Begin->EndOfRunAction wall time).

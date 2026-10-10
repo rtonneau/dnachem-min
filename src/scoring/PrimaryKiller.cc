@@ -9,6 +9,21 @@
 
 #include <G4UnitsTable.hh>
 
+namespace
+{
+// Set when track 1 is killed by a PrimaryKiller on this thread; reset at the
+// start of each event (Initialize). Thread-local: each MT worker tracks its
+// own events.
+G4ThreadLocal G4bool gPrimaryKilled = false;
+}  // namespace
+
+G4bool PrimaryKiller::PrimaryKilledThisEvent()
+{
+  return gPrimaryKilled;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
+
 PrimaryKiller::PrimaryKiller(G4String name, G4int depth)
     : G4VPrimitiveScorer(name, depth), G4UImessenger()
 {
@@ -70,6 +85,8 @@ G4bool PrimaryKiller::ProcessHits(G4Step *aStep, G4TouchableHistory *)
   if (std::abs(pos.x()) > this->fPhantomSize.getX() / 2 || std::abs(pos.y()) > this->fPhantomSize.getY() / 2 || std::abs(pos.z()) > this->fPhantomSize.getZ() / 2)
   {
     ((G4Track *)track)->SetTrackStatus(G4TrackStatus::fStopAndKill);
+    if (track->GetTrackID() == 1)
+      gPrimaryKilled = true;
     return FALSE;
   }
 
@@ -114,6 +131,7 @@ G4bool PrimaryKiller::ProcessHits(G4Step *aStep, G4TouchableHistory *)
   if (this->fELoss >= this->fELossRange_Min || kineticE <= this->fKineticE_Min)
   {
     ((G4Track *)track)->SetTrackStatus(G4TrackStatus::fStopAndKill);
+    gPrimaryKilled = true; // only track 1 (e-) reaches this branch
     if (this->fVerbose > 0)
     {
       G4cout << "kill track at : " << '\n'
@@ -135,7 +153,9 @@ G4bool PrimaryKiller::ProcessHits(G4Step *aStep, G4TouchableHistory *)
 
 void PrimaryKiller::Initialize(G4HCofThisEvent * /*HCE*/)
 {
+  // Called once per event (G4SDManager::PrepareNewEvent), before tracking.
   fELoss = 0.;
+  gPrimaryKilled = false;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
