@@ -1055,3 +1055,16 @@ Skipped at 2026-10-09T21:29:50.0342184+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.wor
 Skipped at 2026-10-09T21:30:20.6379893+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\analysis\README.md
 Skipped at 2026-10-09T21:31:37.5016893+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\03-implement\07-comparison-analysis-script\commit-log.md
 Skipped at 2026-10-09T21:33:07.8625106+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\.changelog-payload.md
+Skipped at 2026-10-10T13:33:24.4153277+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-10__primary-and-secondary-tracklength-scorers\.write-payload.md
+Skipped at 2026-10-10T13:34:10.6263014+02:00: C:\Users\rtonneau\AppData\Local\Temp\claude\C--Users-rtonneau-DEV-GEANT4-SIM-dnachem-min\0dc84259-773e-42ef-a45a-6e62bc629b3f\scratchpad\tickets.md
+Skipped at 2026-10-10T14:04:32.7083179+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\scoring\TrackLengthTable.hh
+Triggered at 2026-10-10T14:04:33.2409026+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\scoring\TrackLengthTable.cc
+Completed at 2026-10-10T14:04:35.9752451+02:00: copied compile_commands.json
+Triggered at 2026-10-10T14:04:36.4140326+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\test\TrackLengthTableTest.cc
+Completed at 2026-10-10T14:04:38.7280190+02:00: copied compile_commands.json
+Skipped at 2026-10-10T14:04:39.1863631+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\CMakeLists.txt
+Skipped at 2026-10-10T14:07:11.3400089+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\header\actions\TrackingAction.hh
+Triggered at 2026-10-10T14:07:11.7772098+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\dnachem-min\src\actions\TrackingAction.cc
+Completed at 2026-10-10T14:07:14.1554974+02:00: copied compile_commands.json
+Skipped at 2026-10-10T14:08:19.3671741+02:00: C:\Users\rtonneau\AppData\Local\Temp\claude\C--Users-rtonneau-DEV-GEANT4-SIM-dnachem-min\0dc84259-773e-42ef-a45a-6e62bc629b3f\scratchpad\wire.py
+Skipped at 2026-10-10T14:08:37.4461254+02:00: C:\Users\rtonneau\AppData\Local\Temp\claude\C--Users-rtonneau-DEV-GEANT4-SIM-dnachem-min\0dc84259-773e-42ef-a45a-6e62bc629b3f\scratchpad\test_edit.py
