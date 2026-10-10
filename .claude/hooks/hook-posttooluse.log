@@ -1008,3 +1008,50 @@ Skipped at 2026-10-08T23:16:33.2203674+02:00: C:\Users\rtonneau\DEV\GEANT4\SIM\d
 Skipped at 2026-10-09T11:42:10.9092023+02:00: C:\DEV\GEANT4\SIM\dnachem-min\build\macro\smoke_check.in
 Skipped at 2026-10-09T15:09:38.8225692+02:00: C:\Users\rtonneau\dump_session.ps1
 Skipped at 2026-10-09T15:25:19.9619417+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\retro\2026-10-09__session-retro.md
+Skipped at 2026-10-09T18:32:23.1953312+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\.write-payload.md
+Skipped at 2026-10-09T18:38:18.6288110+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\.write-payload.md
+Triggered at 2026-10-09T18:41:29.1583262+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\physics\PhysicsList.cc
+Completed at 2026-10-09T18:41:40.5526362+02:00: copied compile_commands.json
+Triggered at 2026-10-09T18:41:41.2368786+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\physics\PhysicsList.cc
+Completed at 2026-10-09T18:41:45.8429212+02:00: copied compile_commands.json
+Skipped at 2026-10-09T18:48:39.3393788+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\03-implement\01-physics-option2\commit-log.md
+Triggered at 2026-10-09T18:49:12.4327479+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\scoring\ScoreSpecies.cc
+Completed at 2026-10-09T18:49:17.6583267+02:00: copied compile_commands.json
+Skipped at 2026-10-09T19:04:28.5324516+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\03-implement\02-species-time-grid\commit-log.md
+Skipped at 2026-10-09T19:05:35.7966248+02:00: C:\DEV\GEANT4\SIM\dnachem-min\header\chemistry\catalog\Farokhi2023Reactions.hh
+Triggered at 2026-10-09T19:05:56.8334616+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\chemistry\catalog\Farokhi2023Reactions.cc
+Completed at 2026-10-09T19:06:02.4792583+02:00: copied compile_commands.json
+Triggered at 2026-10-09T19:06:10.4008690+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\chemistry\BuiltInChemistries.cc
+Completed at 2026-10-09T19:06:15.6198646+02:00: copied compile_commands.json
+Triggered at 2026-10-09T19:06:16.2614534+02:00: C:\DEV\GEANT4\SIM\dnachem-min\src\chemistry\BuiltInChemistries.cc
+Completed at 2026-10-09T19:06:21.9274241+02:00: copied compile_commands.json
+Skipped at 2026-10-09T19:06:38.5863354+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-10-09T19:06:39.2995454+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-10-09T19:10:02.2571569+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\03-implement\03-farokhi2023-chemistry\commit-log.md
+Skipped at 2026-10-09T19:11:25.4587825+02:00: C:\DEV\GEANT4\SIM\dnachem-min\CLAUDE.md
+Skipped at 2026-10-09T19:12:10.2793505+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\03-implement\04-primarykiller-validation\commit-log.md
+Skipped at 2026-10-09T19:12:47.4672659+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_proton_o2_0pct.in
+Skipped at 2026-10-09T19:12:48.1648796+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_proton_o2_3pct.in
+Skipped at 2026-10-09T19:12:48.8127913+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_proton_o2_7pct.in
+Skipped at 2026-10-09T19:12:49.4535888+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_proton_o2_21pct.in
+Skipped at 2026-10-09T20:43:07.9740048+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\03-implement\05-proton-macros\commit-log.md
+Skipped at 2026-10-09T20:59:28.1871883+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_proton_o2_0pct.in
+Skipped at 2026-10-09T20:59:37.9697363+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_proton_o2_3pct.in
+Skipped at 2026-10-09T20:59:46.6933906+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_proton_o2_7pct.in
+Skipped at 2026-10-09T20:59:55.7856115+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_proton_o2_21pct.in
+Skipped at 2026-10-09T21:01:40.1268817+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\03-implement\05-proton-macros\commit-log.md
+Skipped at 2026-10-09T21:02:46.0886476+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_electron_o2_0pct.in
+Skipped at 2026-10-09T21:02:46.6757787+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_electron_o2_2p5pct.in
+Skipped at 2026-10-09T21:02:47.3414563+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_electron_o2_5pct.in
+Skipped at 2026-10-09T21:02:48.0416570+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_electron_o2_21pct.in
+Skipped at 2026-10-09T21:10:23.0943745+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_electron_o2_0pct.in
+Skipped at 2026-10-09T21:10:26.0701090+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_electron_o2_2p5pct.in
+Skipped at 2026-10-09T21:10:31.3937490+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_electron_o2_5pct.in
+Skipped at 2026-10-09T21:10:34.3892848+02:00: C:\DEV\GEANT4\SIM\dnachem-min\macro\beam_farokhi_electron_o2_21pct.in
+Skipped at 2026-10-09T21:22:43.3676883+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\03-implement\06-electron-macros\commit-log.md
+Skipped at 2026-10-09T21:29:22.1292045+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\analysis\compare_farokhi2023.py
+Skipped at 2026-10-09T21:29:49.3109655+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\analysis\compare_farokhi2023.py
+Skipped at 2026-10-09T21:29:50.0342184+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\analysis\compare_farokhi2023.py
+Skipped at 2026-10-09T21:30:20.6379893+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\analysis\README.md
+Skipped at 2026-10-09T21:31:37.5016893+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\03-implement\07-comparison-analysis-script\commit-log.md
+Skipped at 2026-10-09T21:33:07.8625106+02:00: C:\DEV\GEANT4\SIM\dnachem-min\.work\sessions\2026-10-09__farokhi2023-flash-oxygen-depletion-chemistry-layout-90-mev\.changelog-payload.md

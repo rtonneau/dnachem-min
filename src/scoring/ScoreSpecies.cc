@@ -28,6 +28,8 @@
 #include <G4SystemOfUnits.hh>
 #include <globals.hh>
 
+#include <cmath>
+
 /**
  \file ScoreSpecies.cc
  \class ScoreSpecies
@@ -47,12 +49,13 @@ ScoreSpecies::ScoreSpecies(G4String name, G4int depth)
       fEvtMap(0)
 {
   fNEvent = 0;
-  AddTimeToRecord(1 * CLHEP::picosecond);
-  AddTimeToRecord(10 * CLHEP::picosecond);
-  AddTimeToRecord(100 * CLHEP::picosecond);
-  AddTimeToRecord(1000 * CLHEP::picosecond);
-  AddTimeToRecord(10000 * CLHEP::picosecond);
-  AddTimeToRecord(100000 * CLHEP::picosecond);
+  // 10 log-spaced points per decade from 1 ps to 1 us (6 decades: exponents
+  // 0.0, 0.1, ..., 5.9), then an explicit point just under 1 us (999999 ps,
+  // not 1e6 ps) as a safety margin below the scheduler's default 1 us end
+  // time -- same margin the previous hardcoded list used.
+  for (int i = 0; i < 60; ++i) {
+    AddTimeToRecord(std::pow(10.0, i / 10.0) * CLHEP::picosecond);
+  }
   AddTimeToRecord(999999 * CLHEP::picosecond);
   fEdep = 0;
 }
