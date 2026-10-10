@@ -104,6 +104,7 @@ resets all counters to empty/zero:
   excluded). `PhysicsInteractionCounter` is recorded live per step by
   `SteppingAction`, merged across worker threads in `Run::Merge`, and
   accumulated across runs by `RunAccumulator`, same as the reaction counts.
+- `TrackLengths.Txt` (space-separated, `#` header line) and `TrackLengths.csv` (comma-separated, header row): one row per non-aborted event, sorted by run then event, with columns `run,event,primaryLength_nm,primaryEkin0_keV,primaryEkinEnd_keV,primaryEnd,secondaryFirstGen_nm,nSecondaryFirstGen,secondaryAll_nm,nSecondaryAll`. Lengths are in nm and kinetic energies in keV. `primaryEnd` is `stopped` (the primary stayed in the water), `escaped` (it left the world, no next volume) or `killed` (`PrimaryKiller` stopped track 1). The secondary columns sum over every electron (PDG 11) other than track 1: `secondaryFirstGen_*` only those whose parent is track 1, `secondaryAll_*` the whole delta-ray tree. Events aborted by `PrimaryKiller` (`/primaryKiller/eLossMax`) are skipped, as in `Run::RecordEvent`. Rows accumulate across `/run/beamOn` calls like the other counters and are cleared by each dump; both files are written at every dump, with the prefix and subfolder rules above. The manifest's `trackLengths` object summarises the same rows: `events`, the `stopped`/`escaped`/`killed` counts, and `mean`/`sem` per quantity (`null` when there are no events).
 
 `prefix` (optional, default none) is prepended literally to every filename
 above — no separator is inserted, so pass e.g. `run1_` if you want one.

@@ -38,6 +38,7 @@ Plain dump (`/run/dumpDataAndReset`):
   Species.Txt, Species_nt_species.csv
   Reactions.Txt, Reactions_nt_reactions.csv, ReactionsMetadata.csv
   PhysicsInteractions.Txt, PhysicsInteractions.csv
+  TrackLengths.Txt, TrackLengths.csv
   SpeciesMeso.Txt, SpeciesMeso.csv
   PreChemical_run0_event0.txt, PreChemical_run0_event1.txt
   .pending_prechem/            (empty after the dump)
@@ -96,6 +97,7 @@ produces the content.
 | `Reactions.Txt` | Bimolecular reaction firing counts per time bin, particle-based stage only | `src/scoring/ReactionCounter.cc` | every dump | 2 KB |
 | `Reactions_nt_reactions.csv` | CSV ntuple `reactionId,time,count` | `ReactionCounter.cc` | every dump | under 1 KB |
 | `ReactionsMetadata.csv` | `reactionId,reaction` label map for the ntuple | `ReactionCounter.cc` | every dump | under 1 KB |
+| `TrackLengths.Txt` / `.csv` | Per-event primary track length, start/end kinetic energy, end reason (`stopped`/`escaped`/`killed`), secondary-electron lengths and counts; aborted events skipped | `src/scoring/TrackLengthTable.cc` | every dump | about 120 B per event |
 | `PhysicsInteractions.Txt` / `.csv` | Firing counts per discrete `G4DNA` physics process (totals, no time bins) | `src/scoring/PhysicsInteractionCounter.cc` | every dump | about 200 B |
 | `SpeciesMeso.Txt` | Mean count per event vs. time for the mesoscopic stage (hand-over time to end time, log grid) | `src/scoring/MesoSpeciesCounter.cc` | every dump with the mesoscopic stage on; not written when it is off | about 9 KB at 1 ms end time |
 | `SpeciesMeso.csv` | Rows `time_ns,species,count` (counts summed over events) | `MesoSpeciesCounter.cc` | same as above | about 15 KB at 1 ms end time |

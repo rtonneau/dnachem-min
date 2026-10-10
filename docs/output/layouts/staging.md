@@ -41,6 +41,8 @@ After the dump (a flat dump with an empty prefix: the dump's manifest and the re
   ReactionsMetadata.csv
   PhysicsInteractions.Txt
   PhysicsInteractions.csv
+  TrackLengths.Txt
+  TrackLengths.csv
   SpeciesMeso.Txt
   SpeciesMeso.csv
   PreChemical_run0_event0.txt
@@ -87,6 +89,8 @@ After the dump (a flat dump with an empty prefix: the dump's manifest and the re
   ReactionsMetadata.csv
   PhysicsInteractions.Txt
   PhysicsInteractions.csv
+  TrackLengths.Txt
+  TrackLengths.csv
   SpeciesMeso.Txt
   SpeciesMeso.csv
   SpeciesMesoSpatial.h5
@@ -132,6 +136,8 @@ After the dump (a flat dump with an empty prefix: the dump's manifest and the re
   ReactionsMetadata.csv
   PhysicsInteractions.Txt
   PhysicsInteractions.csv
+  TrackLengths.Txt
+  TrackLengths.csv
   PreChemical_run0_event0.txt
   ...
   .pending_prechem/            (empty)
