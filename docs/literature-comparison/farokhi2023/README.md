@@ -156,6 +156,31 @@ proxy agrees within SEM across the two box sizes** (0.186 +/- 0.013 keV/um at 10
 depend on box size, passes. Comparing beams, the 90 MeV proton's LET proxy (0.186 keV/um) is
 about 3x the 500 keV electron's (0.061 keV/um), the expected qualitative ordering.
 
+## Box-size check, re-run with instrumented track lengths (10/20/40 um box edge)
+
+`farokhi2023_proton_boxsize_gvalues.png` now overlays three box sizes: 10x10x10 um^3
+(16 events, solid, unchanged from the original run), 20x20x20 um^3 (50 events, dashed,
+re-run at `261010_Farokhi2023_proton_20um_tracklen/` after the TrackLengths scorer
+landed, superseding the earlier 24-event pre-tracklength run) and 40x40x40 um^3 (50
+events, dotted, new). All three agree within SEM across the full 1 ps-1 us window for
+every species and O2 level -- the diffusion boundary is not visibly truncating the
+result even at 40 um.
+
+`track_length_vs_energy_loss.py` uses the real per-event `TrackLengths.csv` scorer
+output (not the path-length/LET proxy below) to plot primary energy loss against
+primary length, secondary (all-generation) track length and secondary electron count,
+one point per event, 20 um vs. 40 um box. Primary length is essentially fixed by box
+geometry (10.0000 um / 20.0000 um, negligible spread); the genuinely free per-event
+variable is energy loss, and both secondary track length and secondary count track it
+closely and roughly linearly. The energy-loss distribution is right-skewed (sample std
+dev is close to the mean at both box sizes, e.g. 20 um: ~9.5 keV std dev on a 9.5 keV
+mean) -- a handful of high-energy-loss events pull the mean well above the median (20 um:
+mean 9.497 keV vs. median 6.491 keV), consistent with occasional larger-angle delta-ray
+collisions. The median-based LET (20 um: 0.649 keV/um; 40 um: 0.733 keV/um) sits much
+closer to the ~0.57 keV/um NIST-PSTAR-based figure already used in the proton macros'
+header comments than the mean-based LET does (0.95, 1.08 keV/um) -- see
+`track_length_vs_energy_loss.md` for the full table and caveats.
+
 ## Caveats (indicative only, not a reproduction)
 
 - dnachem-min models a single homogeneous water box (10x10x10 um^3 for the proton runs, 500 um

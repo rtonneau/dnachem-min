@@ -15,9 +15,13 @@ unset -- machine-specific, see README.md):
 - 261009_Farokhi2023_electron/o2_{0,2p5,5,21}pct -- 500 keV electron,
   Farokhi2023 chemistry, default 500 um box, PrimaryKiller eLossMin 5 keV,
   56 events each, 8 threads, same end time and recording grid.
-- 261010_Farokhi2023_proton_20um/o2_{0,3,7,21}pct -- same 90 MeV proton setup,
-  but a 20x20x20 um^3 box (/chem/env/halfBox 10 um) and 24 events each, to
-  check the box-size sensitivity of the 10x10x10 um^3 result above.
+- 261010_Farokhi2023_proton_20um_tracklen/o2_{0,3,7,21}pct -- same 90 MeV
+  proton setup, but a 20x20x20 um^3 box (/chem/env/halfBox 10 um) and 50
+  events each, 8 threads, run after the TrackLengths scorer landed (also
+  used by track_length_vs_energy_loss.py). Supersedes the earlier
+  261010_Farokhi2023_proton_20um/ (24 events, no TrackLengths output).
+- 261010_Farokhi2023_proton_40um_tracklen/o2_{0,3,7,21}pct -- same setup, a
+  40x40x40 um^3 box (/chem/env/halfBox 20 um), 50 events each, 8 threads.
 
 Writes, next to this script:
   - farokhi2023_proton_gvalues.png / farokhi2023_electron_gvalues.png:
@@ -29,9 +33,9 @@ Writes, next to this script:
     relative statistical uncertainty (SEM / mean, %) vs. time for the same
     species/O2-level combinations -- the "is there enough statistics" check.
   - farokhi2023_proton_boxsize_gvalues.png: the same proton species panels,
-    10x10x10 um^3 (16 events, solid) vs. 20x20x20 um^3 (24 events, dashed)
-    overlaid per O2 level, to see whether the diffusion boundary at 10 um
-    half-box is biasing the result.
+    10x10x10 um^3 (16 events, solid), 20x20x20 um^3 (50 events, dashed) and
+    40x40x40 um^3 (50 events, dotted) overlaid per O2 level, to see whether
+    the diffusion boundary at 10/20 um half-box is biasing the result.
   - statistics_summary.md: a plain-text table of the worst (highest) relative
     SEM observed per species/O2-level/particle, and the fraction of the 61
     recorded times where it exceeds 25 %.
@@ -77,11 +81,13 @@ import matplotlib.pyplot as plt
 G4_DATA_OUTPUT = Path(os.environ.get("G4_DATA_OUTPUT", r"D:\DATA\Geant4"))
 PROTON_BASE = G4_DATA_OUTPUT / "261009_Farokhi2023_proton"
 ELECTRON_BASE = G4_DATA_OUTPUT / "261009_Farokhi2023_electron"
-PROTON_20UM_BASE = G4_DATA_OUTPUT / "261010_Farokhi2023_proton_20um"
+PROTON_20UM_BASE = G4_DATA_OUTPUT / "261010_Farokhi2023_proton_20um_tracklen"
+PROTON_40UM_BASE = G4_DATA_OUTPUT / "261010_Farokhi2023_proton_40um_tracklen"
 
 PROTON_RUNS = {0: "o2_0pct", 3: "o2_3pct", 7: "o2_7pct", 21: "o2_21pct"}
 ELECTRON_RUNS = {0: "o2_0pct", 2.5: "o2_2p5pct", 5: "o2_5pct", 21: "o2_21pct"}
 PROTON_20UM_RUNS = PROTON_RUNS
+PROTON_40UM_RUNS = PROTON_RUNS
 O2_COLORS = {0: "tab:blue", 3: "tab:green", 2.5: "tab:green", 7: "tab:orange", 5: "tab:orange", 21: "magenta"}
 
 SPECIES_CSV_NAME = "Species_nt_species.csv"
@@ -247,32 +253,29 @@ def plot_gvalues_electron(out_path, runs):
     plt.close(fig)
 
 
-def plot_proton_boxsize_comparison(out_path, runs_10um, runs_20um):
-    """10x10x10 um^3 (16 events) vs. 20x20x20 um^3 (24 events), per O2 level."""
+def plot_proton_boxsize_comparison(out_path, runs_10um, runs_20um, runs_40um):
+    """10x10x10 um^3 (16 ev) vs. 20x20x20 um^3 (50 ev) vs. 40x40x40 um^3 (50 ev), per O2 level."""
     species_list = ["OH", "H3Op", "H", "e_aq", "H2", "H2O2", "HO2", "O2m"]
+    box_series = [
+        (runs_10um, "-", "10 um", 16),
+        (runs_20um, "--", "20 um", 50),
+        (runs_40um, ":", "40 um", 50),
+    ]
     fig, axes = plt.subplots(2, 4, figsize=(18, 7.5), sharex=True)
     for ax, label in zip(axes.flat, species_list):
         csv_name = SPECIES_CSV_LABEL[label]
         for o2 in PROTON_RUNS:
-            pts10 = runs_10um[o2].get(csv_name, [])
-            pts20 = runs_20um[o2].get(csv_name, [])
-            if pts10:
-                t = [p[0] for p in pts10]
-                mean = [p[1] for p in pts10]
-                sem = [p[2] if not math.isnan(p[2]) else 0.0 for p in pts10]
+            for runs, linestyle, box_label, n_ev in box_series:
+                pts = runs[o2].get(csv_name, [])
+                if not pts:
+                    continue
+                t = [p[0] for p in pts]
+                mean = [p[1] for p in pts]
+                sem = [p[2] if not math.isnan(p[2]) else 0.0 for p in pts]
                 lo = [m - s for m, s in zip(mean, sem)]
                 hi = [m + s for m, s in zip(mean, sem)]
-                ax.plot(t, mean, color=O2_COLORS[o2], linestyle="-",
-                         label=f"10 um, {o2}% O2 (16 ev)")
-                ax.fill_between(t, lo, hi, color=O2_COLORS[o2], alpha=0.2, linewidth=0)
-            if pts20:
-                t = [p[0] for p in pts20]
-                mean = [p[1] for p in pts20]
-                sem = [p[2] if not math.isnan(p[2]) else 0.0 for p in pts20]
-                lo = [m - s for m, s in zip(mean, sem)]
-                hi = [m + s for m, s in zip(mean, sem)]
-                ax.plot(t, mean, color=O2_COLORS[o2], linestyle="--",
-                         label=f"20 um, {o2}% O2 (24 ev)")
+                ax.plot(t, mean, color=O2_COLORS[o2], linestyle=linestyle,
+                         label=f"{box_label}, {o2}% O2 ({n_ev} ev)")
                 ax.fill_between(t, lo, hi, color=O2_COLORS[o2], alpha=0.2, linewidth=0)
         ax.set_xscale("log")
         ax.set_xlim(1e-12, 1e-6)
@@ -288,7 +291,7 @@ def plot_proton_boxsize_comparison(out_path, runs_10um, runs_20um):
     fig.legend(seen.values(), seen.keys(), loc="lower center", ncol=4, bbox_to_anchor=(0.5, -0.05), fontsize=8)
     fig.suptitle(
         "dnachem-min box-size check -- 90 MeV proton, 10x10x10 um^3 (solid, 16 ev) vs. "
-        "20x20x20 um^3 (dashed, 24 ev), shaded = +-1 SEM")
+        "20x20x20 um^3 (dashed, 50 ev) vs. 40x40x40 um^3 (dotted, 50 ev), shaded = +-1 SEM")
     fig.tight_layout(rect=(0, 0.08, 1, 0.95))
     fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
@@ -372,11 +375,12 @@ def main():
     proton_runs = {o2: load_series(PROTON_BASE / name) for o2, name in PROTON_RUNS.items()}
     electron_runs = {o2: load_series(ELECTRON_BASE / name) for o2, name in ELECTRON_RUNS.items()}
     proton_20um_runs = {o2: load_series(PROTON_20UM_BASE / name) for o2, name in PROTON_20UM_RUNS.items()}
+    proton_40um_runs = {o2: load_series(PROTON_40UM_BASE / name) for o2, name in PROTON_40UM_RUNS.items()}
 
     plot_gvalues_proton(out_dir / "farokhi2023_proton_gvalues.png", proton_runs)
     plot_gvalues_electron(out_dir / "farokhi2023_electron_gvalues.png", electron_runs)
     plot_proton_boxsize_comparison(
-        out_dir / "farokhi2023_proton_boxsize_gvalues.png", proton_runs, proton_20um_runs)
+        out_dir / "farokhi2023_proton_boxsize_gvalues.png", proton_runs, proton_20um_runs, proton_40um_runs)
 
     proton_species = ["OH", "H3Op", "H", "e_aq", "H2", "H2O2", "HO2", "O2m"]
     electron_species = ["e_aq", "O2m", "H", "HO2"]
