@@ -68,6 +68,11 @@ target_link_libraries(PhysicsInteractionCounterTest ${Geant4_LIBRARIES})
 target_include_directories(PhysicsInteractionCounterTest PRIVATE ${project_include_dirs})
 add_test(NAME PhysicsInteractionCounterTest COMMAND PhysicsInteractionCounterTest)
 
+# Standalone unit test for TrackLengthTable (portable, standard library only).
+add_executable(TrackLengthTableTest test/TrackLengthTableTest.cc src/scoring/TrackLengthTable.cc)
+target_include_directories(TrackLengthTableTest PRIVATE ${project_include_dirs})
+add_test(NAME TrackLengthTableTest COMMAND TrackLengthTableTest)
+
 # Standalone unit test for DataNode + JsonWriter (portable ordered tree and
 # its generic JSON serialiser, std only -- no Geant4 link needed).
 add_executable(JsonWriterTest test/JsonWriterTest.cc src/scoring/DataNode.cc src/scoring/JsonWriter.cc)
