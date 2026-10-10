@@ -22,17 +22,24 @@ Run on 2026-10-09, output at `<G4_DATA_OUTPUT>/261009_Farokhi2023_{proton,electr
 conversion at 37 C, not dnachem-min's `%` scavenger shortcut (see the macros' header comments
 for the conversion).
 
+A follow-up box-size check for the proton run, same beam and O2 levels but a 20x20x20 um^3
+box (`/chem/env/halfBox 10 um`) and 24 events each, run on 2026-10-10 at
+`<G4_DATA_OUTPUT>/261010_Farokhi2023_proton_20um/o2_*`. See
+`farokhi2023_proton_boxsize_gvalues.png` below.
+
 ## Regenerating
 
 ```
 python plot_gvalues.py
 ```
 
-Reads `Species_nt_species.csv` directly (no re-running of the simulation). Writes 5 files
+Reads `Species_nt_species.csv` directly (no re-running of the simulation). Writes 6 files
 next to itself: `farokhi2023_{proton,electron}_gvalues.png` (G(t) curves, shaded = +-1 SEM,
 overlaid with hand-digitized reference points from the paper's Fig. 2/Fig. 5),
-`farokhi2023_{proton,electron}_relerr.png` (relative SEM vs. time -- the statistics check),
-and `statistics_summary.md` (the same check as a table).
+`farokhi2023_proton_boxsize_gvalues.png` (10x10x10 um^3 solid vs. 20x20x20 um^3 dashed, same
+species panels, no reference points -- a box-size sensitivity check, not a literature
+comparison), `farokhi2023_{proton,electron}_relerr.png` (relative SEM vs. time -- the
+statistics check), and `statistics_summary.md` (the same check as a table).
 
 ## Statistics: is there enough?
 
@@ -79,6 +86,18 @@ only partially better at 56 events (electron). Reproducing the paper's O2m/HO2 c
 precisely would need substantially more events (order 100-300, based on how slowly the proton
 relative-SEM table improves between the two event counts already run), concentrated on the
 higher O2 levels where these species are most populated.
+
+## Box-size check (10 um vs. 20 um half-box)
+
+`farokhi2023_proton_boxsize_gvalues.png` overlays the 10x10x10 um^3 proton run (16 events,
+solid) against the 20x20x20 um^3 run (24 events, dashed) at the same 4 O2 levels. For every
+species and O2 level except one, the two box sizes agree within their SEM bands across the
+full 1 ps - 1 us window -- the 10 um box is not visibly truncating the diffusion volume for
+this beam/O2 combination. The one exception is **H at 0 % O2**: the two curves separate after
+~1 ns (10 um plateaus near 0.87, 20 um near 0.78), a gap larger than either curve's SEM band.
+Given the otherwise clean agreement and the modest event counts (16/24) on both sides, this is
+plausibly a statistical fluctuation in one or both runs rather than a real box-size effect, but
+it has not been checked with a larger run.
 
 ## Caveats (indicative only, not a reproduction)
 
