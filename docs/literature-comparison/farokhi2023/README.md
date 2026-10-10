@@ -128,6 +128,34 @@ count scaling with deposited energy. The slightly higher ionisation/excitation r
 electron is consistent with its lower LET in this geometry, which favours ionisation over
 excitation somewhat more than the proton's denser track.
 
+## Path length / LET proxies
+
+`track_length_let.py` estimates, from the same `PreChemical_run<R>_event<E>.txt` files, a path
+length, an energy, and an LET (linear energy transfer) **proxy** for the primary track of each
+beam -- computed entirely from data already dumped, no new simulation code or reruns. Path
+length is the sum of Euclidean distances between consecutive primary-track (`ParentID == 1`)
+water-ionisation/excitation interaction points; energy is the sum of their discrete
+ionisation/excitation shell energies; LET = energy / path length. Writes
+`track_length_let_boxsize.png` (10 vs. 20 um proton), `track_length_let_proton_vs_electron.png`
+and `track_length_let.md` (full table and caveats) next to itself.
+
+**These are proxies, not the standard physical quantities** -- see the script docstring for the
+full derivation. In short: path length misses the geometric wiggle from steps that don't log a
+chemistry-stage species (elastic scattering, vibrational excitation), which is a negligible bias
+for the proton (near-straight track) but a likely real underestimate for the scattering-dominated
+electron; the energy sum excludes kinetic energy handed to secondary electrons, so it under-counts
+true dE/dx and should not be compared directly to NIST PSTAR/ESTAR stopping powers. A true
+instrumented LET (per-step kinetic-energy loss and step length of the primary, via new C++
+scoring code and reruns) remains available as future work.
+
+**Result:** the proton path length matches the box geometry closely (4.84 um in the 10 um box,
+9.83 um in the 20 um box -- the beam starts at the box center per `Manifest.json` and travels to
+the +z face, so these are almost exactly the expected half-box chord lengths), and the **LET
+proxy agrees within SEM across the two box sizes** (0.186 +/- 0.013 keV/um at 10 um vs. 0.175 +/-
+0.007 keV/um at 20 um) -- the intended validation that LET, a per-unit-length quantity, should not
+depend on box size, passes. Comparing beams, the 90 MeV proton's LET proxy (0.186 keV/um) is
+about 3x the 500 keV electron's (0.061 keV/um), the expected qualitative ordering.
+
 ## Caveats (indicative only, not a reproduction)
 
 - dnachem-min models a single homogeneous water box (10x10x10 um^3 for the proton runs, 500 um
