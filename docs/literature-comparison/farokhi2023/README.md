@@ -181,6 +181,18 @@ closer to the ~0.57 keV/um NIST-PSTAR-based figure already used in the proton ma
 header comments than the mean-based LET does (0.95, 1.08 keV/um) -- see
 `track_length_vs_energy_loss.md` for the full table and caveats.
 
+## PrimaryKiller eLossMin sweep (500 keV electron, 0/2.5/5 % O2)
+
+`track_length_vs_elossmin.py` sweeps the configured `/primaryKiller/eLossMin` threshold
+(1, 2.5, 5, 7.5, 10 % of the 500 keV beam energy) at 3 O2 levels, reading each run's
+`trackLengths` summary straight from `Manifest.json` (250 events/point). Primary length,
+secondary length and secondary count all scale with eLossMin, essentially linearly over
+this range (e.g. primary length: 31.5 um at 1 % to 257.6 um at 10 %). As expected, the 3
+O2 curves are bit-identical in every panel (O2 only acts in the chemistry stage,
+downstream of these physical-stage quantities) -- see `track_length_vs_elossmin.md` for
+the full table. The 5 %/10 % point (`o2_5pct/elossmin_10pct`) was still running when this
+was last generated; rerun the script once it finishes to pick it up.
+
 ## Caveats (indicative only, not a reproduction)
 
 - dnachem-min models a single homogeneous water box (10x10x10 um^3 for the proton runs, 500 um
