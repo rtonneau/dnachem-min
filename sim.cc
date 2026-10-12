@@ -12,6 +12,7 @@
 #include "physics/PhysicsList.hh"
 #include "scoring/RunAccumulatorMessenger.hh"
 #include "scoring/RunManifest.hh"
+#include "scoring/SpeciesSampleTimesMessenger.hh"
 
 #include "G4ScoringManager.hh"
 #include "G4DNAChemistryManager.hh"
@@ -101,6 +102,9 @@ int main(int argc, char **argv)
   DnaLoggerMessenger *dnaLoggerMessenger = new DnaLoggerMessenger();
   // Exposes "/run/outputDir <path>" as a macro-file counterpart to --dir
   OutputDirMessenger *outputDirMessenger = new OutputDirMessenger();
+  // Exposes "/scoring/species/timesFixed|timesList|timesPerDecade" to choose
+  // the times at which species are scored
+  SpeciesSampleTimesMessenger *speciesSampleTimesMessenger = new SpeciesSampleTimesMessenger();
   // Exposes "/run/dumpDataAndReset [prefix]" to flush accumulated
   // species/reaction/interaction/energy data to disk and reset it
   RunAccumulatorMessenger *runAccumulatorMessenger = new RunAccumulatorMessenger();
@@ -167,6 +171,7 @@ int main(int argc, char **argv)
   delete theTimer;
   delete dnaLoggerMessenger;
   delete outputDirMessenger;
+  delete speciesSampleTimesMessenger;
   delete runAccumulatorMessenger;
   delete runManager;
 

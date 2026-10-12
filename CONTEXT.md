@@ -75,3 +75,10 @@ position. One file per event, including an empty one when the event made none. I
 belongs to the **Dump** that covers its run and is listed in that dump's **Manifest**.
 _Avoid_: "output_event file", "chemistry output" (the chemical stage's own results are
 the species and reaction files).
+
+**Species sample time**:
+An instant at which the population of every chemical species is read and written to the
+species files. A snapshot, not an interval: the species output holds one count per
+species per sample time. Distinct from a reaction **time bin**, which counts the
+reactions that fired between two edges.
+_Avoid_: "species time bin" (species are not counted over an interval).

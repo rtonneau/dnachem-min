@@ -104,6 +104,12 @@ target_link_libraries(ScavengerSpecTest ${Geant4_LIBRARIES})
 target_include_directories(ScavengerSpecTest PRIVATE ${project_include_dirs})
 add_test(NAME ScavengerSpecTest COMMAND ScavengerSpecTest)
 
+# Standalone unit test for SpeciesSampleTimes (sample-time grids, list parsing
+# and precision map -- pure logic, standard library only, no Geant4 link).
+add_executable(SpeciesSampleTimesTest test/SpeciesSampleTimesTest.cc src/scoring/SpeciesSampleTimes.cc)
+target_include_directories(SpeciesSampleTimesTest PRIVATE ${project_include_dirs})
+add_test(NAME SpeciesSampleTimesTest COMMAND SpeciesSampleTimesTest)
+
 # Copy macro files AFTER the target is built
 # Reason: file(COPY) runs at configure time, but
 # CMAKE_BUILD_TYPE is known at build time with MSVC.

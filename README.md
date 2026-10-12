@@ -211,6 +211,50 @@ To use explicit bin edges instead, comment out `timeBinsFixed` and use, e.g.:
 /chem/reaction/timeBinsList 1 10 100 1000 picosecond
 ```
 
+## Species sample times
+
+Species are scored as snapshots: at each *species sample time* the population
+of every species is read and written (`Species.Txt`, `Species_nt_species.csv`,
+on `/run/dumpDataAndReset`). The sample times are independent of the
+reaction-count bins above.
+
+Three commands choose them (all `PreInit`, before `/run/initialize`; using two
+different ones in the same process is a fatal error):
+
+- `/scoring/species/timesFixed <step> <unit>` — step, 2·step, ... up to the
+  chemistry scheduler's end time.
+- `/scoring/species/timesList <t1> <t2> ... <tN> <unit>` — exactly these times;
+  times after the end time are dropped with a warning.
+- `/scoring/species/timesPerDecade <N>` — N log-spaced times per decade,
+  1 ps × 10^(k/N), from 1 ps up to the end time.
+
+The end time is always the last sample time (fixed, per-decade and default
+grids). With no command, the default is the decade points 1 ps, 10 ps, ...,
+1 µs that fall before the end time, then the end time. The grid is built at
+the start of each run, so a `/scheduler/endTime` issued after
+`/run/initialize` is taken into account.
+
+The molecule counter's time precision follows the setting: min(10 ps, gap/10),
+where gap is the spacing between neighbouring sample times, so dense early
+grids (e.g. 20 per decade) stay distinct. The setting is recorded in each
+dump's `Manifest.json` as `speciesTimes`, e.g.
+`{"mode": "fixed", "step_ns": 2, "count": 5000}`.
+
+Example: species every 2 ns up to 10 µs (5000 sample times):
+
+```text
+/scoring/species/timesFixed 2 nanosecond
+/run/initialize
+/scheduler/endTime 10 microsecond
+/gun/particle e-
+/gun/energy 10 keV
+/run/beamOn 2
+/run/dumpDataAndReset
+```
+
+For a log grid instead: `/scoring/species/timesPerDecade 20` (141 times from
+1 ps to 10 µs).
+
 ## Testing
 
 Unit tests (`test/*Test.cc`, plain `assert` + CTest) are built and run from
