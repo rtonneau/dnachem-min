@@ -6,6 +6,7 @@ compile_commands.json
 .vscode/
 # Prerequisites
 *.d
+hook-posttooluse.log
 
 # Compiled Object files
 *.slo

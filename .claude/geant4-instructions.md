@@ -21,6 +21,14 @@ $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
 cmd /c "`"$vs\VC\Auxiliary\Build\vcvars64.bat`" && <command>"
 ```
 
+If `vswhere` fails or returns nothing in the PowerShell tool, call
+`vcvars64.bat` by its full path instead (machine-specific; on the current
+dev machine: `C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat`):
+
+```powershell
+cmd /c "`"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat`" >nul && <command>"
+```
+
 Linux/macOS: skip this section. Tool calls time out at 2 min: run full builds
 and simulations with `run_in_background`, and read the log they write.
 
@@ -43,11 +51,21 @@ cmake --build <dir> --config <type> --target <build.executable>
   picked up by the next build (expect a "GLOB mismatch, re-running CMake" line).
 - Build errors about undefined Geant4 symbols mean a missing `find_package`
   component; the first suspect for MSVC header errors is section 1.
+- `LNK1201: error writing to program database '<exe>.pdb'` (a stale or locked
+  PDB): delete `<dir>/<exe>.pdb` and `<dir>/<exe>.exe`, then rebuild. No code
+  cause.
 
 ## 3. Run
 
 - Run from `run.workingDir` (the run build dir), executable
   `build.executable` (+ `.exe` on Windows).
+- Windows: run the executable from the PowerShell tool, not Git Bash (it does
+  not start from Git Bash). If it exits at once with `0xC0000135` (a DLL not
+  found, typically Qt), prepend the directory holding those DLLs to `PATH` in
+  the same command. Machine-specific; on the current dev machine:
+  ```powershell
+  $env:PATH = "E:\miniconda3\envs\qt5\Library\bin;$env:PATH"; .\sim.exe <macro> > run.log 2>&1
+  ```
 - Macro argument: see `run.cli.syntax` and `run.macroArgIsFilenameOnly`.
 - If `run.macroCopiedAtBuild`, macros are copied into the build dir only when
   the executable target builds. After editing a macro, rebuild (or copy it).
