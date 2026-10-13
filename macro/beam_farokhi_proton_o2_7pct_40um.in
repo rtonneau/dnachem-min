@@ -11,7 +11,7 @@
 /tracking/verbose 0
 /dnaLogger/verbose Info
 
-/process/dna/e-SolvationSubType Ritchie1994
+/process/dna/e-SolvationSubType Meesungnoen2002
 
 /chem/select Farokhi2023
 /chem/meso/enable false
