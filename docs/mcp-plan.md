@@ -8,7 +8,6 @@ Working name for the server: **`g4mcp`** (open question 1).
 
 Things I could **not** verify while writing this (marked *[verify]* where they matter):
 
-- the content of `~/dotfiles/claude/skills/g4run/SPEC.md` (not in this checkout);
 - the current `rmcp` API (no network lookup done);
 - which Geant4 data sets each DNA example strictly needs at start-up;
 - the exact semantics/units of the `sumG`/`sumG2` columns (read from `ScoreSpecies`
@@ -352,8 +351,8 @@ it with no one reading it). With a supervisor + directory:
 
 - the server is stateless and restartable; `run_list` just scans `jobs/`;
 - a crash of the server never loses a run;
-- no database is needed in v1. If `g4run`'s SQLite (see section 9) becomes the
-  scheduler, the job directory stays the per-run record.
+- no database is needed in v1; the job directory is the per-run record (queueing,
+  if added, is section 9).
 
 Job directory (default `%LOCALAPPDATA%\g4mcp\jobs\<id>\`, `~/.local/state/g4mcp/jobs/<id>/`
 on Linux; *not* inside the repo):
@@ -928,9 +927,9 @@ Reasoning, specific to this project:
   Rust has first-class access (`windows-sys`/`windows`, `goblin`, `sysinfo`).
 - **Typed schemas**: tool inputs and the config derive `serde` + `schemars`, so the
   JSON Schema Claude sees cannot drift from the code.
-- **Shared code with `g4run`.** The project already decided "the tool is one Rust
-  binary in its own future repo" (`docs/agents/g4run.md`). A shared `g4-core` crate
-  (config, env discovery, job supervisor, output parsers) avoids two Geant4 runners.
+- **Library/binary split.** A `g4-core` crate (config, env discovery, job supervisor,
+  output parsers) with no MCP dependency keeps the logic testable and lets a plain CLI
+  reuse it later.
 - MSVC build tools are already on the machine, which Rust needs for the `*-msvc` target.
 
 Candidate crates: `rmcp` (the official Rust MCP SDK *[verify current API and
@@ -961,7 +960,7 @@ parts Python is worst at distributing.
 - different toolchain (cargo vs CMake/vcpkg), different release cadence, CI that must
   not need Geant4 (see testing below);
 - dnachem-min's own `CLAUDE.md` and `geant4-instructions.md` already treat generic
-  Geant4 infrastructure as *reusable across projects* and put `g4run` in its own repo;
+  Geant4 infrastructure as *reusable across projects*;
 - templates and recipes evolve with Geant4 versions, independently of any project.
 
 What stays **in each project** (small, versioned with the code it describes):
@@ -970,7 +969,7 @@ form of the templates). Suggested repo layout:
 
 ```
 g4mcp/
-  crates/g4-core/        config, env discovery, job supervisor, readers (shared with g4run)
+  crates/g4-core/        config, env discovery, job supervisor, readers (no MCP dependency)
   crates/g4mcp/          MCP server binary (serve, supervise, config validate, import-claude-project)
   templates/             built-in scaffolds (template.toml + *.j2) and recipe text
   examples/              g4mcp.toml for dnachem-min, chem6, UHDR, dnaphysics
@@ -1004,25 +1003,18 @@ it. Integration test (manual, Windows): dnachem-min `example_irt.in` smoke run.
 
 ---
 
-## 9. Relationship to `g4run`
+## 9. Queueing and concurrency
 
-`docs/agents/g4run.md` describes a *specified, not built* global skill `/g4run`
-(queue, launch, track, analyse through one SQLite DB, one Rust binary, spec in
-`~/dotfiles/claude/skills/g4run/SPEC.md`, whose content I could not read here).
-The overlap with this plan is large (config, lifecycle, dispatcher/admission,
-failures, cancel, analysis contract). Options, in order of my preference:
+v1 has no queue. `run_start` checks `max_concurrent` and available memory (admission);
+if no slot is free it fails with `no_slot` and a list of running jobs, or waits when
+`wait_for_slot` is set (bounded by `wait_timeout_s`). Jobs are independent directories,
+so the server stays stateless.
 
-1. **One core, two front-ends.** `g4-core` (config, env, supervisor, parsers,
-   job records) is shared; `g4run` adds the SQLite queue and a CLI; `g4mcp` adds MCP
-   tools and scaffolding. The job directory here becomes the per-run payload of
-   `g4run`'s DB rows.
-2. **`g4mcp` first, queue later.** Ship `run_*` tools with `max_concurrent`, add
-   queueing by importing `g4run`'s model when it exists.
-3. **Make `g4run` the engine and `g4mcp` a thin MCP wrapper** over its CLI.
-
-Which one depends on the spec; this is open question 2. Either way the
-`g4mcp.toml` schema should be the same as, or a superset of, what `g4run` reads, so
-projects write config once.
+A real queue (ordering, priorities, retry after `oom_killed`, a batch of parameter
+scans) is a later addition built on the same job directories: a `queued` state, a
+dispatcher in the server that starts the next job when a slot frees, and a
+`queue.json` beside the jobs. It is deliberately not designed further until the
+single-run path works (open question 2).
 
 ---
 
@@ -1037,7 +1029,7 @@ projects write config once.
 | 4 | `macro_validate`, overlay, aliases, order rules | a macro with `/scheduler/endTime` before `/run/initialize` is flagged for DM |
 | 5 | `scaffold_*` + `app.skeleton`, `ui.command`, `scoring.counter` | generated skeleton compiles in a clean Geant4 11.4.1 on Windows; the `ui.command` appears in `ui_commands` |
 | 6 | `scoring.primitive-scorer`, actions, `chemistry.named-chemistry`, `scaffold_check` | DM recipe steps reproduced by a template diff |
-| 7 | admission/queue, `runs_compare`, HDF5 summary, optional ROOT sidecar | decided with `g4run` outcome |
+| 7 | admission/queue, `runs_compare`, HDF5 summary, optional ROOT sidecar | decided after M2 (open question 2) |
 
 Verification of each milestone is by running it, not by reading the code: the
 M2/M3 checks use the real DM smoke macro; M5/M6 by compiling the generated files
@@ -1069,9 +1061,9 @@ M2/M3 checks use the real DM smoke macro; M5/M6 by compiling the generated files
 ## 12. Open questions for you
 
 1. **Name and repo**: `g4mcp` under `rtonneau/`? Public or private?
-2. **`g4run`**: what does `SPEC.md` decide about the DB, the CLI and the analysis
-   contract? Which of the three options in section 9 do you want? (I could not read
-   the spec.)
+2. **Queueing**: do you need a queue (parameter scans, overnight batches, retry after
+   OOM) in the first release, or is admission control with `max_concurrent` enough
+   until the single-run path works (section 9)?
 3. **Config file**: OK with a new `g4mcp.toml`, or should I read `.claude/.claude-project.json`
    as the primary config and extend it? (It already has most of the keys, supports
    `${VAR}` expansion, and Claude's `CONFIG_RESOLUTION.md` apparently defines path
