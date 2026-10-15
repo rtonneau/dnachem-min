@@ -31,10 +31,13 @@ Everything else cites a file I read in this session.
    and `{alias}` substitution; use that plus a small, recorded text *overlay*
    (pre-init lines, post-`/run/initialize` lines, line substitutions). Always save
    the final macro with the run.
-5. **Scaffolding is anchored insertion plus a few real templates**, not free text
-   generation. Claude can already write C++; what it cannot do reliably is touch
-   five files consistently (class, `ActionInitialization`, CMake test target,
-   messenger directory ordering, include prefix). That is the value to sell.
+5. **No code-generating scaffold tools in v1.** Claude Code already writes Geant4 C++
+   (scorers, geometry, reactions) well. What it lacks is this project's conventions
+   and the Geant4-DNA pitfalls (second `/chem/` directory, `Merge`, irreversible
+   `SetReactionType`, command ordering). That is documentation: it lives in
+   `docs/recipes/` plus a cross-project skill (section 5), not in server tools. The
+   server contributes only two checks against the real app (`ui_commands`,
+   `project_check`).
 6. **dnachem-min conventions worth exporting**: `--dir` output redirection,
    dump-and-reset with a `Manifest.json`, portable std-only counters with
    `Merge`/`Clear`/`WriteAscii`/`WriteCsv`, named Chemistry registry, the
@@ -43,7 +46,7 @@ Everything else cites a file I read in this session.
    `ActionInitialization::Build`) that silently change results.
 7. **First milestone is "run and summarise dnachem-min's `example_irt.in` from
    Claude on Windows"**, because it forces the hard parts (env, DLLs, supervisor,
-   markers, manifest) before any scaffolding exists.
+   markers, manifest) before anything else is built.
 
 ---
 
@@ -120,10 +123,12 @@ but counts once). Line counts are `wc -l` of the `.cc` of a representative file.
 
 ---
 
-## 2. Feature catalog (job 2: scaffolding)
+## 2. Feature catalog: what recurs, and where the knowledge should live
 
 Ranking = recurrence × boilerplate × cost of getting it wrong. "dnachem-min
-status" says whether the project already has a good pattern to copy.
+status" says whether the project already has a good pattern to copy. The catalog
+is the **content of the recipe skill** described in section 5 (checklists, files
+touched, registration sites, pitfalls); it is not a list of server templates.
 
 | # | Feature | Recurrence | Boilerplate | Priority | dnachem-min pattern worth copying |
 |---|---|---|---|---|---|
@@ -134,23 +139,25 @@ status" says whether the project already has a good pattern to copy.
 | 5 | **Chemistry setup** (molecules, dissociation, reaction table, bulk reactions, scavengers, time-step model) | 13 use, 3 customise | 180-470 LOC + data table | P1 | `ChemistryRegistry` + `catalog/*Reactions.cc`, `ChemistryTypes::BulkReactionList` as plain data |
 | 6 | **Actions**: stepping / tracking / event / stacking | 12-21 each | 20-120 LOC each | P2 | `SteppingAction` (21 LOC), `TrackingAction` + `TrackLengthTable` |
 | 7 | **Time-step action** (per-step chemistry hook, hand-over) | 8 | 90-300 | P2 | `TimeStepAction` (IRT_syn → mesoscopic) |
-| 8 | **Physics constructor choice** (`G4EmDNAPhysics` option 1-8, `G4EmDNAChemistry` option 1-3, `G4EmParameters`) | 28 | one line + includes | P2 — a **tool parameter**, not a template | `PhysicsList.cc` edits the constructor directly, no string dispatch |
+| 8 | **Physics constructor choice** (`G4EmDNAPhysics` option 1-8, `G4EmDNAChemistry` option 1-3, `G4EmParameters`) | 28 | one line + includes | P2 — a one-line **edit**, not a class | `PhysicsList.cc` edits the constructor directly, no string dispatch |
 | 9 | **Primary generator variants** (gun, GPS, spectrum, pulse) | 32 exist, few change | 60-100 | P3 | `PrimaryGeneratorAction` (60 LOC) |
 | 10 | **Geometry** (water box, chemistry world with scavengers/pH/boundary) | 32 | 100-150 | P3 | `DetectorConstruction` + `DnaChemistryWorld` (`/chem/env/*`) |
 | 11 | **Molecule counter** (`G4VUserMoleculeCounter`) | 8 | 100+ | P3 | project uses its own counters instead |
-| 12 | **Structured output** (`DataNode` + `JsonWriter` + `Manifest.json`, HDF5 writer) | 0 upstream | 100-300 | P1 for *consumption*, P3 for scaffolding | `RunManifest`, `JsonWriter`, `MesoSpatialFile` |
+| 12 | **Structured output** (`DataNode` + `JsonWriter` + `Manifest.json`, HDF5 writer) | 0 upstream | 100-300 | P1 for *consumption* by the server (section 4.3) | `RunManifest`, `JsonWriter`, `MesoSpatialFile` |
 
-Rule of thumb for the server: P0/P1 items get real templates; P2 items get small
-templates; P3 items are documentation links only until someone asks twice.
+Rule of thumb: P0/P1 items get a full recipe (steps, files, registration, pitfalls);
+P2 items a short one; P3 items are links to upstream examples. Code generation is
+reconsidered only if Claude keeps making the same multi-file mistake with the recipes
+in context (section 5.4).
 
 ### 2.1 Per-feature detail
 
-For each: **template**, **files touched**, **registration**, **upstream
-divergence**. Paths: `G4:` = `rtonneau/geant4`, `DM:` = `dnachem-min`.
+For each: **recipe** (the parameters are the questions to settle before
+writing code), **files touched**, **registration**, **upstream divergence**. Paths: `G4:` = `rtonneau/geant4`, `DM:` = `dnachem-min`.
 
 #### 1. App skeleton
 
-- **Template** `app.skeleton`: parameters `name`, `layout` (`upstream-flat` |
+- **Recipe** `app.skeleton`: parameters `name`, `layout` (`upstream-flat` |
   `clustered`), `physics` (`G4EmDNAPhysics_option2` default), `chemistry`
   (`none` | `stock:G4EmDNAChemistry_option3` | `registry`), `threads_cli` (bool),
   `output_dir` (bool, adds `OutputDir`+`--dir`).
@@ -170,7 +177,7 @@ divergence**. Paths: `G4:` = `rtonneau/geant4`, `DM:` = `dnachem-min`.
 
 #### 2. Macro command (messenger)
 
-- **Template** `ui.command`: parameters `directory` (e.g. `/myapp/env/`), `name`,
+- **Recipe** `ui.command`: parameters `directory` (e.g. `/myapp/env/`), `name`,
   `type` (`bool|int|double|doubleUnit|string`), `states` (`PreInit|Idle|...`),
   `target` (a setting struct or a class), `style` (`plain` | `generic`),
   `directory_exists` (bool).
@@ -181,7 +188,7 @@ divergence**. Paths: `G4:` = `rtonneau/geant4`, `DM:` = `dnachem-min`.
   `RunAccumulatorMessenger`). *Order matters* if the directory is shared: the
   owner of `/chem/env/` must be constructed before `ScavengerMessenger`
   (`DnaChemistryWorld.cc:20-33`).
-- **Decision rule baked into the template** (from `docs/recipes/create-a-macro-command.md`):
+- **Decision rule in the recipe** (from `docs/recipes/create-a-macro-command.md`):
   if the directory already exists (another component created it, e.g.
   `/chem/` by `G4DNAChemistryManager`), generate a **plain `G4UImessenger`**;
   a `G4GenericMessenger` would try to create a second `/chem/`. If the directory
@@ -191,21 +198,21 @@ divergence**. Paths: `G4:` = `rtonneau/geant4`, `DM:` = `dnachem-min`.
   `chem6/src/PhysicsListMessenger.cc` plain; `G4GenericMessenger` in one dir).
   Upstream puts commands under the example's own root (`/UHDR/...`); DM mixes
   `/chem/...` (shared with Geant4), `/run/...` (output) and `/primaryKiller/...`.
-  A generic scaffold must default to a **project-owned root** and warn when the
+  A recipe for a new project should default to a **project-owned root** and warn when the
   requested directory belongs to Geant4 (`/run/`, `/chem/`, `/process/`).
-- **Validation outside the template**: after generation the server can run the app
+- **Validation outside the recipe**: after writing the command the server can run the app
   with `/control/manual <dir>` to prove the command registered (tool `ui_commands`).
 
 #### 3. Per-run counter / accumulator
 
-- **Template** `scoring.counter`: parameters `name`, `key` type (`string` | `int` |
+- **Recipe** `scoring.counter`: parameters `name`, `key` type (`string` | `int` |
   `(string,time-bin)`), `value` type, `outputs` (`txt`, `csv`), `feed` (`step` |
   `track` | `event` | `run`).
 - **Files**: `header/scoring/X.hh`, `src/scoring/X.cc`, `test/XTest.cc`, patches to
   `Run` (member + `Merge`), the feed site (`SteppingAction`, etc.), `RunAccumulator`
   (member, `Add`), `RunAccumulatorMessenger` (dump), and the manifest's `files`.
   The recipe `docs/recipes/add-a-per-run-counter.md` already lists these steps; the
-  scaffold is that recipe as anchored edits.
+  recipe already exists as that checklist.
 - **Registration**: via `Run::Merge` (master), `RunAction::EndOfRunAction`,
   dump hook. CMake test target appended to `CMakeLists.txt` (`add_executable(XTest
   test/XTest.cc src/scoring/X.cc)` + `add_test`), which is a hand-edited block in DM.
@@ -216,7 +223,7 @@ divergence**. Paths: `G4:` = `rtonneau/geant4`, `DM:` = `dnachem-min`.
 
 #### 4. Scorer
 
-- **Template** `scoring.primitive-scorer`: parameters `name`, `quantity`
+- **Recipe** `scoring.primitive-scorer`: parameters `name`, `quantity`
   (`edep|species|gvalue|let|track-length|custom`), `volume` (logical volume name),
   `time_bins` (log / list), `ntuple` (bool).
 - **Files**: `header/scoring/X.hh`, `src/scoring/X.cc`; patch `DetectorConstruction::
@@ -226,7 +233,7 @@ divergence**. Paths: `G4:` = `rtonneau/geant4`, `DM:` = `dnachem-min`.
   → `G4SDManager::AddNewDetector` → `SetSensitiveDetector("World", mfDetector)`.
 - **Upstream**: `G4:.../chem6/src/ScoreSpecies.cc` (305 LOC) is the base;
   `UHDR/src/Scorer.cc` (615 LOC) adds dose cut-off and `/scorer/Gvalues/...`.
-  DM `ScoreSpecies` (436 LOC) is derived from chem6's, so the scaffold should
+  DM `ScoreSpecies` (436 LOC) is derived from chem6's, so a new scorer should
   start from DM's ntuple layout (`speciesID, number, nEvent, speciesName, time,
   sumG, sumG2`, `ScoreSpecies.cc:351-358`) because the result reader depends on it.
 - **DM divergence**: persistent (never reset by the run manager) with explicit
@@ -235,7 +242,7 @@ divergence**. Paths: `G4:` = `rtonneau/geant4`, `DM:` = `dnachem-min`.
 
 #### 5. Chemistry setup
 
-- **Template** `chemistry.named-chemistry`: parameters `name`, `base`
+- **Recipe** `chemistry.named-chemistry`: parameters `name`, `base`
   (`PureWater|BoscoloChem|empty`), `extra_molecules` (list), reaction rows
   (CSV/inline: `A + B -> C + D, k, type`), `bulk_reactions`.
 - **Files**: `header/chemistry/catalog/XReactions.hh`, `src/chemistry/catalog/
@@ -248,18 +255,18 @@ divergence**. Paths: `G4:` = `rtonneau/geant4`, `DM:` = `dnachem-min`.
   up by name and fail fatally on unknown; call `SetReactionType(1)` only if
   `ChemistryTypes::PartialReactionsEnabled()` (cannot be undone, SBS must stay
   type 0); bulk list is plain data.
-- **Upstream**: three styles exist and a scaffold should name them: (a) macro
+- **Upstream**: three styles exist and the recipe should name them: (a) macro
   `/chem/reaction/add` after `/chem/reaction/UI` (chem6 `beam.in`), (b) reaction
   file `Rtable_*.txt` parsed by `ParserChemReaction` (`G4:.../scavenger/`), (c) C++
   builders (`G4:.../UHDR/src/Chem*Builder.cc`, `ChemistryWorld.cc`). DM follows
   (c) and adds the registry; its `CLAUDE.md` forbids (a) because
   `/chem/reaction/UI` wipes the class-built table.
-- **Also an input to this scaffold**: `docs/literature/` and the Table-2 style data
+- **Also an input to this recipe**: `docs/literature/` and the Table-2 style data
   sheet pattern (`Tonneau2025Table.cc`): the table as data, the builder as logic.
 
 #### 6. Actions (stepping / tracking / event / stacking)
 
-- **Template** `action.{stepping,tracking,event,stacking}`: minimal class plus
+- **Recipe** `action.{stepping,tracking,event,stacking}`: minimal class plus
   optional `counter` hook (calls feature 3).
 - **Files**: `header/actions/X.hh`, `src/actions/X.cc`; patch `ActionInitialization::
   Build` with `SetUserAction(new X)`.
@@ -267,28 +274,28 @@ divergence**. Paths: `G4:` = `rtonneau/geant4`, `DM:` = `dnachem-min`.
   ones only, `BuildForMaster()`.
 - **Upstream** `G4:.../dnaphysics/src/SteppingAction.cc` (375 LOC of histogramming) is
   atypical; DM's 21-LOC stepping action that records a process name into a counter
-  is the shape to scaffold.
+  is the shape to copy.
 
 #### 7. Time-step action
 
-- **Template** `chemistry.timestep-action`; patch
+- **Recipe** `chemistry.timestep-action`; patch
   `G4Scheduler::Instance()->SetUserAction(new X(...))` in `Build()` under
   `if (G4DNAChemistryManager::IsActivated())` (exact form in
   `DM:src/actions/ActionInitialization.cc`).
 - **Upstream**: `G4:.../scavenger/src/TimeStepAction.cc` (92 LOC), `chem2`, `chem3`.
-- **DM**: its `TimeStepAction` is large (hand-over to the mesoscopic stage). Scaffold
+- **DM**: its `TimeStepAction` is large (hand-over to the mesoscopic stage). Recipe
   only the upstream-sized one; the hand-over is project-specific.
 
-#### 8. Physics choice (parameter, not template)
+#### 8. Physics choice (one-line edit)
 
-- Tool `physics_set` edits **one** declaration. Valid values enumerated from
+- Edit **one** declaration. Valid values enumerated from
   `G4:source/physics_lists/constructors/electromagnetic/include/G4EmDNAPhysics*.hh`
   (base, `_option1`..`_option8`, `_stationary*`) and `G4EmDNAChemistry*.hh`
   (base, `_option1`..`_option3`).
 - **Divergence**: upstream `chem6` supports `/chem/phys/registerPhysics <name>`
   through a string→factory map (`chem6/src/PhysicsList.cc`, `PhysicsListMessenger.cc`).
   DM deliberately has no dispatch: change the constructor line (`PhysicsList.cc`,
-  with the old default kept in a comment). Recommendation: scaffold DM's way by
+  with the old default kept in a comment). Recommendation: write DM's way by
   default; offer `registerPhysics` as an opt-in because it lets a *macro* choose,
   which is what an MCP "configure run" wants.
 - **Parameter-in-macro** alternatives that need no code: `/process/dna/e-SolvationSubType`
@@ -297,17 +304,17 @@ divergence**. Paths: `G4:` = `rtonneau/geant4`, `DM:` = `dnachem-min`.
 
 #### 9-11. Generator / geometry / molecule counters
 
-Documentation links first (`create-a-*` recipes, upstream example dirs). Template
+Documentation links first (`create-a-*` recipes, upstream example dirs). Recipe
 only the water box + `DnaChemistryWorld`-style `/…/env/{halfBox,pH,scavenger}`
 commands, because that block repeats across the chemistry examples (`UHDR`
 `/UHDR/env/*`, DM `/chem/env/*`).
 
 #### 12. Structured output
 
-Not scaffolded at first, but **consumed**: `Manifest.json` (`schemaVersion` 1) is
+**Consumed** by the server, not generated: `Manifest.json` (`schemaVersion` 1) is
 the one app-side convention the server should treat as first-class (section 4.3).
-Offering `DataNode`/`JsonWriter` as a copy-in template (`output.manifest`) is a
-later, cheap addition since both are std-only and portable.
+`DataNode`/`JsonWriter` are std-only and portable, so a recipe for copying them into
+another project is cheap to write.
 
 ### 2.2 Where DM diverges from upstream (summary)
 
@@ -320,7 +327,7 @@ later, cheap addition since both are std-only and portable.
 | Command roots | per-example (`/UHDR/...`) | shares `/chem/` with Geant4 | warn on shared roots; plain messenger when dir exists |
 | Output | cwd, `G4AnalysisManager` ROOT, global `std::ofstream out` | output-dir abstraction, `--dir`, dump-and-reset, manifest, CSV/HDF5 | adopt (it is what makes runs machine-readable) |
 | Reproducibility | default seed | fixed 12345 + `/random/setSeeds`; recorded, not bit-reproducible | record, never promise |
-| Hidden defaults | few | `PrimaryKiller` eLossMin 500 keV / eLossMax 1 MeV always applied (`DetectorConstruction.cc:136-146`); end time 1 s/1 µs set in `Build()` | **don't export**; scaffold makes defaults explicit and logs them |
+| Hidden defaults | few | `PrimaryKiller` eLossMin 500 keV / eLossMax 1 MeV always applied (`DetectorConstruction.cc:136-146`); end time 1 s/1 µs set in `Build()` | **don't export**; recipes say to make defaults explicit and log them |
 | Macro lookup | `argv[1]` verbatim | 3-step resolver | adopt resolver; server stages macros anyway |
 | Run manager | factory default type | Serial default, `--threads` | adopt (Serial first is how the debugging notes say to work) |
 
@@ -333,8 +340,8 @@ Claude (Code / Desktop)
    │ stdio, JSON-RPC (MCP)
    ▼
 g4mcp serve  ── project registry ── g4mcp.toml (per project)
-   │  tools: run.* , results.* , env.* , scaffold.*
-   │  resources: run logs, output files, templates
+   │  tools: run.* , results.* , env.* , check.*
+   │  resources: run logs, output files
    │
    ├── spawns ► g4mcp supervise <job-dir>   (detached, one per run)
    │               ├─ Windows Job Object (kill tree, memory cap)
@@ -439,7 +446,7 @@ append     = lines inserted at the end (typically /run/dumpDataAndReset)
 
 Text-level and therefore fragile; this is deliberate. It is visible, diffable and
 saved as `macro.overlay.diff`. The server rejects an overlay whose `after_init`
-anchor is absent rather than guessing. For new apps the scaffold should generate
+anchor is absent rather than guessing. For new apps the recipes should write
 macros that use aliases, so overlays become unnecessary.
 
 **Progress.** Inject `/run/printProgress N` (default `max(1, total/50)`) at `pre`
@@ -487,53 +494,55 @@ options in section 8).
 everything a summary needs (beam, seed, energy deposit, model, threads, wall time,
 files). For apps without one, the server falls back to "files + reader kinds +
 the log". The plan therefore documents the manifest as an *optional app-side
-convention* (`output.manifest` in config) and offers it as a scaffold (feature 12),
+convention* (`output.manifest` in config) and documents it as a recipe (feature 12),
 but does not require it.
 
 ---
 
-## 5. Job 2: tools to scaffold
+## 5. Job 2: adding features to existing code (knowledge, not generators)
+
+### 5.1 Decision
+
+Claude Code already knows the generic Geant4 API and can write a scorer, change a
+box, or add reactions from a prompt. A server that generates the same code adds
+machinery (templates, anchors, patching) for little gain, and has to track every
+project's layout. What Claude does *not* know without help is project- and
+Geant4-DNA-specific: where things are registered, the order that matters, and the
+traps. So this half is delivered as **documentation Claude reads**, and the server
+adds only checks that need the real app.
+
+### 5.2 Where the knowledge lives
+
+| Layer | Content | Form |
+|---|---|---|
+| Per project (`dnachem-min/docs/recipes/`, already exists) | how *this* project does it: file paths, registration sites, test wiring, ADR links | markdown recipes, pointed to from `CLAUDE.md` ("before adding a scorer/command/chemistry, read the matching recipe") |
+| Across projects (new skill, e.g. `geant4-dna-recipes`) | generic Geant4 / Geant4-DNA recipes and pitfalls, the content of section 2.1; upstream references (`examples/extended/medical/dna/*`) | Claude skill (progressive loading), kept in the `g4mcp` repo under `skills/` or in your user skills |
+| Server | nothing generative | tools below |
+
+Recipes to include first, in order of section 2: new app skeleton, macro command,
+per-run counter, scorer, chemistry (named chemistry / reaction table / scavengers),
+actions, time-step action, physics choice. Geometry: a short note only (not
+templatable). Each recipe has the same skeleton dnachem-min's recipes use: what it
+is, generic pattern, project reference implementation, Serial vs MT, see also.
+Each carries the Geant4 version it was checked against.
+
+### 5.3 The two server-side checks
 
 | Tool | Inputs | Output |
 |---|---|---|
-| `scaffold_list` | `project?`, `kind?` | templates: id, title, params with types/defaults, files it creates, anchors it patches, recipe link |
-| `scaffold_plan` | `project?`, `template`, `params` | dry-run: files to create (path + size), patches (file, anchor, inserted text), CMake/test wiring, naming/layout decisions (cluster dir, include prefix), conflicts, and **which checks to run afterwards**. Writes nothing |
-| `scaffold_apply` | same + `plan_id` from `scaffold_plan`, `allow_dirty?: false` | writes files, returns a unified diff; refuses if a target exists or an anchor is missing or the git tree has unrelated staged changes (unless `allow_dirty`) |
-| `scaffold_explain` | `template` | the recipe text (rationale, MT notes) so Claude can adapt instead of blindly applying |
-| `scaffold_check` | `project?`, `template?` | structural lint of the project against its own conventions: every messenger deleted in destructor, `Merge` present for each counter, test target exists for each portable class, commands registered (via `ui_commands`), ADR/recipe links; does **not** compile |
+| `ui_commands` | see 4.1 | proves a newly written command is registered (name, parameters, allowed states) by running the app once with `/control/manual` |
+| `project_check` | `project?`, `rules?` | structural lint of the source tree against rules declared in `g4mcp.toml` `[check]`; reads files, does **not** compile. Examples: every class with `Merge` is called from `Run::Merge`; every portable class has a `test/XTest.cc` and an `add_test`; every messenger deletes its commands in the destructor; a `G4GenericMessenger` does not target a directory another component creates (`/chem/`, `/run/`, `/process/`); `SetReactionType(1)` is guarded by the partial-reactions switch; registration sites mention each new class. Output: list of `{rule, file, line, message}` |
 
-Design rules:
+`project_check` is optional and comes late (M6). Rules are plain regex/glob checks
+declared per project, so it stays small; it can start with three rules taken from
+the pitfalls above.
 
-- **Two-step.** `scaffold_plan` then `scaffold_apply`. Claude can show the plan.
-- **Anchors, not regex over code.** Existing files get explicit marker comments
-  inserted once by the skeleton template (`// g4mcp:anchor actions-registered`).
-  Where a project lacks markers (hand-written like dnachem-min), the project's
-  `g4mcp.toml` declares anchors as exact-string or regex, and `scaffold_plan`
-  fails clearly if the anchor is missing or ambiguous.
-- **Layout profile** from config: `layout = "clustered"` puts `X.hh` in
-  `header/<cluster>/`, includes it as `"<cluster>/X.hh"`, and generates tests with
-  the right CMake block. `layout = "flat"` uses `include/`,`src/`.
-- **Template engine**: Jinja-like (`minijinja`), templates as data
-  (`templates/<id>/template.toml` + `*.j2`), embedded in the binary, overridable by
-  `<project>/.g4mcp/templates/<id>/`. A project can ship its own templates, e.g.
-  dnachem-min's chemistry catalogue.
-- **Never compile.** Building is out of scope for v1 (user constraint: launch
-  built apps). `build_run` may come later as an opt-in that loads the MSVC env
-  (section 6.4).
-- **Provenance**: each created file gets a one-line header only if the project
-  asks for it (dnachem-min files already have `/// \file` headers; keep Doxygen style).
+### 5.4 When to add generation after all
 
-Catalog of initial templates, in build order: `app.skeleton`, `ui.command`,
-`scoring.counter`, `scoring.primitive-scorer`, `action.stepping`,
-`action.tracking`, `action.event`, `chemistry.named-chemistry`,
-`chemistry.timestep-action`, `output.manifest`.
-
-**Skills vs MCP for this half.** Scaffolding is the half where a plain Claude
-skill (markdown recipes, which dnachem-min's `docs/recipes/` already are) gets
-most of the value. The MCP tools earn their place only for the deterministic parts:
-multi-file anchored edits, CMake/test wiring, layout awareness, post-checks. If
-that is too much machinery for the benefit, ship scaffolding as skills +
-`scaffold_check` and keep the server run-focused (open question 5).
+Only if, with recipes in context, Claude repeatedly gets a multi-file edit wrong
+(for example the CMake test target, or the registration order). The first candidates
+would be a skeleton generator and a messenger generator, as anchored insertions with
+a plan/apply step. Not designed here.
 
 ---
 
@@ -658,7 +667,7 @@ description = "..."
 [geant4]
 version      = "11.4.1"
 install      = "${G4_ROOT}"           # prefix (contains lib/cmake/Geant4, bin/)
-source       = "${DEV_DIR}/..."       # optional, read-only; used for template links and docs
+source       = "${DEV_DIR}/..."       # optional, read-only; used for recipe links and docs
 env_script   = "auto"                 # "auto" | path | "none"
 uses_dna     = true                   # makes G4LEDATA required
 env          = { }                    # explicit overrides, win over everything
@@ -734,17 +743,15 @@ time_unit = "ns"
 glob = "Reactions_nt_reactions.csv"; reader = "geant4-csv-ntuple"; role = "reactions"
 metadata = "ReactionsMetadata.csv"
 
-# Scaffolding
-[scaffold]
+# Convention checks (used by project_check only)
+[check]
 layout   = "clustered"                # | "flat"
 headers  = "header"; sources = "src"; tests = "test"
 include_prefix = "cluster"            # includes are "<cluster>/X.hh"
-clusters = ["core","actions","geometry","physics","chemistry","scoring"]
 cmake    = "CMakeLists.txt"
-test_wiring = "add_executable(${name}Test test/${name}Test.cc ${deps}) ; target_link_libraries(... ${Geant4_LIBRARIES}) ; add_test(NAME ${name}Test COMMAND ${name}Test)"
-[[scaffold.anchors]]
-id = "actions-registered"; file = "src/actions/ActionInitialization.cc"
-match = "SetUserAction(new SteppingAction());"; insert = "after"
+[[check.rules]]
+id = "portable-class-has-test"; kind = "paired-file"
+for = "src/scoring/*.cc"; expect = "test/${stem}Test.cc"; and_cmake = "add_test(NAME ${stem}Test"
 ```
 
 Rules: unknown keys are errors (typos should not silently disable a limit);
@@ -852,20 +859,21 @@ glob = "*SpeciesMesoSpatial.h5"; reader = "hdf5"; role = "meso-spatial"     # su
 [[output.files]]
 glob = "*PreChemical_run*_event*.txt"; reader = "text"; role = "prechemical"; bulk = true   # one per event; never inlined
 
-[scaffold]
+[check]
 layout = "clustered"
 headers = "header"; sources = "src"; tests = "test"
 include_prefix = "cluster"
-clusters = ["core","actions","geometry","physics","chemistry","chemistry/catalog","scoring"]
 cmake = "CMakeLists.txt"          # sources are globbed (CONFIGURE_DEPENDS); only test targets are hand-added
-test_wiring = "add_executable(${name}Test test/${name}Test.cc ${deps}) ; target_link_libraries(${name}Test ${Geant4_LIBRARIES}) ; target_include_directories(${name}Test PRIVATE ${project_include_dirs}) ; add_test(NAME ${name}Test COMMAND ${name}Test)"
-templates_dir = ".g4mcp/templates"   # project-specific: chemistry.named-chemistry registers in BuiltInChemistries.cc
-[[scaffold.anchors]]
-id = "action-register"; file = "src/actions/ActionInitialization.cc"; match = "SetUserAction(new SteppingAction());"; insert = "after"
-[[scaffold.anchors]]
-id = "chemistry-register"; file = "src/chemistry/BuiltInChemistries.cc"; match = "ChemistryRegistry::Register("; insert = "after-last"
-[[scaffold.anchors]]
-id = "scorer-register"; file = "src/geometry/DetectorConstruction.cc"; match = "mfDetector->RegisterPrimitive("; insert = "after-last"
+[[check.rules]]
+id = "portable-class-has-test"; kind = "paired-file"
+for = "src/scoring/*.cc"; expect = "test/${stem}Test.cc"; and_cmake = "add_test(NAME ${stem}Test"
+[[check.rules]]
+id = "no-generic-messenger-on-shared-dir"; kind = "forbid-pattern"
+pattern = 'G4GenericMessenger\([^)]*"/(chem|run|process)/"'      # exact shared roots only; "/chem/env/" (own new directory) does not match
+why = "ADR/recipe create-a-macro-command: a second /chem/ directory"
+[[check.rules]]
+id = "partial-reactions-guarded"; kind = "require-near"
+pattern = "SetReactionType\\(1\\)"; require = "PartialReactionsEnabled"   # window/"near" semantics to be tuned against the catalog code
 ```
 
 Notes on this instance:
@@ -933,8 +941,7 @@ Reasoning, specific to this project:
 - MSVC build tools are already on the machine, which Rust needs for the `*-msvc` target.
 
 Candidate crates: `rmcp` (the official Rust MCP SDK *[verify current API and
-version before starting]*), `tokio`, `serde`, `schemars`, `toml`, `minijinja`,
-`similar` (diffs), `csv`, `regex`, `walkdir`, `dunce`, `goblin`, `sysinfo`,
+version before starting]*), `tokio`, `serde`, `schemars`, `toml`, `csv`, `regex`, `walkdir`, `dunce`, `goblin`, `sysinfo`,
 `windows-sys`, `hdf5-metno` or similar (optional), `tracing`.
 
 Costs, honestly: the Rust MCP SDK is younger than the Python/TypeScript ones and may
@@ -961,17 +968,16 @@ parts Python is worst at distributing.
   not need Geant4 (see testing below);
 - dnachem-min's own `CLAUDE.md` and `geant4-instructions.md` already treat generic
   Geant4 infrastructure as *reusable across projects*;
-- templates and recipes evolve with Geant4 versions, independently of any project.
+- the recipe skill evolves with Geant4 versions, independently of any project.
 
 What stays **in each project** (small, versioned with the code it describes):
-`g4mcp.toml`, optional `.g4mcp/templates/` overrides, and `docs/recipes/` (the human
-form of the templates). Suggested repo layout:
+`g4mcp.toml` and `docs/recipes/` (the project-specific recipes). Suggested repo layout:
 
 ```
 g4mcp/
   crates/g4-core/        config, env discovery, job supervisor, readers (no MCP dependency)
   crates/g4mcp/          MCP server binary (serve, supervise, config validate, import-claude-project)
-  templates/             built-in scaffolds (template.toml + *.j2) and recipe text
+  skills/geant4-dna-recipes/   cross-project recipe skill (section 5)
   examples/              g4mcp.toml for dnachem-min, chem6, UHDR, dnaphysics
   tests/fixtures/        fake Geant4 apps and canned logs/outputs (no Geant4 needed)
 ```
@@ -1027,13 +1033,13 @@ single-run path works (open question 2).
 | 2 | supervisor, `run_prepare/start/status/wait/logs/cancel/list/clean`, classifier | dnachem-min `example_irt.in` smoke runs from Claude, cancel kills the tree, server restart keeps the job |
 | 3 | readers + `results_*`, `gvalues`, `run_summary` using `Manifest.json` | G-value table for a smoke run matches the CSV by hand |
 | 4 | `macro_validate`, overlay, aliases, order rules | a macro with `/scheduler/endTime` before `/run/initialize` is flagged for DM |
-| 5 | `scaffold_*` + `app.skeleton`, `ui.command`, `scoring.counter` | generated skeleton compiles in a clean Geant4 11.4.1 on Windows; the `ui.command` appears in `ui_commands` |
-| 6 | `scoring.primitive-scorer`, actions, `chemistry.named-chemistry`, `scaffold_check` | DM recipe steps reproduced by a template diff |
+| 5 | recipe skill `geant4-dna-recipes` (messenger, counter, scorer, chemistry first), `CLAUDE.md` pointer in dnachem-min | Claude, given "add a counter" and the recipe, produces the edits the DM recipe lists; a new command shows up in `ui_commands` |
+| 6 | `project_check` with three rules (paired test, shared-dir messenger, guarded `SetReactionType`) | rules fire on a deliberately broken copy and are silent on dnachem-min |
 | 7 | admission/queue, `runs_compare`, HDF5 summary, optional ROOT sidecar | decided after M2 (open question 2) |
 
 Verification of each milestone is by running it, not by reading the code: the
-M2/M3 checks use the real DM smoke macro; M5/M6 by compiling the generated files
-(on the user's machine; this environment cannot build).
+M2/M3 checks use the real DM smoke macro; M5/M6 by trying the recipes on a real
+change (compiled on the user's machine; this environment cannot build).
 
 ---
 
@@ -1049,12 +1055,12 @@ M2/M3 checks use the real DM smoke macro; M5/M6 by compiling the generated files
 | Debug/Release mix with Geant4 install | memory corruption (seen once in DM tests) | record build type per run, warn on mixes, default `role=run` build |
 | `ui_commands` runs the app: apps that block on interactive UI or do heavy init | hang | generated batch macro, short timeout, only if config says `batch_safe = true` |
 | Parsing Geant4 log text and Geant4 CSV/ROOT formats across versions | brittle summaries | patterns in config, reader unit tests with captured real files per Geant4 version, fail with "unrecognised" not wrong numbers |
-| Scaffold drifts from the project it patches | broken edits | anchors + `scaffold_plan` refuses; `scaffold_check`; templates carry the Geant4 version they target |
-| Scope creep into building / analysis / plotting | never ships | v1 = run + summarise + 4 scaffolds; build, plots, ROOT are explicit non-goals |
+| Recipes drift from the code or the Geant4 version | Claude follows stale advice | each recipe cites file paths and the Geant4 version; `project_check` rules catch the worst pitfalls; update recipes in the same PR as the code they describe |
+| Scope creep into building / analysis / plotting | never ships | v1 = run + summarise + two checks; build, plots, ROOT are explicit non-goals |
 | Rust MCP SDK churn | rework | pin; thin adapter layer; fallback hand-rolled JSON-RPC |
 | Prompt-injection via logs/macros/manifests | tool misuse | treat as data, no auto-follow, allow-list exes and commands |
 | Non-reproducibility (chemistry stepping diverges run-to-run even with the same seed; `sim.cc` comment, ADR 0005) | users expect replay | record seed and the full resolved request; `runs_compare` states when seeds/threads differ; never claim reproducibility |
-| License/attribution of copied upstream code in templates | compliance | templates derived from DM and recipes, not from Geant4 sources; keep the Geant4 license header and citation block when a template starts from an upstream file (examples ask to cite specific papers) |
+| License/attribution when recipes quote upstream code | compliance | quote short snippets with a source path, keep the Geant4 citation requirement in mind for code derived from examples |
 
 ---
 
@@ -1072,9 +1078,9 @@ M2/M3 checks use the real DM smoke macro; M5/M6 by compiling the generated files
    polled at end of event, or a signal handler that triggers an `EndOfRun_` flush),
    so cancel and timeout do not lose a long run? Otherwise the answer is "dump per
    sub-run in the macro".
-5. **Scaffolding as MCP tools or as skills**: do you want the deterministic
-   multi-file patching (this plan) or are markdown recipes plus a `scaffold_check`
-   enough? The run half does not depend on the answer.
+5. **Recipe skill**: should the cross-project skill live in the `g4mcp` repo, in your
+   dotfiles skills, or both? Should the project-specific recipes in `docs/recipes/`
+   be linked from `CLAUDE.md` with an explicit "read before adding X" rule?
 6. **ROOT**: do you read ROOT outputs from the upstream examples? If yes, are you
    willing to accept a Python sidecar (`uproot`) or should the plan restrict itself to
    CSV/HDF5/XML and push users to `SetDefaultFileType("csv")`?
@@ -1100,6 +1106,6 @@ M2/M3 checks use the real DM smoke macro; M5/M6 by compiling the generated files
     Which of your projects do link it? Should the config support such an external
     local library (extra include/link/DLL dirs) so `env_check` and `path_prepend`
     cover it, or is that out of scope?
-15. **Naming of commands in scaffolds**: for new projects, default to a project-owned
+15. **Command roots in recipes**: for new projects, default to a project-owned
     command root (`/<app>/...`) as upstream's `UHDR` does, instead of piggy-backing on
     `/chem/` and `/run/` as DM does? I suggest yes, with a warning on shared roots.
