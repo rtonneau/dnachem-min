@@ -44,13 +44,8 @@ ScoreSpecies::ScoreSpecies(G4String name, G4int depth)
       fEvtMap(0)
 {
   fNEvent = 0;
-  AddTimeToRecord(1 * CLHEP::picosecond);
-  AddTimeToRecord(10 * CLHEP::picosecond);
-  AddTimeToRecord(100 * CLHEP::picosecond);
-  AddTimeToRecord(1000 * CLHEP::picosecond);
-  AddTimeToRecord(10000 * CLHEP::picosecond);
-  AddTimeToRecord(100000 * CLHEP::picosecond);
-  AddTimeToRecord(999999 * CLHEP::picosecond);
+  // No times here: RunAction::BeginOfRunAction installs the sample-time grid
+  // (/scoring/species/..., see SpeciesSampleTimesMessenger) at every run start.
   fEdep = 0;
 }
 

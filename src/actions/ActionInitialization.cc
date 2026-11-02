@@ -9,6 +9,8 @@
 #include "actions/EventAction.hh"
 #include "actions/TrackingAction.hh"
 #include "actions/SteppingAction.hh"
+#include "scoring/SpeciesSampleTimes.hh"
+#include "scoring/SpeciesSampleTimesMessenger.hh"
 
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
@@ -76,11 +78,15 @@ void ActionInitialization::BuildMoleculeCounters() const
   G4MoleculeCounterManager::Instance()->SetResetCountersBeforeRun(true);    // defaults to false
                                                                             // Basic (built-in) Counters
   {
-    // Basic molecule counter using a fixed time precision.
+    // Basic molecule counter, its time precision matched to the
+    // /scoring/species/... sample times (at most 10 ps, finer where the
+    // sample times are closer together; independent of the end time, so it
+    // is set here, before the counter manager initialises).
     // this will create many records {molecule -> {time -> count}}
     auto counter = std::make_unique<G4MoleculeCounter>("BasicCounter");
     counter->IgnoreMolecule(G4H2O::Definition());
-    counter->SetTimeComparer(G4MoleculeCounterTimeComparer::CreateWithFixedPrecision(10 * ps));
+    counter->SetTimeComparer(G4MoleculeCounterTimeComparer::CreateWithVariablePrecision(
+        SpeciesSampleTimes::PrecisionMap(SpeciesSampleTimesMessenger::Current())));
     G4MoleculeCounterManager::Instance()->RegisterCounter(std::move(counter));
   }
   G4cout << "[ActionInitialization::BuildMoleculeCounter] End building molecule counters." << G4endl;

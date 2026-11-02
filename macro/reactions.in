@@ -18,6 +18,11 @@
 /chem/reaction/timeBinsFixed 1000 picosecond
 #/chem/reaction/timeBinsList 1 10 100 1000 picosecond
 
+# Species sample times at a fixed step (PreInit, independent of the reaction bins).
+# Mutually exclusive with timesList and timesPerDecade. Commented out: the default
+# decade times (1 ps, 10 ps, ..., 1 us) before the end time, then the end time.
+#/scoring/species/timesFixed 2 nanosecond
+
 /run/outputDir .\results
 
 /run/initialize

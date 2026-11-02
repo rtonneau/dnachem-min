@@ -11,6 +11,7 @@
 #include "scoring/DataNode.hh"
 #include "scoring/JsonWriter.hh"
 #include "scoring/RunAccumulator.hh"
+#include "scoring/SpeciesSampleTimesMessenger.hh"
 
 #include "G4Exception.hh"
 #include "G4MTRunManager.hh"
@@ -102,6 +103,36 @@ void RunManifest::RecordRun(const Run &run, double wallTime_s)
   RunAccumulator::AddRunEntry(entry);
 }
 
+namespace
+{
+  // Species sample-time setting (ns, Geant4 internal units) and the grid size
+  // of the last scoring setup.
+  DataNode SpeciesTimesNode()
+  {
+    const SpeciesSampleTimes::Setting &setting = SpeciesSampleTimesMessenger::Current();
+    DataNode node = DataNode::MakeObject();
+    switch (setting.mode)
+    {
+    case SpeciesSampleTimes::Mode::Fixed:
+      node.Add("mode", "fixed");
+      node.Add("step_ns", setting.step / CLHEP::nanosecond);
+      break;
+    case SpeciesSampleTimes::Mode::PerDecade:
+      node.Add("mode", "perDecade");
+      node.Add("perDecade", setting.perDecade);
+      break;
+    case SpeciesSampleTimes::Mode::List:
+      node.Add("mode", "list");
+      break;
+    case SpeciesSampleTimes::Mode::Default:
+      node.Add("mode", "default");
+      break;
+    }
+    node.Add("count", static_cast<long long>(SpeciesSampleTimesMessenger::LastGridSize()));
+    return node;
+  }
+} // namespace
+
 void RunManifest::Write(const G4String &prefix, const G4String &subdir,
                         const std::vector<std::string> &files)
 {
@@ -156,6 +187,7 @@ void RunManifest::Write(const G4String &prefix, const G4String &subdir,
   manifest.Add("macro", std::string(gMacroName));
   manifest.Add("chemistry", (chemistry != nullptr) ? std::string(chemistry->name) : std::string());
   manifest.Add("scavengers", scavengers);
+  manifest.Add("speciesTimes", SpeciesTimesNode());
   manifest.Add("pH", (chemistryWorld != nullptr) ? chemistryWorld->GetpH() : 7.);
   manifest.Add("halfBox_um",
                (chemistryWorld != nullptr) ? DataNode(chemistryWorld->GetHalfBox() / um) : DataNode());
